@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Prologo &#8212; documentación de Tutorial de ensamblador para ZX Spectrum - 1.0</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+    <link rel="prev" title="Welcome to Tutorial de ensamblador para ZX Spectrum’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="prologo">
+<h1>Prologo<a class="headerlink" href="#prologo" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Mucha gente se preguntará cómo es posible que, en pleno 2011, exista alguien con interés en escribir y publicar un curso sobre esta temática. Apenas un par de centenares o miles de personas en todo el mundo pueden estar realmente interesadas en la lectura de un curso como este.</p>
+<p>Sin embargo, he dedicado gran cantidad de horas a escribir y depurar este texto y sus ejemplos. ¿El motivo? Simplemente, no se me ocurre una mejor forma de concentrar en un único elemento mi pasión por el ZX Spectrum, la programación en ensamblador, el desarrollo de programas y los videojuegos.</p>
+<p>Puedo y debo decir que el ZX Spectrum cambió mi vida. Aquella tarde de viernes de 1989 en la que mis padres aparecieron por la puerta con un Spectrum +2A de segunda mano, junto a una caja llena de revistas Microhobby y cintas de juegos y programas, cambió el que hubiera sido mi futuro profesional, orientándolo hacia el mundo de la Ingeniería, la Electrónica y las Telecomunicaciones.</p>
+<p>Como todos, empecé exprimiendo el Spectrum a través de los juegos profesionales que se vendían para la popular máquina de Sinclair. En paralelo a los juegos, comencé a leer los ejemplares de las revistas Microhobby que habíamos adquirido junto al ordenador.</p>
+<p>Mi relación inicial con Microhobby fue las que supongo que tendrían muchos usuarios sin interés por la programación: directo a las páginas con análisis, fotos y notas de juegos. Como mucho, como curiosidad tecleaba alguno de los listados en BASIC de la sección de trucos, maravillándome con sencillas melodías, o psicodélicos efectos de colores con el borde.</p>
+<p>Esos listados en BASIC, tan sencillos, despertaron mi curiosidad por “cómo se hacen estos juegos”. Poco a poco se produjo el cambio: mi interés por jugar pasó a ser interés, mucho interés, por desarrollar.</p>
+<p>Microhobby fue la herramienta mediante la cual aprendí BASIC y ensamblador de Z80. Como la completa revista que era, entre sus páginas de análisis de juegos podías encontrar fantásticos artículos y listados animándote a programar pequeñas rutinas y juegos.</p>
+<p>Casi sin darme tiempo para disfrutar de lo que estaba aprendiendo, llegó el fin de la revista Microhobby y el ocaso comercial del Spectrum en España. Las consolas ocuparon el espacio lúdico del Spectrum y el PC se convirtió en la herramienta de programación estándar. El Spectrum pasó para mí al olvido hasta que la revista Micromanía publicó el emulador “SPECTRUM” de Pedro Gimeno.</p>
+<p>Este emulador, y todos los que aparecieron en la década de los 90, sirvió para que la gente no olvidara el Spectrum y todo el legado que nos había dejado.</p>
+<p>Ya a principios del siglo XXI, el Spectrum volvió a ser mi centro de atención: inicialmente, desarrollé el emulador ASpectrum con el que mejoré en gran parte mis conocimientos sobre la arquitectura del Spectrum y la programación en lenguaje ensamblador de Z80.</p>
+<p>Una vez ASpectrum fue una realidad, comencé a realizar sencillos juegos con Z88DK en C con pequeñas rutinas en ensamblador integradas en el código. Se despertó de nuevo en mí el interés por desarrollar juegos de Spectrum y de escribir tutoriales y cursos con todo lo que iba rememorando o aprendiendo.</p>
+<p>En esa época (años 2002 - 2003) se fundó Compiler Software y se editó la revista MagazineZX en el portal Speccy.org, incluyendo diversos cursos de programación en C con Z88DK y en ensamblador de Z80 con pasmo. Estos cursos, finalmente, se han ampliado y materializado en el texto que estáis leyendo.</p>
+<p>Objetivos y desarrollo del curso</p>
+<p>El objetivo principal de este curso, libro, o gran tutorial es que un lector con conocimientos básicos de programación pueda aprender fácilmente ensamblador de Z80 aplicado al desarrollo de juegos y utilidades de Spectrum.</p>
+<p>Con este curso pretendemos enseñar al lector:</p>
+<ul class="simple">
+<li><p>La arquitectura del Sinclair ZX Spectrum: se describen sus componentes internos y cómo se interrelacionan.</p></li>
+<li><p>La arquitectura del microprocesador Z80: sus registros y su juego de instrucciones.</p></li>
+<li><p>La sintaxis del lenguaje ensamblador de Z80: nmemónicos del lenguaje.</p></li>
+<li><p>Cómo utilizar el ensamblador PASMO para ensamblar nuestros programas en ASM de Z80.</p></li>
+<li><p>Acceso a los periféricos del Spectrum: Teclado, Joystick, etc.</p></li>
+<li><p>Gráficos en el Spectrum: Sprites, Fuentes de texto, Impresión de mapeados, etc.</p></li>
+<li><p>Funciones avanzadas de los modelos 128K: paginación de memoria.</p></li>
+<li><p>Rutinas auxiliares: subrutinas de carga, compresión RLE, interrupciones del procesador.</p></li>
+<li><p>Subrutinas útiles para el desarrollo de programas.</p></li>
+</ul>
+<p>Al escribirlo he intentado ponerme en la piel del programador que desea empezar con el lenguaje ensamblador, por lo que los dos primeros capítulos describen la arquitectura del Spectrum y del Z80. Los siguientes cinco capítulos tratan sobre la sintaxis del lenguaje ensamblador, donde el lector aprenderá las “piezas básicas” con las que construir programas en ensamblador para cualquier microordenador basado en el procesador Z80 de Zilog.</p>
+<p>A partir del octavo capítulo nos centramos única y exclusivamente en el Spectrum, profundizando en todas las diferentes áreas que puedan sernos de utilidad para el desarrollo de juegos o programas: lectura del teclado, temporización, impresión de gráficos, técnicas de mapeado, carga desde cinta, etc.</p>
+<p>A lo largo del texto se presentan múltiples ejemplos y rutinas para que el lector pueda verificar la teoría descrita así como utilizarlas directamente en sus propios programas.</p>
+<p>Cuando se escribe una rutina para un procesador tan “limitado” como el Z80 suelen presentarse 2 opciones: escribir una rutina comprensible, o escribir una rutina optimizada. El objetivo del curso es que el lector aprenda programación en ensamblador y por lo tanto debe de poder comprender las rutinas que se presentan, por lo que en el desarrollo de los ejemplos y las rutinas ha primado la comprensión frente a la optimización en aquellos casos en que ambas opciones chocaban.</p>
+<p>Esto no quiere decir que las rutinas no sean óptimas: al contrario, se han diseñado para que sean siempre lo más óptimas posible siempre y cuando eso no implique hacerlas incomprensibles para el lector. Aún así, un programador avanzado podrá (y deberá) darles una pequeña vuelta de tuerca adicional para exprimir ciclos de reloj a la rutina y hacerla aún un poco más rápida. Ese podría ser el objetivo del lector una vez acabado el curso y de cara al diseño de un programa.</p>
+<p>Si un lector sin conocimientos de ensamblador, tras leer el curso, acaba decidiendo programar un juego y utiliza o mejora las rutinas que se presentan en este texto, podremos decir que el curso ha conseguido su objetivo.</p>
+<p>Espero que disfrutéis tanto leyéndolo como yo escribiéndolo.</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Tutorial de ensamblador para ZX Spectrum</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Prologo</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="capítulo anterior">Welcome to Tutorial de ensamblador para ZX Spectrum’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Compiler Software.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/01_prologo/prologo.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

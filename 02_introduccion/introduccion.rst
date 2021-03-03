@@ -15,23 +15,15 @@ No importa lo elegantemente optimizado que esté nuestro programa en BASIC, el p
 BASIC tiene una serie de trucos más o menos conocidos para acelerar su ejecución: escribir muchas instrucciones en una sóla línea BASIC, poner las rutinas que más velocidad necesitan en las primeras líneas de programa, reducir el nombre (en longitud) de las variables, etc. Pero al final llegamos a un punto en que no podemos mejorar nuestros programas en cuanto a velocidad. 
 
 
-.. figure:: basic.gif
+.. figure:: basic.png
    :scale: 80 %
    :alt: El editor del intérprete de BASIC
 
    El editor del intérprete de BASIC
 
 
-
-    Revisiones antiguas
-    Enlaces a esta página
-    Exportación a ODT
-
-Tabla de Contenidos
-Introducción y conceptos básicos
-
-
 Los límites de BASIC
+---------------------------
 
 Todos aquel lector que haya programado en BASIC conocerá sin duda la principal limitación de este sencillo lenguaje de alto nivel: es lento, muy lento. A cambio de su sencillez pagamos una penalización enorme en velocidad.
 
@@ -52,7 +44,7 @@ Para muchos, el BASIC del Spectrum es un comienzo prácticamente obligado para p
 
 
 Alternativas a BASIC
-==================================
+------------------------------
 
 
 Aparte de realizar programas para el intérprete de BASIC existen múltiples alternativas para programar juegos y aplicaciones que expriman al máximo nuestra máquina: 
@@ -205,7 +197,7 @@ Además, cada nueva rutina que programemos podremos reutilizarla en futuros prog
 
 
 Por qué aprender ASM (ensamblador) de Z80
-==============================================
+------------------------------------------------
 
 Está claro que cada lenguaje tiene su campo de aplicación, y utilizar BASIC para hacer una herramienta interactiva para el usuario (con mucho tratamiento de textos, o de gráficos) o bien para hacer un programa basado en texto, o una pequeña base de datos o similar puede ser suficiente para muchos casos.
 
@@ -251,7 +243,7 @@ DECIMAL       HEXADECIMAL    BINARIO
 
 
 El código máquina del microprocesador Z80
-==========================================================
+------------------------------------------------------------
 
 
 El microprocesador Z80 (Z80A en el caso del Spectrum) es un pequeño chip de 40 pines de conexión, cada uno de las cuales está conectada a diferentes señales. Uno de los pines es la alimentación eléctrica, otro la conexión al reloj/cristal de 3.50Mhz, 8 pines suponen el bus de datos y 16 el bus de direcciones, etc. 
@@ -310,7 +302,7 @@ Recordar todos los códigos de operación del juego de instrucciones es muy comp
 
 
 El lenguaje ensamblador
-============================
+--------------------------------
 
 El lenguaje ensamblador es una "versión humana" del lenguaje máquina en la que asociamos un "nombre" (técnicamente conocido como mnenónico) a cada instrucción de 8 bits del procesador.
 
@@ -340,7 +332,7 @@ Así pues, resumiendo, lo que haremos a lo largo de este curso será aprender la
 
 
 Ejemplo: Integrar código máquina en programas BASIC
-=============================================================
+-----------------------------------------------------------
 
 Supongamos que sabemos ensamblador y queremos mejorar la velocidad de un programa BASIC utilizando una rutina en código máquina. El lector se preguntará: "¿cómo podemos hacer esto?".
 
@@ -353,7 +345,7 @@ Una vez escrito el programa o la rutina, la ensamblamos (de la manera que sea: m
 La siguiente figura muestra a título de ejemplo parte de una tabla de ensamblado manual, como la que utilizaban en la década de los 80 y 90 los programadores que no podían comprar un software ensamblador: 
 
 
-.. figure:: tablamanual.gif
+.. figure:: tablamanual.png
    :scale: 80 %
    :alt: Tabla de códigos ensamblador
 
@@ -373,7 +365,7 @@ Veamos un ejemplo de todo esto. Supongamos el siguiente programa en BASIC, que e
     20 POKE n, 162
     30 NEXT n
 
-.. figure:: 1_ejemplo1.gif
+.. figure:: 1_ejemplo1.png
    :scale: 80 %
    :alt: Patrón de pixeles del programa BASIC
 
@@ -513,7 +505,7 @@ Un ejemplo: imaginemos que realizamos una rutina que calcula el factorial de un 
 Con esto la variable de BASIC VALOR contendrá la salida de nuestra rutina (concretamente, el valor del registro BC antes de ejecutar el RET). Las rutinas sólo pueden devolver un valor (el registro BC), aunque siempre podemos (dentro de nuestra rutina BASIC) escribir valores en direcciones de memoria y leerlos después con PEEK dentro de BASIC (al igual que hacemos para pasar parámetros).
 
 Código máquina en MICROHOBBY
-================================================
+-----------------------------------------
 
 Lo que hemos visto hasta ahora es que podemos programar pequeñas rutinas y llamarlas desde programas en BASIC fácilmente. Todavía no hemos aprendido nada del lenguaje en sí mismo, pero se han asentado muchos de los conceptos necesarios para entenderlo en las próximas entregas del curso.
 
@@ -541,7 +533,7 @@ Esto grababa el bloque de código máquina en cinta (justo tras nuestro programa
 
 
 PASMO: ensamblador cruzado
-===================================
+----------------------------------------
 
 El lector se preguntará: "Ensamblar programas a mano es muy costoso y complejo, ¿cómo vamos a ensamblar los listados que veamos a lo largo del curso, o los que yo realice para ir practicando o para que sean mis propias rutinas o programas?".
 
@@ -615,7 +607,7 @@ Finalmente, si agregamos una sentencia END a nuestro programa y le agregamos la 
 El resultado del ensamblado de este ejemplo con –tapbas será directamente ejecutable en un Spectrum con un simple LOAD "". 
 
 En resumen
-================
+-----------------------
 
 En esta entrega hemos definido las bases del curso de ensamblador de Z80, comenzando por las limitaciones de BASIC y la necesidad de conocer un lenguaje más potente y rápido. Hemos visto qué aspecto tiene el código en ensamblador (aunque todavía no conozcamos la sintaxis) y, muy importante, hemos visto cómo se integra este código en ensamblador dentro de programas en BASIC.
 

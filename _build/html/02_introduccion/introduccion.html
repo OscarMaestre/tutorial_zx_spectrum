@@ -1,21 +1,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Introducción y conceptos básicos &#8212; documentación de Tutorial de ensamblador para ZX Spectrum - 1.0</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
-    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
     <link rel="index" title="Índice" href="../genindex.html" />
     <link rel="search" title="Búsqueda" href="../search.html" />
-    <link rel="prev" title="Prologo" href="../01_prologo/prologo.html" />
+    <link rel="prev" title="Prólogo" href="../01_prologo/prologo.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -41,20 +41,13 @@
 <p>Eso implica que cada vez que se ejecuta el programa BASIC, para cada línea del programa se ejecuta un proceso de lectura, decodificación, traducción y ejecución. Este proceso es lento e implica que no sólo se está ejecutando nuestro programa sino que debajo de él tenemos al intérprete de BASIC realizando todas estas tareas y restándonos parte de la potencia de CPU del Spectrum, que ya de por sí no es especialmente potente.</p>
 <p>No importa lo elegantemente optimizado que esté nuestro programa en BASIC, el proceso de interpretación en sí hará que se ejecute con una lentitud que no podemos salvar.</p>
 <p>BASIC tiene una serie de trucos más o menos conocidos para acelerar su ejecución: escribir muchas instrucciones en una sóla línea BASIC, poner las rutinas que más velocidad necesitan en las primeras líneas de programa, reducir el nombre (en longitud) de las variables, etc. Pero al final llegamos a un punto en que no podemos mejorar nuestros programas en cuanto a velocidad.</p>
-<div class="figure align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/basic.gif"><img alt="El editor del intérprete de BASIC" src="../_images/basic.gif" style="width: 255.20000000000002px; height: 187.20000000000002px;" /></a>
-<p class="caption"><span class="caption-text">El editor del intérprete de BASIC</span><a class="headerlink" href="#id1" title="Enlace permanente a esta imagen">¶</a></p>
-<div class="legend">
-<blockquote>
-<div><p>Revisiones antiguas
-Enlaces a esta página
-Exportación a ODT</p>
-</div></blockquote>
+<div class="figure align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/basic.png"><img alt="El editor del intérprete de BASIC" src="../_images/basic.png" style="width: 255.20000000000002px; height: 187.20000000000002px;" /></a>
+<p class="caption"><span class="caption-text">El editor del intérprete de BASIC</span><a class="headerlink" href="#id2" title="Enlace permanente a esta imagen">¶</a></p>
 </div>
 </div>
-<p>Tabla de Contenidos
-Introducción y conceptos básicos</p>
-<p>Los límites de BASIC</p>
+<div class="section" id="id1">
+<h2>Los límites de BASIC<a class="headerlink" href="#id1" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Todos aquel lector que haya programado en BASIC conocerá sin duda la principal limitación de este sencillo lenguaje de alto nivel: es lento, muy lento. A cambio de su sencillez pagamos una penalización enorme en velocidad.</p>
 <p>BASIC es un lenguaje interpretado, lo que quiere decir que el Spectrum (más bien el intérprete BASIC integrado en la ROM) tiene que leer línea a línea nuestro programa, decodificar lo que estamos diciendo en lenguaje BASIC, traducirlo a instrucciones comprensibles por el procesador y ejecutarlo, todo ello en tiempo real.</p>
 <p>Eso implica que cada vez que se ejecuta el programa BASIC, para cada línea del programa se ejecuta un proceso de lectura, decodificación, traducción y ejecución. Este proceso es lento e implica que no sólo se está ejecutando nuestro programa sino que debajo de él tenemos al intérprete de BASIC realizando todas estas tareas y restándonos parte de la potencia de CPU del Spectrum, que ya de por sí no es especialmente potente.</p>
@@ -64,10 +57,10 @@ Introducción y conceptos básicos</p>
 El editor del intérprete de BASIC</p>
 <p>Para muchos, el BASIC del Spectrum es un comienzo prácticamente obligado para programar, pero si queremos realizar programas con la calidad del software comercial no puede ser la herramienta a utilizar. Dejando de lado que sigue siendo una herramienta muy útil para programar en el Spectrum, para muchos llega la hora de dar el siguiente paso.</p>
 </div>
-</div>
 <div class="section" id="alternativas-a-basic">
-<h1>Alternativas a BASIC<a class="headerlink" href="#alternativas-a-basic" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>Alternativas a BASIC<a class="headerlink" href="#alternativas-a-basic" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Aparte de realizar programas para el intérprete de BASIC existen múltiples alternativas para programar juegos y aplicaciones que expriman al máximo nuestra máquina:</p>
+</div>
 <div class="section" id="subrutinas-en-ensamblador-dentro-de-un-programa-basic">
 <h2>Subrutinas en ensamblador dentro de un programa BASIC<a class="headerlink" href="#subrutinas-en-ensamblador-dentro-de-un-programa-basic" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Para empezar, como primera opción, podemos realizar pequeñas rutinas en ensamblador y utilizarlas desde nuestros programas en BASIC. El lenguaje ensamblador se trata del lenguaje más cercano a lo que es el código binario que entiende directamente un microprocesador. Es de bajo nivel, es decir, está más lejos del lenguaje humano de lo que está BASIC, y a la vez está muy cerca del lenguaje que entiende el microprocesador de nuestro Spectrum.</p>
@@ -163,9 +156,8 @@ El editor del intérprete de BASIC</p>
 <p>Obviamente, no tendremos que escribir miles de rutinas antes de poder programar cualquier cosa: existen rutinas ya disponibles que podemos aprovechar. En Internet, en revistas Microhobby, en libros de programación de Z80, en la ROM del Spectrum, encontraremos rutinas listas para utilizar y que nos permitirán multiplicar, dividir, imprimir cadenas de texto, y muchas otras cosas.</p>
 <p>Además, cada nueva rutina que programemos podremos reutilizarla en futuros programas, por lo que el inicio es duro pero a partir de cierto momento dispondremos de bibliotecas de rutinas que podremos integrar en nuestros programas para reducir el tiempo de desarrollo.</p>
 </div>
-</div>
 <div class="section" id="por-que-aprender-asm-ensamblador-de-z80">
-<h1>Por qué aprender ASM (ensamblador) de Z80<a class="headerlink" href="#por-que-aprender-asm-ensamblador-de-z80" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>Por qué aprender ASM (ensamblador) de Z80<a class="headerlink" href="#por-que-aprender-asm-ensamblador-de-z80" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Está claro que cada lenguaje tiene su campo de aplicación, y utilizar BASIC para hacer una herramienta interactiva para el usuario (con mucho tratamiento de textos, o de gráficos) o bien para hacer un programa basado en texto, o una pequeña base de datos o similar puede ser suficiente para muchos casos.</p>
 <p>Donde realmente tiene interés la programación en lenguaje ensamblador es en la creación de determinadas rutinas, programas o juegos orientados a exprimir el hardware de la máquina, es decir: aquellos programas orientados a escribir rápidamente gráficos en pantalla, reproducir música, o controlar el teclado con gran precisión. Nos estamos refiriendo principalmente a los juegos.</p>
 <p>Ensamblador es el lenguaje ideal para programar juegos que requieran gran velocidad de ejecución. Como veremos en el futuro, dibujar en pantalla se reduce a escribir valores en memoria (en una zona concreta de la memoria). Leer del teclado se reduce a leer los valores que hay en determinados puertos de entrada/salida de la CPU, y la reproducción de música se realiza mediante escrituras en otros puertos. Para realizar esto se requiere mucha sincronización y un control total de la máquina, y esto es lo que nos ofrece ensamblador.</p>
@@ -232,11 +224,11 @@ El editor del intérprete de BASIC</p>
 </table>
 </div>
 <div class="section" id="el-codigo-maquina-del-microprocesador-z80">
-<h1>El código máquina del microprocesador Z80<a class="headerlink" href="#el-codigo-maquina-del-microprocesador-z80" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>El código máquina del microprocesador Z80<a class="headerlink" href="#el-codigo-maquina-del-microprocesador-z80" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>El microprocesador Z80 (Z80A en el caso del Spectrum) es un pequeño chip de 40 pines de conexión, cada uno de las cuales está conectada a diferentes señales. Uno de los pines es la alimentación eléctrica, otro la conexión al reloj/cristal de 3.50Mhz, 8 pines suponen el bus de datos y 16 el bus de direcciones, etc.</p>
-<div class="figure align-default" id="id2">
+<div class="figure align-default" id="id3">
 <a class="reference internal image-reference" href="../_images/z80a.jpg"><img alt="El microprocesador Z80" src="../_images/z80a.jpg" style="width: 320.0px; height: 167.20000000000002px;" /></a>
-<p class="caption"><span class="caption-text">El microprocesador Z80</span><a class="headerlink" href="#id2" title="Enlace permanente a esta imagen">¶</a></p>
+<p class="caption"><span class="caption-text">El microprocesador Z80</span><a class="headerlink" href="#id3" title="Enlace permanente a esta imagen">¶</a></p>
 </div>
 <p>Estas «patillas» de datos y direcciones están físicamente conectadas a través de pistas eléctricas a la memoria, el teclado, el cassette, etc. Utilizando las patillas de direcciones el procesador selecciona «posiciones de memoria» en la memoria, y recibe las instrucciones de los programas a través de las 8 señales del bus de datos.</p>
 <p>Una señal (el estado de cada una de las patillas del micro en un instante concreto) puede tener 2 estados: sin tensión eléctrica (0 Voltios físicos, o señal lógica «0»), o con tensión eléctrica (5 Voltios físicos, o señal lógica «1»). El procesador recibe a través de las 8 patillas del bus de datos 8 señales que conforman una ristra de unos y ceros como puedan serlo 01000100 o 11001100, por ejemplo.</p>
@@ -287,7 +279,7 @@ El editor del intérprete de BASIC</p>
 <p>Recordar todos los códigos de operación del juego de instrucciones es muy complejo y la programación en base a utilizar ristras de números es prácticamente inmanejable. Debido a esta complejidad y dificultad, nunca se programa directamente en código máquina sino que se realiza en <strong>lenguaje ensamblador</strong>.</p>
 </div>
 <div class="section" id="el-lenguaje-ensamblador">
-<h1>El lenguaje ensamblador<a class="headerlink" href="#el-lenguaje-ensamblador" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>El lenguaje ensamblador<a class="headerlink" href="#el-lenguaje-ensamblador" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>El lenguaje ensamblador es una «versión humana» del lenguaje máquina en la que asociamos un «nombre» (técnicamente conocido como mnenónico) a cada instrucción de 8 bits del procesador.</p>
 <p>Así, en lugar de definir la suma de A = A + B como <strong>«001010000»</strong>, la definimos como <strong>«ADD A, B»</strong>, lo cual es mucho más legible e intuitivo a la hora de programar y depurar y sigue siendo igual de compacto, existiendo una correspondencia exacta de 1 instrucción ASM = 1 instrucción en código máquina.</p>
 <p>De esta forma, podemos programar utilizando un conjunto de instrucciones en lenguaje «humano», que no llegan a ser tan especializadas y de tanto alto nivel como en BASIC ya que el objetivo del lenguaje ensamblador es dotar de un nombre «legible» a cada microinstrucción disponible en el procesador.</p>
@@ -303,15 +295,15 @@ El editor del intérprete de BASIC</p>
 <p>Así pues, resumiendo, lo que haremos a lo largo de este curso será aprender la arquitectura interna del Spectrum, su funcionamiento a nivel de CPU, y los fundamentos de su lenguaje ensamblador, con el objetivo de programar rutinas que integraremos en nuestros programas BASIC, o bien programas completos en ensamblador que serán totalmente independientes del lenguaje BASIC.</p>
 </div>
 <div class="section" id="ejemplo-integrar-codigo-maquina-en-programas-basic">
-<h1>Ejemplo: Integrar código máquina en programas BASIC<a class="headerlink" href="#ejemplo-integrar-codigo-maquina-en-programas-basic" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>Ejemplo: Integrar código máquina en programas BASIC<a class="headerlink" href="#ejemplo-integrar-codigo-maquina-en-programas-basic" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Supongamos que sabemos ensamblador y queremos mejorar la velocidad de un programa BASIC utilizando una rutina en código máquina. El lector se preguntará: «¿cómo podemos hacer esto?».</p>
 <p>La integración de rutinas en código máquina dentro de programas BASIC se realiza a grandes rasgos de la siguiente forma:</p>
 <p>Primero escribimos nuestra rutina en ensamblador, por ejemplo una rutina que realiza un borrado de la pantalla mucho más rápidamente que realizarlo en BASIC, o una rutina de impresión de Sprites o gráficos, etc.</p>
 <p>Una vez escrito el programa o la rutina, la ensamblamos (de la manera que sea: manualmente o mediante un programa ensamblador) y obtenemos en lugar del código ASM una serie de valores numéricos que representan los códigos de instrucción en código máquina que se corresponden con nuestro listado ASM.</p>
 <p>La siguiente figura muestra a título de ejemplo parte de una tabla de ensamblado manual, como la que utilizaban en la década de los 80 y 90 los programadores que no podían comprar un software ensamblador:</p>
-<div class="figure align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/tablamanual.gif"><img alt="Tabla de códigos ensamblador" src="../_images/tablamanual.gif" style="width: 441.6px; height: 309.6px;" /></a>
-<p class="caption"><span class="caption-text">Tabla de códigos ensamblador</span><a class="headerlink" href="#id3" title="Enlace permanente a esta imagen">¶</a></p>
+<div class="figure align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/tablamanual.png"><img alt="Tabla de códigos ensamblador" src="../_images/tablamanual.png" style="width: 441.6px; height: 309.6px;" /></a>
+<p class="caption"><span class="caption-text">Tabla de códigos ensamblador</span><a class="headerlink" href="#id4" title="Enlace permanente a esta imagen">¶</a></p>
 </div>
 <p>Utilizando la anterior tabla, o bien un programa ensamblador, transformamos nuestro programa ensamblador en código máquina.</p>
 <p>Tras el proceso de ensamblado y la obtención del código máquina, nuestro programa en BASIC debe cargar esos valores en memoria (mediante LOAD «» CODE o mediante instrucciones POKE) y después saltar a la dirección donde hemos POKEADO la rutina para ejecutarla.</p>
@@ -321,9 +313,9 @@ El editor del intérprete de BASIC</p>
 <span class="nl">30</span><span class="w"> </span><span class="kr">NEXT</span><span class="w"> </span><span class="vg">n</span>
 </pre></div>
 </div>
-<div class="figure align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/1_ejemplo1.gif"><img alt="Patrón de pixeles del programa BASIC" src="../_images/1_ejemplo1.gif" style="width: 235.20000000000002px; height: 184.0px;" /></a>
-<p class="caption"><span class="caption-text">Patrón de pixeles del programa BASIC</span><a class="headerlink" href="#id4" title="Enlace permanente a esta imagen">¶</a></p>
+<div class="figure align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/1_ejemplo1.png"><img alt="Patrón de pixeles del programa BASIC" src="../_images/1_ejemplo1.png" style="width: 235.20000000000002px; height: 184.0px;" /></a>
+<p class="caption"><span class="caption-text">Patrón de pixeles del programa BASIC</span><a class="headerlink" href="#id5" title="Enlace permanente a esta imagen">¶</a></p>
 </div>
 <p>Tras teclear y ejecutar el programa, si medimos el tiempo necesario para «pintar» toda la pantalla obtendremos que tarda aproximadamente 1 minuto y 15 segundos.</p>
 <p>A continuación vamos a ver el mismo programa escrito en lenguaje ensamblador:</p>
@@ -432,14 +424,14 @@ El editor del intérprete de BASIC</p>
 <p>Con esto la variable de BASIC VALOR contendrá la salida de nuestra rutina (concretamente, el valor del registro BC antes de ejecutar el RET). Las rutinas sólo pueden devolver un valor (el registro BC), aunque siempre podemos (dentro de nuestra rutina BASIC) escribir valores en direcciones de memoria y leerlos después con PEEK dentro de BASIC (al igual que hacemos para pasar parámetros).</p>
 </div>
 <div class="section" id="codigo-maquina-en-microhobby">
-<h1>Código máquina en MICROHOBBY<a class="headerlink" href="#codigo-maquina-en-microhobby" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>Código máquina en MICROHOBBY<a class="headerlink" href="#codigo-maquina-en-microhobby" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Lo que hemos visto hasta ahora es que podemos programar pequeñas rutinas y llamarlas desde programas en BASIC fácilmente. Todavía no hemos aprendido nada del lenguaje en sí mismo, pero se han asentado muchos de los conceptos necesarios para entenderlo en las próximas entregas del curso.</p>
 <p>En realidad, muchos de nosotros hemos introducido código máquina en nuestros Spectrums sin saberlo, cuando tecleabamos los listados de programa que venían en la fabulosa revista Microhobby. Muchos de los programas nos hacían introducir código máquina, aunque no lo pareciera.</p>
 <p>Algunas veces lo hacíamos en forma de DATAs, integrados en el programa BASIC que estábamos tecleando, pero otras lo hacíamos mediante el famoso Cargador Universal de Código Máquina (CUCM).</p>
 <p>Para que os hagáis una idea de qué era el CUCM de Microhobby, no era más que un programa en el cual tecleabamos los códigos binarios de rutinas ASM ensambladas previamente. Se tecleaba una larga línea de números en hexadecimal agrupados juntos (ver la siguiente figura), y cada 10 bytes o pares de dígitos se debía introducir un número a modo de CRC que aseguraba que los 10 dígitos (20 caracteres) anteriores habían sido introducidos correctamente. Este CRC podía no ser más que la suma de todos los valores anteriores, para asegurarse de que no habíamos tecleado incorrectamente el listado.</p>
-<div class="figure align-default" id="id5">
+<div class="figure align-default" id="id6">
 <a class="reference internal image-reference" href="../_images/cucm.jpg"><img alt="Un listado para el cargador universal de código máquina" src="../_images/cucm.jpg" style="width: 230.4px; height: 201.60000000000002px;" /></a>
-<p class="caption"><span class="caption-text">Un listado para el cargador universal de código máquina</span><a class="headerlink" href="#id5" title="Enlace permanente a esta imagen">¶</a></p>
+<p class="caption"><span class="caption-text">Un listado para el cargador universal de código máquina</span><a class="headerlink" href="#id6" title="Enlace permanente a esta imagen">¶</a></p>
 </div>
 <p>Al acabar la introducción en todo el listado en el CUCM, se nos daba la opción de grabarlo. Al grabarlo indicábamos el tamaño de la rutina en bytes y la dirección donde la ibamos a alojar en memoria (en el ejemplo de la captura, la rutina se alojaría en la dirección 53000 y tenía 115 bytes de tamaño). El CUCM todo lo que hacía era un simple:</p>
 <div class="highlight-basic notranslate"><div class="highlight"><pre><span></span><span class="vg">SAVE</span><span class="w"> </span><span class="s2">&quot;DATOS.BIN&quot;</span><span class="w"> </span><span class="vg">CODE</span><span class="w"> </span><span class="il">53000</span><span class="p">,</span><span class="w"> </span><span class="il">115</span>
@@ -448,13 +440,14 @@ El editor del intérprete de BASIC</p>
 <p>Esto grababa el bloque de código máquina en cinta (justo tras nuestro programa en BASIC), de forma que el juego en algún momento cargaba esta rutina con LOAD «» CODE, y podía utilizarla mediante un RANDOMIZE USR 53000.</p>
 </div>
 <div class="section" id="pasmo-ensamblador-cruzado">
-<h1>PASMO: ensamblador cruzado<a class="headerlink" href="#pasmo-ensamblador-cruzado" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>PASMO: ensamblador cruzado<a class="headerlink" href="#pasmo-ensamblador-cruzado" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>El lector se preguntará: «Ensamblar programas a mano es muy costoso y complejo, ¿cómo vamos a ensamblar los listados que veamos a lo largo del curso, o los que yo realice para ir practicando o para que sean mis propias rutinas o programas?».</p>
 <p>Sencillo: lo haremos con pasmo, un programa ensamblador cruzado. Pasmo nos permitirá programar en un PC o MAC (utilizando nuestro editor de textos habitual), y después ensamblar ese fichero .asm que hemos realizado, obteniendo un fichero .BIN (o directamente un .TAP).</p>
 <p>Los programadores «originales» en la época del Spectrum tenían que utilizar programas ensamblador nativos como MONS y GENS para todo el proceso de desarrollo. Estos programas (que corren sobre el Spectrum) implicaban teclear los programas en el teclado del Spectrum, grabarlos en cinta, ensamblar y grabar el resultado en cinta, etc. Actualmente es mucho más cómodo usar ensambladores cruzados como los que usaremos en nuestro curso.</p>
 <p>Nuestra opción preferente como ensamblador cruzado es Pasmo. Pasmo es un ensamblador cruzado, opensource y multiplataforma. Con Pasmo podremos programar en nuestro PC, grabar un fichero ASM y ensamblarlo cómodamente, sin cintas de por medio. Tras todo el proceso de desarrollo, podremos llevar el programa resultante a una cinta (o disco) y ejecutarlo por lo tanto en un Spectrum real, pero lo que es el proceso de desarrollo se realiza en un PC, con toda la comodidad que eso conlleva.</p>
 <p>Pasmo en su versión para Windows/DOS es un simple ejecutable (pasmo.exe) acompañado de ficheros README de información. Podemos mover el fichero pasmo.exe a cualquier directorio que esté en el PATH o directamente ensamblar programas (siempre desde la línea de comandos o CMD, no directamente mediante «doble click» al ejecutable) en el directorio en el que lo tengamos copiado.</p>
 <p>La versión para Linux viene en formato código fuente (y se compila con un simple make) y su binario «pasmo» lo podemos copiar, por ejemplo, en /usr/local/bin.</p>
+</div>
 <div class="section" id="generando-codigo-binario-para-programas-basic">
 <h2>Generando código binario para programas BASIC<a class="headerlink" href="#generando-codigo-binario-para-programas-basic" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Iremos viendo el uso de pasmo conforme lo vayamos utilizando, pero a título de ejemplo, veamos cómo se ensamblaría el programa que vimos en el apartado de integración de BASIC y ASM. Primero tecleamos el programa en un fichero de texto y después pasmo para ensamblarlo:</p>
@@ -502,11 +495,11 @@ El editor del intérprete de BASIC</p>
 </div>
 <p>El resultado del ensamblado de este ejemplo con –tapbas será directamente ejecutable en un Spectrum con un simple LOAD «».</p>
 </div>
-</div>
 <div class="section" id="en-resumen">
-<h1>En resumen<a class="headerlink" href="#en-resumen" title="Enlazar permanentemente con este título">¶</a></h1>
+<h2>En resumen<a class="headerlink" href="#en-resumen" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>En esta entrega hemos definido las bases del curso de ensamblador de Z80, comenzando por las limitaciones de BASIC y la necesidad de conocer un lenguaje más potente y rápido. Hemos visto qué aspecto tiene el código en ensamblador (aunque todavía no conozcamos la sintaxis) y, muy importante, hemos visto cómo se integra este código en ensamblador dentro de programas en BASIC.</p>
 <p>Por último, hemos conocido una utilidad (pasmo) que nos permitirá, a lo largo del curso, ensamblar todos los programas que realicemos, así como probarlos en un emulador o integrar rutinas en nuestros programas BASIC.</p>
+</div>
 </div>
 
 
@@ -528,36 +521,33 @@ El editor del intérprete de BASIC</p>
 <h3>Navegación</h3>
 <p class="caption"><span class="caption-text">Contenidos:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../01_prologo/prologo.html">Prologo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_prologo/prologo.html">Prólogo</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introducción y conceptos básicos</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#los-limites-de-basic">Los límites de BASIC</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#alternativas-a-basic">Alternativas a BASIC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Los límites de BASIC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alternativas-a-basic">Alternativas a BASIC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subrutinas-en-ensamblador-dentro-de-un-programa-basic">Subrutinas en ensamblador dentro de un programa BASIC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compilando-el-programa-basic-con-un-compilador">Compilando el programa BASIC con un compilador</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#programando-en-lenguaje-c">Programando en Lenguaje C</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#realizando-el-programa-completo-en-ensamblador">Realizando el programa completo en ensamblador.</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#por-que-aprender-asm-ensamblador-de-z80">Por qué aprender ASM (ensamblador) de Z80</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#el-codigo-maquina-del-microprocesador-z80">El código máquina del microprocesador Z80</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#el-lenguaje-ensamblador">El lenguaje ensamblador</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#ejemplo-integrar-codigo-maquina-en-programas-basic">Ejemplo: Integrar código máquina en programas BASIC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#codigo-maquina-en-microhobby">Código máquina en MICROHOBBY</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pasmo-ensamblador-cruzado">PASMO: ensamblador cruzado</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#por-que-aprender-asm-ensamblador-de-z80">Por qué aprender ASM (ensamblador) de Z80</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#el-codigo-maquina-del-microprocesador-z80">El código máquina del microprocesador Z80</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#el-lenguaje-ensamblador">El lenguaje ensamblador</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ejemplo-integrar-codigo-maquina-en-programas-basic">Ejemplo: Integrar código máquina en programas BASIC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#codigo-maquina-en-microhobby">Código máquina en MICROHOBBY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pasmo-ensamblador-cruzado">PASMO: ensamblador cruzado</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generando-codigo-binario-para-programas-basic">Generando código binario para programas BASIC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generando-un-binario-desde-un-programa-integramente-en-ensamblador">Generando un binario desde un programa íntegramente en ensamblador</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#en-resumen">En resumen</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#en-resumen">En resumen</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../01_prologo/prologo.html" title="capítulo anterior">Prologo</a></li>
+      <li>Previous: <a href="../01_prologo/prologo.html" title="capítulo anterior">Prólogo</a></li>
   </ul></li>
 </ul>
 </div>
@@ -570,7 +560,7 @@ El editor del intérprete de BASIC</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -587,7 +577,7 @@ El editor del intérprete de BASIC</p>
       &copy;2021, Compiler Software.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

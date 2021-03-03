@@ -1,4 +1,4 @@
-Prologo
+Prólogo
 ==================
 
 Mucha gente se preguntará cómo es posible que, en pleno 2011, exista alguien con interés en escribir y publicar un curso sobre esta temática. Apenas un par de centenares o miles de personas en todo el mundo pueden estar realmente interesadas en la lectura de un curso como este.
@@ -27,6 +27,7 @@ En esa época (años 2002 - 2003) se fundó Compiler Software y se editó la rev
 
 
 Objetivos y desarrollo del curso
+------------------------------------------------
 
 El objetivo principal de este curso, libro, o gran tutorial es que un lector con conocimientos básicos de programación pueda aprender fácilmente ensamblador de Z80 aplicado al desarrollo de juegos y utilidades de Spectrum.
 

@@ -12,6 +12,7 @@ Tutorial de ensamblador para ZX Spectrum
 
    01_prologo/prologo.rst
    02_introduccion/introduccion.rst
+   03_arquitectura/arquitectura.rst
 
 Indices y tablas
 ==================

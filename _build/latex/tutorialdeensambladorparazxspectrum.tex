@@ -76,7 +76,7 @@
 
 
 \title{Tutorial de ensamblador para ZX Spectrum}
-\date{04 de marzo de 2021}
+\date{05 de marzo de 2021}
 \release{1.0}
 \author{Compiler Software}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -1705,6 +1705,653 @@ Hemos visto cómo funciona internamente nuestro ordenador Spectrum y el micropro
 
 \section{Arquitectura del Z80 e Instrucciones básicas}
 \label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:arquitectura-del-z80-e-instrucciones-basicas}}
+En este capítulo explicaremos la sintaxis utilizada en los programas en ensamblador. Para ello comenzaremos con una definición general de la sintaxis para el ensamblador Pasmo, que será el «traductor» que usaremos entre el lenguaje ensamblador y el código máquina del Z80.
+
+Posteriormente veremos en detalle los registros: qué registros hay disponibles, cómo se agrupan, y el registro especial de Flags, enlazando el uso de estos registros con las instrucciones de carga, de operaciones aritméticas, y de manejo de bits, que serán las que trataremos hoy.
+
+Esta entrega del curso es delicada y complicada: por un lado, tenemos que explicar las normas y sintaxis del ensamblador cruzado PASMO antes de que conozcamos la sintaxis del lenguaje ensamblador en sí, y por el otro, no podremos utilizar PASMO hasta que conozcamos la sintaxis del lenguaje.
+
+Además, el lenguaje ensamblador tiene disponibles muchas instrucciones diferentes, y nos resultaría imposible explicarlas todas en un mismo capítulo, lo que nos fuerza a explicar las instrucciones del microprocesador en varias entregas. Esto implica que hablaremos de PASMO comentando reglas, opciones de instrucciones y directivas que todavía no conocemos.
+
+Es por esto que recomendamos al lector que, tras releer anteriores capítulos de este libro, se tome esta entrega de una manera especial, leyéndola 2 veces. La «segunda pasada» sobre el texto permitirá enlazar todos los conocimientos dispersos en el mismo, y que no pueden explicarse de una manera lineal porque están totalmente interrelacionados. Además, la parte relativa a la sintaxis de PASMO será una referencia obligada para posteriores capítulos (mientras continuemos viendo diferentes instrucciones ASM y ejemplos).
+
+
+\section{Sintaxis del lenguaje ASM en PASMO}
+\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:sintaxis-del-lenguaje-asm-en-pasmo}}
+En anteriores capítulos ya hablamos de PASMO, el ensamblador cruzado que recomendamos para el desarrollo de programas para Spectrum. Este ensamblador traduce nuestros ficheros de texto .asm con el código fuente de programa (en lenguaje ensamblador) a ficheros .bin (o .tap/.tzx) que contendrán el código máquina directamente ejecutable por el Spectrum.
+
+Supondremos para el resto del capítulo que ya tenéis instalado PASMO (ya sea la versión Windows o la de UNIX/Linux) en vuestro sistema y que sabéis utilizarlo de forma básica (bastará con saber realizar un simple ensamblado de programa, como ya vimos en el primer capítulo), y que podéis ejecutarlo dentro del directorio de trabajo que habéis elegido.
+
+El ciclo de desarrollo con PASMO será el siguiente:
+\begin{itemize}
+\item {} 
+Con un editor de texto, tecleamos nuestro programa en un fichero .ASM con la sintaxis que veremos a continuación.
+
+\item {} 
+Salimos del editor de texto y ensamblamos el programa:
+\begin{itemize}
+\item {} 
+Si queremos generar un fichero .bin de código objeto cuyo contenido POKEar en memoria (o cargar con LOAD «» CODE) desde un cargador BASIC, lo ensamblamos con: «pasmo ejemplo1.asm ejemplo1.bin»
+
+\item {} 
+Si queremos generar un fichero .tap directamente ejecutable (de forma que sea pasmo quien añada el cargador BASIC), lo ensamblamos con «pasmo \textendash{}tapbas ejemplo1.asm ejemplo1.tap»
+
+\end{itemize}
+
+\end{itemize}
+
+Todo esto se mostró bastante detalladamente en su momento en el primer capítulo del curso.
+
+Con esto, ya sabemos ensamblar programas creados adecuadamente, de modo que la pregunta es: ¿cómo debo escribir mi programa para que PASMO pueda ensamblarlo?
+
+Es sencillo: escribiremos nuestro programa en un fichero de texto con extensión .asm. En este fichero de texto se ignorarán las líneas en blanco y los comentarios, que en ASM de Z80 se introducen con el símbolo «;» (punto y coma), de forma que todo lo que el ensamblador encuentre a la derecha de un ; será ignorado (siempre que no forme parte de una cadena). Ese fichero de texto será ensamblado por PASMO y convertido en código binario.
+
+Lo que vamos a ver a continuación son las normas que debe cumplir un programa para poder ser ensamblado en PASMO. Es necesario explicar estas reglas para que el lector pueda consultarlas en el futuro, cuando esté realizando sus propios programas. No te preocupes si no entiendes alguna de las reglas, cuando llegues al momento de implementar tus primeras rutinas, las siguientes normas te serán muy útiles:
+\begin{itemize}
+\item {} \begin{description}
+\item[{Normas para las instrucciones:}] \leavevmode\begin{itemize}
+\item {} 
+Pondremos una sóla instrucción de ensamblador por línea.
+
+\item {} 
+Como existen diferencias entre los «fin de línea» entre Linux y Windows, es recomendable que los programas se ensamblen con PASMO en la misma plataforma de S.O. en que se han escrito. Si PASMO intenta compilar en Windows un programa ASM escrito en un editor de texto de Linux (con retornos de carro de Linux) es posible que obtengamos errores de ensamblado (aunque no es seguro). * Si os ocurre al compilar los ejemplos que os proporcionamos (están escritos en Linux) y usáis Windows, lo mejor es abrir el fichero .ASM con notepad y grabarlo de nuevo (lo cual lo salvará con formato de retornos de carro de Windows). El fichero «regrabado» con Notepad podrá ser ensamblado en Windows sin problemas.
+
+\item {} 
+Además de una instrucción, en una misma línea podremos añadir etiquetas (para referenciar a dicha línea, algo que veremos posteriormente) y comentarios (con “;”).
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Normas para los valores numéricos:}] \leavevmode\begin{itemize}
+\item {} 
+Todos los valores numéricos se considerarán, por defecto, escritos en decimal.
+
+\item {} 
+Para introducir valores números en hexadecimal los precederemos del carácter «\$», y para escribir valores numéricos en binario lo haremos mediante el carácter «\%».
+
+\item {} 
+Podremos también especificar la base del literal poniendoles como prefijo las cadena \&H ó 0x (para hexadecimal) o \&O (para octal).
+
+\item {} 
+Podemos especificar también los números mediante sufijos: Usando una «H» para hexadecimal, «D» para decimal, «B» para binario u «O» para octal (tanto mayúsculas como minúsculas).
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Normas para cadenas de texto:}] \leavevmode\begin{itemize}
+\item {} 
+Podemos separar las cadenas de texto mediante comillas simples o dobles.
+
+\item {} 
+El texto encerrado entre comillas simples no recibe ninguna interpretación, excepto si se encuentran 2 comillas simples consecutivas, que sirven para introducir una comilla simple en la cadena.
+
+\item {} 
+El texto encerrado entre comillas dobles permite introducir caracteres especiales al estilo de C/C++ como n, r o t (nueva línea, retorno de carro, tabulador…).
+
+\item {} 
+El texto encerrado entre comillas dobles también admite xNN para introducir el carácter correspondiente a un número hexadecimal NN.
+
+\item {} 
+Una cadena de texto de longitud 1 (un carácter) puede usarse como una constante (valor ASCII del carácter) en expresiones como, por ejemplo, “C”+10h.
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Normas para los nombres de ficheros:}] \leavevmode\begin{itemize}
+\item {} 
+Si vemos que nuestro programa se hace muy largo y por lo tanto incómodo para editarlo, podemos partir el fichero en varios ficheros e incluirlos mediante directivas INCLUDE (para incluir ficheros ASM) o INCBIN (para incluir código máquina ya compilado). Al especificar nombres de ficheros, deberán estar entre dobles comillas o simples comillas.
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Normas para los identificadores:}] \leavevmode\begin{itemize}
+\item {} 
+Los identificadores son los nombres usados para etiquetas y también los símbolos definidos mediante EQU y DEFL.
+
+\item {} 
+Podemos utilizar cualquier cadena de texto, excepto los nombres de las palabras reservadas de ensamblador.
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Normas para las etiquetas:}] \leavevmode\begin{itemize}
+\item {} 
+Una etiqueta es un identificador de texto que ponemos poner al principio de cualquier línea de nuestro programa, por ejemplo: «bucle:»
+
+\item {} 
+Podemos añadir el tradicional sufijo «:» a las etiquetas, pero también es posible no incluirlo si queremos compatibilidad con otros ensambladores que no lo soporten (por si queremos ensamblar nuestro programa con otro ensamblador que no sea pasmo).
+
+\item {} 
+Para PASMO, cualquier referencia a una etiqueta a lo largo del programa se convierte en una referencia a la posición de memoria de la instrucción o dato siguiente a donde hemos colocado la etiqueta. Podemos utilizar así etiquetas para hacer referencia a nuestros gráficos, variables, datos, funciones, lugares a donde saltar, etc.
+
+\end{itemize}
+
+\end{description}
+
+\item {} \begin{description}
+\item[{Directivas:}] \leavevmode\begin{itemize}
+\item {} 
+Tenemos a nuestra disposición una serie de directivas para facilitarnos la programación, como DEFB o DB para introducir datos en crudo en nuestro programa, ORG para indicar una dirección de inicio de ensamblado, END para finalizar el programa e indicar una dirección de autoejecución, IF/ELSE/ENDIF en tiempo de compilación, INCLUDE e INCBIN, MACRO y REPT.
+
+\item {} 
+La directiva END permite indicar un parámetro numérico (END XXXX) que «pasmo \textendash{}tapbas» toma para añadir al listado BASIC de arranque el RANDOMIZE USR XXXX correspondiente. De esta forma, podemos hacer que nuestros programas arranquen en su posición correcta sin que el usuario tenga que teclear el «RANDOMIZE USR DIRECCION\_INICIO».
+
+\end{itemize}
+
+\end{description}
+
+\item {} 
+Una de las directivas más importantes es ORG, que indica la posición origen donde almacenar el código que la sigue. Podemos utilizar diferentes directivas ORG en un mismo programa. Los datos o el código que siguen a una directiva ORG son ensamblados a partir de la dirección que indica éste.
+
+\item {} 
+Iremos viendo el significado de las directivas conforme las vayamos usando, pero es aconsejable consultar el manual de PASMO para conocer más sobre ellas.
+
+\item {} \begin{description}
+\item[{Operadores}] \leavevmode\begin{itemize}
+\item {} 
+Podemos utilizar los operadores típicos +, \sphinxhyphen{}, *. /, así como otros operadores de desplazamiento de bits como \textgreater{}\textgreater{} y \textless{}\textless{}.
+
+\item {} 
+Existen también operadores lógicos como AND, OR, NOT, o sus variantes \&, |, !.
+
+\item {} 
+Los operadores sólo tienen aplicación en tiempo de ensamblado, es decir, no podemos multiplicar o dividir en tiempo real en nuestro programa usando * o /. Estos operadores están pensados para que podamos poner expresiones como ((32*10)+12), en lugar del valor numérico del resultado, por ejemplo.
+
+\end{itemize}
+
+\end{description}
+
+\end{itemize}
+
+
+\section{Aspecto de un programa en ensamblador}
+\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:aspecto-de-un-programa-en-ensamblador}}
+Veamos un ejemplo de programa en ensamblador que muestra el uso de algunas de estas normas, para que las podamos entender fácilmente mediante los comentarios incluidos:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{; Programa de ejemplo para mostrar el aspecto de}
+\PYG{c+c1}{; un programa típico en ensamblador para PASMO.}
+\PYG{c+c1}{; Copia una serie de bytes a la videomemoria con}
+\PYG{c+c1}{; instrucciones simples (sin optimizar).}
+\PYG{k}{ORG} \PYG{l+m+mi}{40000}
+
+\PYG{n+nf}{valor}     \PYG{n+nv}{EQU}  \PYG{l+m+mi}{1}
+\PYG{n+nf}{destino}   \PYG{n+nv}{EQU}  \PYG{l+m+mi}{18384}
+
+    \PYG{c+c1}{; Aqui empieza nuestro programa que copia los}
+    \PYG{c+c1}{; 7 bytes desde la etiqueta \PYGZdq{}datos\PYGZdq{} hasta la}
+    \PYG{c+c1}{; videomemoria ([16384] en adelante).}
+
+    \PYG{n+nf}{LD} \PYG{n+nv}{HL}\PYG{p}{,} \PYG{n+nv}{destino}     \PYG{c+c1}{; HL = destino (VRAM)}
+    \PYG{n+nf}{LD} \PYG{n+nv}{DE}\PYG{p}{,} \PYG{n+nv}{datos}       \PYG{c+c1}{; DE = origen de los datos}
+    \PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{l+m+mi}{6}            \PYG{c+c1}{; numero de datos a copiar}
+
+\PYG{n+nl}{bucle:}               \PYG{c+c1}{; etiqueta que usaremos luego}
+
+    \PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{DE}\PYG{p}{)}         \PYG{c+c1}{; Leemos un dato de [DE]}
+    \PYG{n+nf}{ADD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{valor}       \PYG{c+c1}{; Le sumamos 1 al dato leído}
+    \PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{),} \PYG{n+nv}{A}         \PYG{c+c1}{; Lo grabamos en el destino [HL]}
+    \PYG{n+nf}{INC} \PYG{n+nv}{DE}             \PYG{c+c1}{; Apuntamos al siguiente dato}
+    \PYG{n+nf}{INC} \PYG{n+nv}{HL}             \PYG{c+c1}{; Apuntamos al siguiente destino}
+
+    \PYG{n+nf}{DJNZ} \PYG{n+nv}{bucle}         \PYG{c+c1}{; Equivale a:}
+                        \PYG{c+c1}{; B = B\PYGZhy{}1}
+                        \PYG{c+c1}{; if (B\PYGZgt{}0) goto Bucle}
+    \PYG{n+nf}{RET}
+
+\PYG{n+nf}{datos} \PYG{n+nv}{DEFB} \PYG{l+m+mi}{127}\PYG{p}{,} \PYG{o}{\PYGZpc{}}\PYG{l+m+mi}{10101010}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{128}\PYG{p}{,} \PYG{k+kc}{\PYGZdl{}}\PYG{n+nv}{FE}\PYG{p}{,} \PYG{o}{\PYGZpc{}}\PYG{l+m+mi}{10000000}\PYG{p}{,} \PYG{n+nv}{FFh}
+
+\PYG{k}{END}
+\end{sphinxVerbatim}
+
+Algunos detalles a tener en cuenta:
+\begin{itemize}
+\item {} 
+Se utiliza una instrucción por línea.
+
+\item {} 
+Los comentarios pueden ir en sus propias líneas, o dentro de líneas de instrucciones (tras ellas).
+
+\item {} 
+Podemos definir «constantes» con EQU para hacer referencia a ellas luego en el código. Son constantes, no variables, es decir, se definen en tiempo de ensamblado y no se cambian con la ejecución del programa. Su uso está pensado para poder escribir código más legible y que podamos cambiar los valores asociados posteriormente de una forma sencilla (es más fácil cambiar el valor asignado en el EQU, que cambiar un valor en todas sus apariciones en el código).
+
+\item {} 
+Podemos poner etiquetas (como «bucle» y «datos» \sphinxhyphen{}con o sin dos puntos, son ignorados\sphinxhyphen{}) para referenciar a una posición de memoria. Así, la etiqueta «bucle» del programa anterior hace referencia a la posición de memoria donde se ensamblaría la siguiente instrucción que aparece tras ella. Las etiquetas se usan para poder saltar a ellas (en los bucles y condiciones) mediante un nombre en lugar de tener que calcular nosotros la dirección del salto a mano y poner direcciones de memoria. Es más fácil de entender y programar un «JP bucle» que un «JP \$40008», por ejemplo. En el caso de la etiqueta «datos», nos permite referenciar la posición en la que empiezan los datos que vamos a copiar.
+
+\item {} 
+Los datos definidos con DEFB pueden estar en cualquier formato numérico, como se ha mostrado en el ejemplo: decimal, binario, hexadecimal tanto con prefijo «\$» como con sufijo «h», etc.
+
+\end{itemize}
+
+Podéis ensamblar el ejemplo anterior mediante:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{pasmo} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZhy{}}\PYG{n}{tapbas} \PYG{n}{ejemplo}\PYG{o}{.}\PYG{n}{asm} \PYG{n}{ejemplo}\PYG{o}{.}\PYG{n}{tap}
+\end{sphinxVerbatim}
+
+Una vez cargado y ejecutado el TAP en el emulador de Spectrum, podréis ejecutar el código máquina en BASIC con un «RANDOMIZE USR 40000», y deberéis ver una pantalla como la siguiente:
+
+\begin{figure}[htbp]
+\centering
+
+\noindent\sphinxincludegraphics[scale=0.8]{{ejemplo1}.png}
+\end{figure}
+
+Los píxeles que aparecen en el centro de la pantalla (dirección de memoria 18384) se corresponden con los valores numéricos que hemos definido en «datos», ya que los hemos copiado desde «datos» hasta la videomemoria. No os preocupéis por ahora si no entendéis alguna de las instrucciones utilizadas, las iremos viendo poco a poco y al final tendremos una visión global y concreta de todas ellas.
+
+Si cambiáis el END del programa por END 40000, no tendréis la necesidad de ejecutar RANDOMIZE USR 40000 y que pasmo lo introducirá en el listado BASIC de «arranque». El tap resultante contendrá un cargador que incluirá el RANDOMIZE USR 40000.
+
+
+\section{Los registros}
+\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:los-registros}}
+Como ya vimos en la anterior entrega, todo el «trabajo de campo» lo haremos con los registros de la CPU, que no son más que variables de 8 y 16 bits integradas dentro del Z80 y que por tanto son muy rápidos para realizar operaciones con ellos.
+
+El Z80 tiene una serie de registros de 8 bits con nombres específicos:
+\begin{itemize}
+\item {} 
+A: El Registro A (de 8 bits) es el acumulador. Es un registro que se utiliza generalmente como destino de muchas operaciones aritméticas y de comparaciones y testeos.
+
+\item {} 
+B, C, D, E, H, L: Registros de propósito general, utilizables para gran cantidad de operaciones, almacenamiento de valores, etc.
+
+\item {} 
+I: Registro de interrupción, no lo utilizaremos en nuestros primeros programas. No debemos modificar su valor, aunque en el futuro veremos su uso en las interrupciones del Spectrum.
+
+\item {} 
+R: Registro de Refresco de memoria: lo utiliza internamente la CPU para saber cuándo debe refrescar la RAM. Su valor cambia sólo conforme el Z80 va ejecutando instrucciones, de modo que podemos utilizarlo (leerlo) para obtener valores pseudo\sphinxhyphen{}aleatorios entre 0 y 127 (el Z80 no cambia el bit de mayor peso de R, sólo los bits del 0 al 6).
+
+\end{itemize}
+
+Además, podemos agrupar algunos de estos registros en pares de 16 bits para determinadas operaciones:
+\begin{itemize}
+\item {} 
+AF: Formado por el registro A como byte más significativo (Byte alto) y por F como byte menos significativo (Byte bajo). Si A vale \$FF y F vale \$00, AF valdrá automáticamente «\$FF00».
+
+\item {} 
+BC: Agrupación de los registros B y C que se puede utilizar en bucles y para acceder a puertos. También se utiliza como «repetidor» o «contador» en las operaciones de acceso a memoria (LDIR, LDDR, etc.).
+
+\item {} 
+DE, HL: Registros de 16 bits formados por D y E por un lado y H y L por otro. Utilizaremos generalmente estos registros para leer y escribir en memoria en una operación única, así como para las operaciones de acceso a memoria como LDIR, LDDR, etc.
+
+\end{itemize}
+
+Aparte de estos registros, existen otra serie de registros de 16 bits:
+\begin{itemize}
+\item {} 
+IX, IY: Dos registros de 16 bits pensados para acceder a memoria de forma indexada. Gracias a estos registros podemos realizar operaciones como: «LD (IX+desplazamiento), VALOR». Este tipo de registros se suele utilizar pues para hacer de índices dentro de tablas o vectores. El desplazamiento es un valor numérico de 8 bits en complemento a 2, lo que nos permite un rango desde \sphinxhyphen{}128 a +127 (puede ser negativo para acceder a posiciones de memoria anteriores a IX).
+
+\item {} 
+SP: Puntero de pila, como veremos en su momento apunta a la posición actual de la «cabeza» de la pila.
+
+\item {} 
+PC: Program Counter o Contador de Programa. Como ya vimos en la anterior entrega, contiene la dirección de la instrucción actual a ejecutar. No modificaremos PC directamente moviendo valores a este registro, sino que lo haremos mediante instrucciones de salto (JP, JR, CALL…).
+
+\end{itemize}
+
+Por último, tenemos disponible un banco alternativo de registros, conocidos como Shadow Registers o Registros Alternativos, que se llaman igual que sus equivalentes principales pero con una comilla simple detrás: A”, F”, B”, C”, D”. E”, H” y L”.
+
+En cualquier momento podemos intercambiar el valor de los registros A, B, C, D, E, F, H y L con el valor de los registros A”, B”, C”, D”, E”, F”, H” y L” mediante la instrucción de ensamblador «EXX». La utilidad de estos Shadow Registers es almacenar valores temporales y proporcionarnos más registros para operar: podremos intercambiar el valor de los registros actuales con los temporales, realizar operaciones con los registros sin perder los valores originales (que al hacer el EXX se quedarán en los registros Shadow), y después recuperar los valores originales volviendo a ejecutar un EXX.
+
+Ya conocemos los registros disponibles, veamos ahora ejemplos de operaciones típicas que podemos realizar con ellos:
+\begin{itemize}
+\item {} 
+Meter valores en registros (ya sean valores numéricos directos, de memoria, o de otros registros).
+
+\item {} 
+Incrementar o decrementar los valores de los registros.
+
+\item {} 
+Realizar operaciones (tanto aritméticas como lógicas) entre los registros.
+
+\item {} 
+Acceder a memoria para escribir o leer.
+
+\end{itemize}
+
+Por ejemplo, las siguientes instrucciones en ensamblador serían válidas:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{C}\PYG{p}{,} \PYG{k+kc}{\PYGZdl{}}\PYG{l+m+mi}{00}       \PYG{c+c1}{; C vale 0}
+\PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{k+kc}{\PYGZdl{}}\PYG{l+m+mi}{01}       \PYG{c+c1}{; B vale 1}
+                \PYG{c+c1}{; con esto, BC = \PYGZdl{}0100}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{B}         \PYG{c+c1}{; A ahora vale 1}
+\PYG{n+nf}{LD} \PYG{n+nv}{HL}\PYG{p}{,} \PYG{k+kc}{\PYGZdl{}}\PYG{l+m+mi}{1234}    \PYG{c+c1}{; HL vale \PYGZdl{}1234 o 4660d}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{)}      \PYG{c+c1}{; A contiene el valor de (4660)}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{16384}\PYG{p}{)}   \PYG{c+c1}{; A contiene el valor de (16384)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{l+m+mi}{16385}\PYG{p}{),} \PYG{n+nv}{A}   \PYG{c+c1}{; Escribimos en (16385) el valor de A}
+\PYG{n+nf}{ADD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{B}        \PYG{c+c1}{; Suma: A = A + B}
+\PYG{n+nf}{INC} \PYG{n+nv}{B}           \PYG{c+c1}{; Incrementamos B (B = 1+1 =2)}
+                \PYG{c+c1}{; Ahora BC vale \PYGZdl{}0200}
+\PYG{n+nf}{INC} \PYG{n+nv}{BC}          \PYG{c+c1}{; Incrementamos BC}
+                \PYG{c+c1}{; (BC = \PYGZdl{}0200+1 = \PYGZdl{}0201)}
+\end{sphinxVerbatim}
+
+Dentro del ejemplo anterior queremos destacar el operador «()», que significa «el contenido de la memoria apuntado por». Así, «LD A, (16384)» no quiere decir «mete en A el valor 16384» (cosa que además no se puede hacer porque A es un registro de 8 bits), sino «mete en A el valor de 8 bits que contiene la celdilla de memoria 16384» (equivalente a utilizar en BASIC las funciones PEEK y POKE, como en LET A=PEEK 16384).
+
+Cabe destacar un gran inconveniente del juego de instrucciones del Z80, y es que no es ortogonal. Se dice que el juego de instrucciones de un microprocesador es ortogonal cuando puedes realizar todas las operaciones sobre todos los registros, sin presentar excepciones. En el caso del Z80 no es así, ya que hay determinadas operaciones que podremos realizar sobre unos registros pero no sobre otros.
+
+Así, si el Z80 fuera ortogonal, podríamos ejecutar cualquiera de estas operaciones:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{k+kc}{\PYGZdl{}}\PYG{l+m+mi}{1234}
+\PYG{n+nf}{LD} \PYG{n+nv}{HL}\PYG{p}{,} \PYG{n+nv}{BC}
+\PYG{n+nf}{LD} \PYG{n+nb}{SP}\PYG{p}{,} \PYG{n+nv}{BC}
+\PYG{n+nf}{EX} \PYG{n+nv}{DE}\PYG{p}{,} \PYG{n+nv}{HL}
+\PYG{n+nf}{EX} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{n+nv}{DE}
+\PYG{n+nf}{ADD} \PYG{n+nv}{HL}\PYG{p}{,} \PYG{n+nv}{BC}
+\PYG{n+nf}{ADD} \PYG{n+nv}{DE}\PYG{p}{,} \PYG{n+nv}{BC}
+\end{sphinxVerbatim}
+
+Sin embargo, como el Z80 no tiene un juego de instrucciones (J.I. desde este momento) ortogonal, hay instrucciones del ejemplo anterior que no son válidas, es decir, que no tienen dentro de la CPU un microcódigo para que el Z80 sepa qué hacer con ellas:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nb}{SP}\PYG{p}{,} \PYG{n+nv}{BC}      \PYG{c+c1}{; NO: No se puede cargar el valor un registro en SP,}
+                \PYG{c+c1}{; sólo se puede cargar un valor inmediato NN}
+
+\PYG{n+nf}{EX} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{n+nv}{DE}      \PYG{c+c1}{; NO: Existe EX DE, HL, pero no EX BC, DE}
+
+\PYG{n+nf}{ADD} \PYG{n+nv}{DE}\PYG{p}{,} \PYG{n+nv}{BC}     \PYG{c+c1}{; NO: Sólo se puede usar HL como operando destino}
+                \PYG{c+c1}{; en las sumas de 16 bytes con registros de propósito}
+                \PYG{c+c1}{; general. Una alternativa sería:}
+                \PYG{c+c1}{;}
+                \PYG{c+c1}{; LD HL, 0        ; HL = 0}
+                \PYG{c+c1}{; ADD HL, BC      ; HL = HL + BC}
+                \PYG{c+c1}{; EX DE, HL       ; Intercambiamos el valor de HL y DE}
+
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{n+nv}{DE}      \PYG{c+c1}{; NO:, pero se pueden tomar alternativas, como por ej:}
+                \PYG{c+c1}{;}
+                \PYG{c+c1}{; PUSH DE}
+                \PYG{c+c1}{; POP BC}
+
+\PYG{n+nf}{LD} \PYG{n+nv}{DE}\PYG{p}{,} \PYG{n+nv}{HL}      \PYG{c+c1}{; NO: mismo caso anterior.}
+
+\PYG{n+nf}{LD} \PYG{n+nb}{SP}\PYG{p}{,} \PYG{n+nv}{BC}      \PYG{c+c1}{; NO: no existe como instrucción.}
+\end{sphinxVerbatim}
+
+La única solución para programar sin tratar de utilizar instrucciones no permitidas es la práctica: con ella acabaremos conociendo qué operaciones podemos realizar y sobre qué registros se pueden aplicar, y realizaremos nuestros programas con estas limitaciones en mente. Iremos viendo las diferentes excepciones caso a caso, pero podemos encontrar las nuestras propias gracias a los errores que nos dará el ensamblador al intentar ensamblar un programa con una instrucción que no existe para el Z80.
+
+No os preocupéis: es sólo una cuestión de práctica. Tras haber realizado varios programas en ensamblador ya conoceréis, prácticamente de memoria, qué instrucciones son válidas para el microprocesador y cuáles no.
+
+
+\section{El registro de flags}
+\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:el-registro-de-flags}}
+Hemos hablado del registro de 8 bits F como un registro especial. La particularidad de F es que no es un registro de propósito general donde podamos introducir valores a voluntad, sino que los diferentes bits del registro F tienen un significado propio que cambia automáticamente según el resultado de operaciones anteriores.
+
+Por ejemplo, uno de los bits del registro F, el bit nº 6, es conocido como «Zero Flag», y nos indica si el resultado de la última operación (para determinadas operaciones, como las aritméticas o las de comparación) es cero o no es cero. Si el resultado de la anterior operación resultó cero, este FLAG se pone a uno. Si no resultó cero, el flag se pone a cero.
+
+¿Para qué sirve pues un flag así? Para gran cantidad de tareas, por ejemplo para bucles (repetir X veces una misma tarea poniendo el registro BC al valor X, ejecutando el mismo código hasta que BC sea cero), o para comparaciones (mayor que, menor que, igual que).
+
+Veamos los diferentes registros de flags (bits del registro F) y su utilidad:
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{registrof}.png}
+\caption{Los indicadores de flag del registro F}\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:id1}}\end{figure}
+\begin{itemize}
+\item {} 
+Flag S (sign o signo): Este flag se pone a uno si el resultado de la operación realizada en complemento a dos es negativo (es una copia del bit más significativo del resultado). Si por ejemplo realizamos una suma entre 2 números en complemento a dos y el resultado es negativo, este bit se pondrá a uno. Si el resultado es positivo, se pondrá a cero. Es útil para realizar operaciones matemáticas entre múltiples registros: por ejemplo, si nos hacemos una rutina de multiplicación o división de números que permita números negativos, este bit nos puede ser útil en alguna parte de la rutina.
+
+\item {} 
+Flag Z (zero o cero): Este flag se pone a uno si el resultado de la última operación que afecte a los flags es cero. Por ejemplo, si realizamos una operación matemática y el resultado es cero, se pondrá a uno. Este flag es uno de los más útiles, ya que podemos utilizarlo para múltiples tareas. La primera es para los bucles, ya que podremos programar código como:
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{; Repetir algo 100 veces}
+\PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{l+m+mi}{100}
+\PYG{n+nl}{bucle:}
+\PYG{c+c1}{; código del bucle}
+
+\PYG{n+nf}{DEC} \PYG{n+nv}{B}        \PYG{c+c1}{; Decrementamos B (B=B\PYGZhy{}1)}
+\PYG{n+nf}{JR} \PYG{n+nv}{NZ}\PYG{p}{,} \PYG{n+nv}{bucle}
+\PYG{c+c1}{; Si el resultado de la operación anterior no es cero (NZ = Non Zero),}
+\PYG{c+c1}{; saltar a la etiqueta bucle y continuar. DEC B hará que el flag Z}
+\PYG{c+c1}{; se ponga a 1 cuando B llegue a cero, lo que afectará al JR NZ.}
+\PYG{c+c1}{; Como resultado, este trozo de código (...) se ejecutará 100 veces.}
+\end{sphinxVerbatim}
+
+Como veremos en su momento, existe una instrucción equivalente a DEC B + JR NZ que es más cómoda de utilizar y más rápida que estas 2 instrucciones juntas (DJNZ), pero se ha elegido el ejemplo que tenéis arriba para que veáis cómo muchas operaciones (en este caso DEC) afectan a los flags, y la utilidad que estos tienen a la hora de programar.
+
+Además de para bucles, también podemos utilizarlo para comparaciones. Supongamos que queremos hacer en ensamblador una comparación de igualdad, algo como:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{k+kr}{IF}\PYG{+w}{ }\PYG{n+nv+vg}{C}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nv+vg}{B}\PYG{+w}{ }\PYG{k+kr}{THEN}\PYG{+w}{ }\PYG{k+kr}{GOTO}\PYG{+w}{ }\PYG{n+nl}{1000}
+\PYG{k}{ELSE}\PYG{+w}{          }\PYG{k+kr}{GOTO}\PYG{+w}{ }\PYG{n+nl}{2000}
+\end{sphinxVerbatim}
+
+Si restamos C y B y el resultado es cero, es que ambos registros contienen el mismo valor:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{C}              \PYG{c+c1}{; A = C}
+\PYG{c+c1}{; Tenemos que hacer esto porque no existe}
+\PYG{c+c1}{; una instruccion SUB B, C . Sólo se puede}
+\PYG{c+c1}{; restar un registro al registro A.}
+
+\PYG{n+nf}{SUB} \PYG{n+nv}{B}                \PYG{c+c1}{; A = A\PYGZhy{}B}
+\PYG{n+nf}{JP} \PYG{n+nv}{Z}\PYG{p}{,} \PYG{n+nb}{EsI}\PYG{n+nv}{gual}       \PYG{c+c1}{; Si A=B la resta es cero y Z=1}
+\PYG{n+nf}{JP} \PYG{n+nv}{NZ}\PYG{p}{,} \PYG{n+nv}{NoEsIgual}   \PYG{c+c1}{; Si A\PYGZlt{}\PYGZgt{}B la resta no es cero y Z=0}
+\PYG{c+c1}{; (Resto...)}
+
+\PYG{n+nl}{EsIgual:}
+\PYG{c+c1}{; Código en caso de que sea igual}
+\PYG{n+nl}{NoEsIgual:}
+\PYG{c+c1}{; Código en caso de que no sea igual}
+\end{sphinxVerbatim}
+
+Existe una instrucción específica para realizar comparaciones: CP, que es similar a SUB pero que no altera el valor de A. Hablaremos de CP con más detalle en su momento.
+\begin{itemize}
+\item {} 
+Flag H (Half\sphinxhyphen{}carry o Acarreo\sphinxhyphen{}BCD): Se pone a uno cuando en operaciones BCD existe un acarreo del bit 3 al bit 4.
+
+\item {} 
+Flag P/V (Parity/Overflow o Paridad/Desbordamiento): En las operaciones que modifican el bit de paridad, este bit vale 1 si el número de unos del resultado de la operación es par, y 0 si es impar. Si, por contra, el resultado de la operación realizada necesita más bits para ser representado de los que nos provee el registro, tendremos un desbordamiento, con este flag a 1. Este mismo bit sirve pues para 2 tareas, y nos indicará una u otra (paridad o desbordamiento) según sea el tipo de operación que hayamos realizado. Por ejemplo, tras una suma, su utilidad será la de indicar el desbordamiento.
+
+\item {} 
+El flag de desbordamiento se activará cuando en determinadas operaciones pasemos de valores 11111111b a 00000000b, por «falta de bits» para representar el resultado o viceversa . Por ejemplo, en el caso de INC y DEC con registros de 8 bits, si pasamos de 0 a 255 o de 255 a 0.
+
+\item {} 
+Flag N (Substract o Resta): Se pone a 1 si la última operación realizada fue una resta. Se utiliza en operaciones aritméticas.
+
+\item {} 
+Flag C (Carry o Acarreo): Este flag se pone a uno si el resultado de la operación anterior no cupo en el registro y necesita un bit extra para ser representado. Este bit es ese bit extra. Veremos su uso cuando tratemos las operaciones aritméticas, en esta misma entrega.
+
+\end{itemize}
+
+Así pues, resumiendo:
+\begin{itemize}
+\item {} 
+El registro F es un registro cuyo valor no manejamos directamente, sino que cada uno de sus bits tiene un valor especial y está a 1 o a 0 según ciertas condiciones de la última operación realizada que afecte a dicho registro.
+
+\item {} 
+Por ejemplo, si realizamos una operación y el resultado de la misma es cero, se pondrá a 1 el flag de Zero (Z) del registro F, que no es más que su bit número 6.
+
+\item {} 
+No todas las operaciones afectan a los flags, iremos viendo qué operaciones afectan a qué flags conforme avancemos en el curso, en el momento en que se estudia cada instrucción.
+
+\item {} 
+Existen operaciones que se pueden ejecutar con el estado de los flags como condición. Por ejemplo, realizar un salto a una dirección de memoria si un determinado flag está activo, o si no lo está.
+
+\end{itemize}
+
+
+\section{Instrucciones LD (instrucciones de carga)}
+\label{\detokenize{04_lenguaje_ensamblador_01/lenguaje_ensamblador_01:instrucciones-ld-instrucciones-de-carga}}
+Las operaciones que más utilizaremos en nuestros programas en ensamblador serán sin duda las operaciones de carga o instrucciones LD. Estas operaciones sirven para:
+\begin{itemize}
+\item {} 
+Meter un valor en un registro.
+
+\item {} 
+Copiar el valor de un registro en otro registro.
+
+\item {} 
+Escribir en memoria (en una dirección determinada) un valor.
+
+\item {} 
+Escribir en memoria (en una dirección determinada) el contenido de un registro.
+
+\item {} 
+Asignarle a un registro el contenido de una dirección de memoria.
+
+\end{itemize}
+
+La sintaxis de LD en lenguaje ensamblador es:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{LD} \PYG{n}{DESTINO}\PYG{p}{,} \PYG{n}{ORIGEN}
+\end{sphinxVerbatim}
+
+Así, gracias a las operaciones LD podemos:
+\begin{itemize}
+\item {} 
+Asignar a un registro un valor numérico directo de 8 o 16 bits.
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{l+m+mi}{10}         \PYG{c+c1}{; A = 10}
+\PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{l+m+mi}{200}        \PYG{c+c1}{; B = 200}
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{l+m+mi}{12345}     \PYG{c+c1}{; BC = 12345}
+\end{sphinxVerbatim}
+\begin{itemize}
+\item {} 
+Copiar el contenido de un registro a otro registro:
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{B}          \PYG{c+c1}{; A = B}
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{n+nv}{DE}        \PYG{c+c1}{; BC = DE}
+\end{sphinxVerbatim}
+\begin{itemize}
+\item {} 
+Escribir en posiciones de memoria:
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{l+m+mi}{12345}\PYG{p}{),} \PYG{n+nv}{A}    \PYG{c+c1}{; Memoria[12345] = valor en A}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{),} \PYG{l+m+mi}{10}      \PYG{c+c1}{; Memoria[valor de HL] = 10}
+\end{sphinxVerbatim}
+\begin{itemize}
+\item {} 
+Leer el contenido de posiciones de memoria:
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{12345}\PYG{p}{)}    \PYG{c+c1}{; A = valor en Memoria[12345]}
+\PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{)}       \PYG{c+c1}{; B = valor en Memoria[valor de HL]}
+\end{sphinxVerbatim}
+
+Nótese cómo el operador () nos permite acceder a memoria. En nuestros ejemplos, LD A, (12345) no significa meter en A el valor 12345 (cosa imposible al ser un registro de 16 bits) sino almacenar en el registro A el valor que hay almacenado en la celdilla número 12345 de la memoria del Spectrum.
+
+En un microprocesador con un juego de instrucciones ortogonal, se podría usar cualquier origen y cualquier destino sin distinción. En el caso del Z80 no es así. El listado completo de operaciones válidas con LD es el siguiente:
+
+Leyenda:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{N}  \PYG{o}{=} \PYG{n}{valor} \PYG{n}{numérico} \PYG{n}{directo} \PYG{n}{de} \PYG{l+m+mi}{8} \PYG{n}{bits} \PYG{p}{(}\PYG{l+m+mi}{0}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{255}\PYG{p}{)}
+\PYG{n}{NN} \PYG{o}{=} \PYG{n}{valor} \PYG{n}{numérico} \PYG{n}{directo} \PYG{n}{de} \PYG{l+m+mi}{16} \PYG{n}{bits} \PYG{p}{(}\PYG{l+m+mi}{0}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{65535}\PYG{p}{)}
+\PYG{n}{r}  \PYG{o}{=} \PYG{n}{registro} \PYG{n}{de} \PYG{l+m+mi}{8} \PYG{n}{bits} \PYG{p}{(}\PYG{n}{A}\PYG{p}{,} \PYG{n}{B}\PYG{p}{,} \PYG{n}{C}\PYG{p}{,} \PYG{n}{D}\PYG{p}{,} \PYG{n}{E}\PYG{p}{,} \PYG{n}{H}\PYG{p}{,} \PYG{n}{L}\PYG{p}{)}
+\PYG{n}{rr} \PYG{o}{=} \PYG{n}{registro} \PYG{n}{de} \PYG{l+m+mi}{16} \PYG{n}{bits} \PYG{p}{(}\PYG{n}{BC}\PYG{p}{,} \PYG{n}{DE}\PYG{p}{,} \PYG{n}{HL}\PYG{p}{,} \PYG{n}{SP}\PYG{p}{)}
+\PYG{n}{ri} \PYG{o}{=} \PYG{n}{registro} \PYG{n}{índice} \PYG{p}{(}\PYG{n}{IX} \PYG{n}{o} \PYG{n}{IY}\PYG{p}{)}\PYG{o}{.}
+\PYG{n}{d}  \PYG{o}{=} \PYG{n}{desplazamiento} \PYG{n}{respecto} \PYG{n}{a} \PYG{n}{un} \PYG{n}{registro} \PYG{n}{índice}\PYG{o}{.}
+\end{sphinxVerbatim}
+
+Listado:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{; Carga de valores en registros}
+\PYG{n+nf}{LD} \PYG{n+nv}{r}\PYG{p}{,} \PYG{n+nv}{N}
+\PYG{n+nf}{LD} \PYG{n+nv}{rr}\PYG{p}{,} \PYG{n+nv}{NN}
+\PYG{n+nf}{LD} \PYG{n+nv}{ri}\PYG{p}{,} \PYG{n+nv}{NN}
+
+\PYG{c+c1}{; Copia de un registro a otro}
+\PYG{n+nf}{LD} \PYG{n+nv}{r}\PYG{p}{,} \PYG{n+nv}{r}
+\PYG{n+nf}{LD} \PYG{n+nv}{rr}\PYG{p}{,} \PYG{n+nv}{rr}
+
+\PYG{c+c1}{; Acceso a memoria}
+\PYG{n+nf}{LD} \PYG{n+nv}{r}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{),} \PYG{n+nv}{A}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{),} \PYG{n+nv}{N}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{rr}\PYG{p}{)}      \PYG{c+c1}{; (excepto rr=SP)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{rr}\PYG{p}{),} \PYG{n+nv}{A}      \PYG{c+c1}{; (excepto rr=SP)}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{)}
+\PYG{n+nf}{LD} \PYG{n+nv}{rr}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{)}
+\PYG{n+nf}{LD} \PYG{n+nv}{ri}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{),} \PYG{n+nv}{rr}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{NN}\PYG{p}{),} \PYG{n+nv}{ri}
+
+\PYG{c+c1}{; Acceso indexado a memoria}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{ri}\PYG{o}{+}\PYG{n+nv}{N}\PYG{p}{),} \PYG{n+nv}{r}
+\PYG{n+nf}{LD} \PYG{n+nv}{r}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{ri}\PYG{o}{+}\PYG{n+nv}{N}\PYG{p}{)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{ri}\PYG{o}{+}\PYG{n+nv}{N}\PYG{p}{),} \PYG{n+nv}{N}
+\end{sphinxVerbatim}
+
+Además, tenemos una serie de casos «especiales»:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{; Manipulación del puntero de pila (SP)}
+\PYG{n+nf}{LD} \PYG{n+nb}{SP}\PYG{p}{,} \PYG{n+nv}{ri}
+\PYG{n+nf}{LD} \PYG{n+nb}{SP}\PYG{p}{,} \PYG{n+nv}{HL}
+
+\PYG{c+c1}{; Para manipular el registro I}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{I}
+\PYG{n+nf}{LD} \PYG{n+nv}{I}\PYG{p}{,} \PYG{n+nv}{A}
+
+\PYG{c+c1}{; Para manipular el registro R}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{R}
+\PYG{n+nf}{LD} \PYG{n+nv}{R}\PYG{p}{,} \PYG{n+nv}{A}
+\end{sphinxVerbatim}
+
+Veamos ejemplos válidos y cuál sería el resultado de su ejecución:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{; Carga de valores en registros}
+\PYG{c+c1}{; registro\PYGZus{}destino = valor}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{l+m+mi}{100}          \PYG{c+c1}{; LD r, N}
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{l+m+mi}{12345}       \PYG{c+c1}{; LD rr, NN}
+
+\PYG{c+c1}{; Copia de registros en registros}
+\PYG{c+c1}{; registro\PYGZus{}destino = registro\PYGZus{}origen}
+\PYG{n+nf}{LD} \PYG{n+nv}{B}\PYG{p}{,} \PYG{n+nv}{C}            \PYG{c+c1}{; LD r, r}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{n+nv}{B}            \PYG{c+c1}{; LD r, r}
+\PYG{n+nf}{LD} \PYG{n+nv}{BC}\PYG{p}{,} \PYG{n+nv}{DE}          \PYG{c+c1}{; LD rr, rr}
+
+\PYG{c+c1}{; Acceso a memoria}
+\PYG{c+c1}{; (Posicion\PYGZus{}memoria) = VALOR o bien}
+\PYG{c+c1}{;  Registro = VALOR en (Posicion de memoria)}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{)}         \PYG{c+c1}{; LD r, (rr)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nb}{BL}\PYG{p}{),} \PYG{n+nv}{B}         \PYG{c+c1}{; LD (rr), r}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{l+m+mi}{12345}\PYG{p}{),} \PYG{n+nv}{A}      \PYG{c+c1}{; LD (NN), A}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{HL}\PYG{p}{)}         \PYG{c+c1}{; LD r, (rr)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{DE}\PYG{p}{),} \PYG{n+nv}{A}         \PYG{c+c1}{; LD (rr), r}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{BC}\PYG{p}{),} \PYG{l+m+mh}{1234h}     \PYG{c+c1}{; LD (BC), NN}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{l+m+mi}{12345}\PYG{p}{),} \PYG{n+nv}{DE}     \PYG{c+c1}{; LD (NN), rr}
+\PYG{n+nf}{LD} \PYG{n+nv}{IX}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{12345}\PYG{p}{)}     \PYG{c+c1}{; LD ri, (NN)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{l+m+mi}{34567}\PYG{p}{),} \PYG{n+nv}{IY}     \PYG{c+c1}{; LD (NN), ri}
+
+\PYG{c+c1}{; Acceso indexado a memoria}
+\PYG{c+c1}{; (Posicion\PYGZus{}memoria) = VALOR o VALOR = (Posicion\PYGZus{}memoria)}
+\PYG{c+c1}{; Donde la posicion es IX+N o IY+N:}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{IX}\PYG{o}{+}\PYG{l+m+mi}{10}\PYG{p}{),} \PYG{n+nv}{A}      \PYG{c+c1}{; LD (ri+N), r}
+\PYG{n+nf}{LD} \PYG{n+nv}{A}\PYG{p}{,} \PYG{p}{(}\PYG{n+nv}{IY}\PYG{o}{+}\PYG{l+m+mi}{100}\PYG{p}{)}     \PYG{c+c1}{; LD r, (ri+N)}
+\PYG{n+nf}{LD} \PYG{p}{(}\PYG{n+nv}{IX}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{30}\PYG{p}{),} \PYG{l+m+mi}{100}    \PYG{c+c1}{; LD (ri+N), N}
+\end{sphinxVerbatim}
+
 
 \chapter{Indices y tablas}
 \label{\detokenize{index:indices-y-tablas}}\begin{itemize}

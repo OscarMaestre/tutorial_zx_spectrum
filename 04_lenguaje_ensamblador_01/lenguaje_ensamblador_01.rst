@@ -152,7 +152,9 @@ Una vez cargado y ejecutado el TAP en el emulador de Spectrum, podréis ejecutar
 .. figure:: ejemplo1.png
    :scale: 80%
    :align: center
-   :alt: 
+   :alt: Código aleatorio
+
+   Código aleatorio
 
    
 
@@ -329,7 +331,7 @@ Si restamos C y B y el resultado es cero, es que ambos registros contienen el mi
     SUB B                ; A = A-B
     JP Z, EsIgual       ; Si A=B la resta es cero y Z=1
     JP NZ, NoEsIgual   ; Si A<>B la resta no es cero y Z=0
-    (...)
+    ; (Resto...)
 
     EsIgual:
     ; Código en caso de que sea igual

@@ -155,7 +155,9 @@ Una vez cargado y ejecutado el TAP en el emulador de Spectrum, podréis ejecutar
 .. figure:: ejemplo1.png
    :scale: 80%
    :align: center
-   :alt: 
+   :alt: Código aleatorio
+
+   Código aleatorio
 
    
 

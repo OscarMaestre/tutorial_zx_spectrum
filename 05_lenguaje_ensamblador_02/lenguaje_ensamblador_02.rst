@@ -549,3 +549,125 @@ RRD                *      *       0     P      0      -
 
 
 Aunque ahora todo este conjunto de instrucciones pueda parecernos carente de utilidad, lo que hace el microprocesador Z80 es proveernos de toda una serie de pequeñas herramientas (como estas de manipulación, chequeo y rotación de bits) para que con ellas podamos resolver cualquier problema, mediante la combinación de las mismas. Os aseguramos que en más de una rutina tendréis que usar instrucciones de rotación o desplazamiento. 
+
+Desplazamiento de bits
+---------------------------
+
+El siguiente set de instrucciones que veremos nos permitirá DESPLAZAR (SHIFT) los bits de un dato de 8 bits (por ejemplo, almacenado en un registro o en memoria) hacia la izquierda o hacia la derecha. Desplazar es parecido a rotar, sólo que el desplazamiento no es circular; es decir, los bits que salen por un lado no entran por otro, sino que entran ceros en el caso de desplazar a la izquierda, o copias del bit 7 en el caso de desplazar a la derecha::
+
+    00010001 DESPLAZADO A LA IZQUIERDA es 00100010
+    (movemos todos los bits hacia la izquierda y el bit 0 
+    entra como 0. El bit 7 se copia al Carry)
+
+    00001001 DESPLAZADO A LA DERECHA es 00000100
+    (el 0 del bit 7 del resultado entra nuevo, el 1 del 
+    bit 0 origen se pierde, el cuarto se desplaza)
+
+Las instrucciones de desplazamiento a izquierda y derecha en Z80 se llaman SLA (Shift Left Arithmetic) y SRA (Shift Right Arithmetic), y su formato es:
+
+.. code-block:: tasm
+
+    SRA operando
+    SLA operando
+
+Donde operando puede ser el mismo tipo de operando que en las instrucciones de rotación: un registro de 8 bits, [HL] o [IX/IY+N]. Lo que realizan estas operaciones sobre el dato operando es::
+
+    Bit 7 6 5 4 3 2 1 0                C    7 6 5 4 3 2 1 0
+        ----------------- -> SLA ->  ------------------------
+        a b c d e f g h                a    b c d e f g h 0
+
+Literalmente::
+
+    Rotar los bits a la izquierda (<<).
+    El bit “a” (bit 7) se copia al Carry Flag.
+    Por la derecha entra un cero.
+
+
+    Bit 7 6 5 4 3 2 1 0                C    7 6 5 4 3 2 1 0
+        ----------------- -> SRA ->  ------------------------
+        a b c d e f g h                h    a a b c d e f g
+
+Literalmente:
+
+* Rotar los bits a la derecha (»).
+* El bit “h” (bit 0) se copia al Carry Flag.
+* En la izquierda (bit 7) se mantiene su valor anterior.
+
+Nótese pues que SLA y SRA nos permiten trabajar también con números negativos. En el caso de SLA se utiliza el carry flag para almacenar el estado del bit 7 tras la rotación (con lo cual podemos conservar el signo si sabemos dónde buscarlo). En el caso de SRA, porque el bit 7 además de desplazarse hacia la derecha se mantiene en su posición (manteniendo el signo).
+
+El hecho de desplazar un número binario una posición a izquierda o derecha tiene una curiosa propiedad: *el número resultante es el original multiplicado o dividido por 2*.
+
+Pensemos un poco en nuestro sistema decimal: si tenemos un determinado número y desplazamos todos los dígitos una posición a la izquierda y añadimos un cero, lo que está sucediendo es que multiplicamos el valor del número por la base (10)::
+
+    1 5  -> Desplazar y añadir cero  ->  1 5 0
+    (equivale a multiplicar por la base, es decir, por 10)
+
+Si desplazamos el número a la derecha, por contra, estamos dividiendo por la base::
+
+    1 5 2 -> Desplazar y añadir cero -> 0 1 5
+    (equivale a dividir por la base, es decir, por 10).
+
+En binario ocurre lo mismo: al desplazar un byte a la izquierda estamos multiplicando por 2 (por la base), y al hacerlo a la derecha estamos dividiendo por 2 (siempre divisiones enteras). Veamos unos ejemplos::
+
+    33 = 00100001
+             << 1   (<< significa desplazamiento de bits a izquierda)
+     ------------
+         01000010 = 66 (33*2)
+
+
+    14 = 00001110
+            >> 1   (>> significa desplazamiento de bits a derecha)
+     ------------
+         00000111 = 7 (14/2)
+
+Cada vez que realizamos un desplazamiento estamos multiplicando o dividiendo el resultado por dos, de forma que: 
+
+==================  ====================    =======================
+Dirección Desplaz.  Núm. desplazamientos    Operación (con SLA)
+==================  ====================    =======================
+Izquierda (<<)               1                N = N*2
+Izquierda (<<)               2                N = (N*2)*2 = N*4
+Izquierda (<<)               3                N = ((N*2)*2)*2 = N*8
+Izquierda (<<)               4                N = (…) N*16
+Izquierda (<<)               5                N = (…) N*32
+Izquierda (<<)               6                N = (…) N*64
+Izquierda (<<)               7                N = (…) N*128 
+==================  ====================    =======================
+
+
+
+==================  ====================    =======================
+Dirección Desplaz.  Núm. desplazamientos     Operación (con SRA)
+==================  ====================    =======================
+Derecha (>>)               1                N = N/2
+Derecha (>>)               2                N = (N/2)/2 = N/4
+Derecha (>>)               3                N = ((N/2)/2)/2 = N/8
+Derecha (>>)               4                N = (…) N/16
+Derecha (>>)               5                N = (…) N/32
+Derecha (>>)               6                N = (…) N/64
+Derecha (>>)               7                N = (…) N/128 
+==================  ====================    =======================
+
+
+Así, desplazar una vez a la izquierda equivale a multiplicar por 2. Desplazar 2 veces, por 4. Desplazar 3 veces, por 8, etc. En resumen, desplazar un registro N veces a la izquierda equivale a multiplicarlo por 2 elevado a N. Lo mismo ocurre con el desplazamiento a derecha y la división.
+
+De este modo, acabamos de descubrir una manera muy sencilla y efectiva (y rápida, muy rápida para el microprocesador) de efectuar multiplicaciones y divisiones por 2, 4, 8, 16, 32, 64 y 128.
+
+Existe una pequeña variante de SRA llamada SRL que realiza la misma acción que SRA pero que, a diferencia de esta, lo que hace es introducir un cero a la izquierda (en lugar de copiar el bit de signo). La diferencia es que SRA es un desplazamiento aritmético (tiene en cuenta el signo) y SRL es un desplazamiento lógico (simplemente desplaza los bits)::
+
+    Bit 7 6 5 4 3 2 1 0                C    7 6 5 4 3 2 1 0
+        ----------------- -> SRL ->  ------------------------
+        a b c d e f g h                h    0 a b c d e f g
+
+Literalmente:
+
+* Rotar los bits a la derecha (»).
+* El bit “h” (bit 0) se copia al Carry Flag.
+* Por la izquierda entra un cero.
+
+.. figure:: sla_sra_srl.png
+   :scale: 80%
+   :align: center
+   :alt: Instrucciones SLA, SRA y SRL
+
+   Instrucciones SLA, SRA y SRL

@@ -671,3 +671,235 @@ Literalmente:
    :alt: Instrucciones SLA, SRA y SRL
 
    Instrucciones SLA, SRA y SRL
+
+Veamos nuestra ya conocida tabla de afectación de flags: 
+
+
+==============   ====== ====== ====== ====== ====== ====== 
+Instrucción      Flag S Flag Z Flag H Flag P Flag N Flag C 
+==============   ====== ====== ====== ====== ====== ====== 
+SLA                *      *       0     P      0      *
+SRA                *      *       0     P      0      *
+SRA                *      *       0     P      0      *
+==============   ====== ====== ====== ====== ====== ====== 
+
+
+
+Cabe destacar que gracias al Carry flag podremos realizar operaciones de desplazamiento que desborden los 8 bits de que dispone un registro. Por ejemplo, supongamos que queremos realizar una multiplicación por 152 por 2. El resultado del desplazamiento sería::
+
+    152 = 10011000
+              << 1 (*2)
+       ------------
+         00110000 = 48
+
+¿Por qué nuestro registro acaba con un valor 48? Porque el resultado es mayor que 255, el valor máximo que podemos representar con 8 bits. Para representar el resultado (304), necesitaríamos un bit extra (9 bits) que nos daría acceso a representar números en el rango de 0 a 511. Ese bit extra es el carry flag, ya que en realidad::
+
+    152 =     10011000
+                  << 1 (*2)
+  ---------------------
+         1    00110000 = 304 (C)
+
+Además, gracias a la combinación de instrucciones de rotación y desplazamiento podemos realizar operaciones con registros de 16 bits. Por ejemplo, supongamos que queremos multiplicar por 2 el valor positivo que tenemos en el registro DE:
+
+.. code-block:: tasm
+
+    SLA E
+    RL  D
+
+Lo que hacemos con “SLA E” es desplazar el byte más bajo del registro de 16 bits DE hacia la izquierda, dejando el bit 7 de “E” en el Carry Flag, y después realizar una rotación de “D” hacia la izquierda introduciendo el carry flag de la operación anterior en el bit 0 de “D”.
+
+Registro DE original::
+
+                D                       E
+    DE:   ---------------------   ---------------------
+    Bit  15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00      Carry
+        -------------------------------------------------     -----
+          a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p        ?
+
+Primero con SLA E rotamos la parte baja, metiendo el bit “i” en el Carry Flag:
+
+SLA E::
+
+                D                       E
+    DE:   ---------------------   ---------------------
+    Bit  15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00      Carry
+        -------------------------------------------------     -----
+          a  b  c  d  e  f  g  h  j  k  l  m  n  o  p  0        i
+
+Ahora con RL D rotamos D introduciendo el bit “i” en su bit 0:
+
+RL D::
+
+                D                       E
+    DE:   ---------------------   ---------------------
+    Bit  15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00      Carry
+         -------------------------------------------------     -----
+          b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  0        a
+
+Podemos repetir la operación para multiplicar por 4, 8, 16, etc. dicho par de registros.
+
+De igual forma, podemos realizar rotaciones de 16 bits a la derecha, haciendo el proceso inverso y comenzando primero con el byte alto::
+
+.. code-block:: tasm
+
+    SRL D
+    RR E
+
+Las operaciones de este tipo sobre registros de 16 bits son muy importantes para realizar otro tipo de operaciones de más amplitud como multiplicaciones y divisiones.
+
+Y, para finalizar, veamos cómo el operando destino de 16 bits puede ser un par de bytes de memoria, como en el siguiente código de ejemplo:
+
+.. code-block:: tasm
+
+    LD IX, 16384
+    SLA (IX)
+    RL (IX+01H)
+
+Recordad para este ejemplo que en memoria se almacena primero el byte menos significativo de la palabra de 16 bits, y en la siguiente posición de memoria el más significativo. 
+
+Operaciones logicas: AND, OR y XOR
+------------------------------------
+
+
+Para acabar con el artículo de hoy vamos a ver 3 operaciones a nivel de bits: AND, OR y XOR. Estas 3 operaciones lógicas se realizan entre 2 bits, dando un tercer bit como resultado::
+=====   ======  ==============
+Bit 1 	Bit 2 	Resultado AND
+=====   ======  ==============
+1        1          1
+0        1          0
+1        0          '
+0        0          0
+=====   ======  ==============
+
+=====   ======  ==============
+Bit 1 	Bit 2 	Resultado OR
+=====   ======  ==============
+1        1          1
+0        1          1
+1        0          1
+0        0          0
+=====   ======  ==============
+
+
+=====   ======  ==============
+Bit 1 	Bit 2 	Resultado XOR
+=====   ======  ==============
+1        1          0
+0        1          1
+1        0          1
+0        0          0
+=====   ======  ==============
+
+Podría decirse que:
+
+* AND es la multiplicación lógica: si cualquiera de los 2 bits es cero, el resultado es cero (0*0=0, 0*1=0, 1*0=0); dicho resultado sólo será uno cuando ambos bits sean 1 (1*1=1).
+* OR es la suma lógica: si alguno de los bits es uno, el resultado es uno (1+1=1, 0+1=1, 1+0=1). Sólo obtendremos un 0 al hacer un OR entre 2 bits cuando ambos son cero.
+* XOR es una operación de “O EXCLUSIVO” (exclusive OR) donde el resultado es cero cuando los 2 bits operandos son iguales, y uno cuando los 2 bits operandos son diferentes.
+
+Ejemplos::
+
+    10010101 AND 0000111  = 00000101
+    00000101 OR  1100000  = 11000101
+    11000011 XOR 10011001 = 01011010
+
+A la hora de realizar estas operaciones lógicas en nuestro Z80 disponemos de 3 instrucciones cuyos nombres son, como podéis imaginar, AND, OR y XOR. Las tres tienen el mismo formato::
+
+    AND ORIGEN
+    OR  ORIGEN
+    XOR ORIGEN
+
+Donde ORIGEN puede ser cualquier registro de 8 bits, valor inmediato de 8 bits, contenido de la memoria apuntada por [HL], o contenido de la memoria apuntada por un registro índice más un desplazamiento. El formato de la instrucción no requiere 2 operandos, ya que el registro destino sólo puede ser A.
+
+La operación CPL, que vimos al principio de este capítulo, también se considera una operación lógica, equivalente a NOT (0→1 y 1→0).
+
+Pero continuemos con AND, OR y XOR. Veamos algunos ejemplos de instrucciones válidas: 
+
+.. code-block:: tasm
+
+    AND B
+    OR C
+    OR [HL]
+    XOR [IX+10]
+    AND 45
+
+La operación realizada por estas instrucciones sería::
+
+    AND ORIGEN -> A = A & ORIGEN
+    OR  ORIGEN -> A = A | ORIGEN
+    XOR ORIGEN -> A = A ^ ORIGEN
+    (Donde & = AND, | = OR y ^ = XOR)
+
+Recordemos que AND, OR y XOR son operaciones lógicas de un sólo bit, de modo que al trabajar con registros (o memoria, o valores inmediatos), en realidad estamos realizando 8 operaciones AND, OR o XOR, entre los diferentes bits de los operandos. Por ejemplo, al hacer un AND entre los registros A y B con “AND B” (A=A&B), realizamos las siguientes operaciones::
+
+    Registro A:   Bit  7  6  5  4  3  2  1  0
+                ----------------------------
+                    A7 A6 A5 A4 A3 A2 A1 A0
+
+    Registro B:   Bit  7  6  5  4  3  2  1  0
+                ----------------------------
+                    B7 B6 B5 B4 B3 B2 B1 B0
+
+Resultado::
+
+    A7 = A7 AND B7
+    A6 = A6 AND B6
+    A5 = A5 AND B5
+    A4 = A4 AND B4
+    A3 = A3 AND B3
+    A2 = A2 AND B2
+    A1 = A1 AND B1
+    A0 = A0 AND B0
+
+Es decir, se hace una operación AND entre el bit 7 de A y el bit 7 de B, y se almacena el resultado en el bit 7 de A, y lo mismo para los bits restantes.
+
+¿Para qué pueden servirnos estas 3 operaciones lógicas? Tenga el lector por seguro que a lo largo de nuestros programas tendremos que usarlas, y mucho, porque son operaciones muy importantes a la hora de manipular registros. Por ejemplo, supongamos que queremos eliminar los 4 bits más altos de un registro, dejándolos a cero, y dejar sin alterar el estado de los 4 bits menos significativos.
+
+Podríamos hacer: 
+
+.. code-block:: tasm
+
+    RES 7, A
+    RES 6, A
+    RES 5, A
+    RES 4, A
+
+Pero sería mucho más sencillo:
+
+.. code-block:: tasm
+
+    AND %00001111
+
+O sea, realizar la operación::
+
+    A = A AND 00001111b
+
+Veamos un ejemplo del porqué::
+
+    Sea A = 10101011
+    valor = 00001111
+        ------------ <-- Operación AND
+            00001011
+
+Como AND es la operación lógica de la multiplicación, al hacer un AND de A con 00001111, todos aquellos bits que son cero en 00001111 quedarán a cero en el resultado, y todos aquellos bits que son uno en 00001111 no modificarán el estado de los bits de A.
+
+De la misma forma, por ejemplo, OR nos permite fusionar 2 cuartetos de bits::
+
+    Sea A = 10100000
+    Sea B = 00001111
+        ------------ <-- Operación OR
+            10101111
+
+La afectación de flags de las 3 instrucciones es idéntica:
+
+
+ ==============   ====== ====== ====== ====== ====== ====== 
+ Instrucción      Flag S Flag Z Flag H Flag P Flag N Flag C 
+ ==============   ====== ====== ====== ====== ====== ====== 
+ AND s              *      *       *     P      0      0
+ OR  s              *      *       *     P      0      0
+ XOR s              *      *       *     P      0      0
+ ==============   ====== ====== ====== ====== ====== ====== 
+ 
+
+Una curiosidad: XOR A es equivalente a “LD A, 0”. Dejamos como ejercicio al lector comprobar por qué mediante algún ejemplo práctico con diferentes valores de A.
+

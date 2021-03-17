@@ -4,7 +4,7 @@ Lenguaje Ensamblador del Z80 (II)
 Desplazamientos de memoria, manipulación de bits y operaciones lógicas
 ----------------------------------------------------------------------------
 
-En el anterior capítulo comenzamos nuestra andadura en el lenguaje ensamblador del Z80 por medio de las instrucciones de carga (LD), operaciones aritméticas (*ADD*, *ADC*, *SUB*, *SBC*, *INC*, *DEC*) y de intercambio (*EXX* y *EX*). Mientras se introducían las diferentes instrucciones, mostramos la manera de emplear los registros y cómo los resultados podían afectar a los flags del registro F, mediante las “tablas de afectación de flags”.
+En el anterior capítulo comenzamos nuestra andadura en el lenguaje ensamblador del Z80 por medio de las instrucciones de carga (LD), operaciones aritméticas (*ADD*, *ADC*, *SUB*, *SBC*, *INC*, *DEC*) y de intercambio (*EXX* y *EX*). Mientras se introducían las diferentes instrucciones, mostramos la manera de emplear los registros y cómo los resultados podían afectar a los flags del registro F, mediante las "tablas de afectación de flags".
 
 Toda la teoría explicada en el anterior capítulo del curso nos permitirá avanzar ahora mucho más rápido, ya que con todos los conceptos asimilados podemos ir realizando una rápida introducción a nuevas instrucciones, bastando ahora con una simple descripción de cada una de ellas. Las tablas de afectación de flags y comentarios sobre los operandos permitidos (o prohibidos) para cada una de ellas completarán la formación necesaria.
 
@@ -88,7 +88,7 @@ Estas instrucciones son enormemente útiles porque nos permiten copiar bloques d
     LD BC, 6912
     LDIR
 
-Con el anterior programa, copiamos los 6912 bytes que hay a partir de la dirección de memoria 16384 (la pantalla) y los almacenamos a partir de la dirección 50000. De este modo, desde 50000 a 56912 tendremos una copia del estado de la pantalla (podría servir, por ejemplo, para modificar cosas en esta “pantalla virtual” y después copiarla de nuevo a la videoram, tomando HL=50000 y DE=16384).
+Con el anterior programa, copiamos los 6912 bytes que hay a partir de la dirección de memoria 16384 (la pantalla) y los almacenamos a partir de la dirección 50000. De este modo, desde 50000 a 56912 tendremos una copia del estado de la pantalla (podría servir, por ejemplo, para modificar cosas en esta "pantalla virtual" y después copiarla de nuevo a la videoram, tomando HL=50000 y DE=16384).
 
 Para demostrar esto, ensamblemos y ejecutemos el siguiente ejemplo:
 
@@ -149,7 +149,7 @@ Recordemos el significado de los símbolos de la tabla de afectación de flags (
     P = El flag se comporta como un flag de Paridad acorde al resultado.
     ? = El flag toma un valor indeterminado.
 
-Una duda que puede asaltarle al lector es: “si tenemos LDIR para copiar bloques, ¿para qué nos puede servir LDDR? ¿No es una instrucción redundante, que podemos no necesitar nunca gracias a LDIR? La respuesta es que LDDR es especialmente útil cuando hay que hacer copias de bloques de datos que se superponen.
+Una duda que puede asaltarle al lector es: "si tenemos LDIR para copiar bloques, ¿para qué nos puede servir LDDR? ¿No es una instrucción redundante, que podemos no necesitar nunca gracias a LDIR? La respuesta es que LDDR es especialmente útil cuando hay que hacer copias de bloques de datos que se superponen.
 
 Supongamos que tenemos que realizar una copia de 1000 bytes desde 25000 hasta 25100. Preparamos para ello el siguiente código:
 
@@ -168,7 +168,7 @@ Este código no funcionará como esperamos: ambas zonas se superponen, con lo cu
 
 ¿Qué ocurrirá cuando LDIR llegue al byte número 25100 y lo intente copiar a 25200? Sencillamente, que hemos perdido el contenido REAL del byte número 25100, porque fue machacado al principio de la ejecución del LDIR por el byte contenido en [25000]. No estamos moviendo el bloque correctamente, porque las zonas se superponen y cuando llegamos a la zona destino, estamos copiando bytes que movimos desde el origen.
 
-Para ello, lo correcto sería utilizar el siguiente código de “copia hacia atrás”:
+Para ello, lo correcto sería utilizar el siguiente código de "copia hacia atrás":
 
 .. code-block:: tasm
 
@@ -193,7 +193,7 @@ Que es, efectivamente, lo que queríamos hacer, pero sin perder datos en la copi
 Un ejemplo de rutina con LDIR
 ----------------------------------
 
-Vamos a ver un ejemplo de rutina en ensamblador que utiliza LDIR con un propósito concreto: vamos a cargar una pantalla de carga (por ejemplo, para nuestros juegos) de forma que no aparezca poco a poco como lo haría con LOAD ”“ SCREEN$, sino que aparezca de golpe.
+Vamos a ver un ejemplo de rutina en ensamblador que utiliza LDIR con un propósito concreto: vamos a cargar una pantalla de carga (por ejemplo, para nuestros juegos) de forma que no aparezca poco a poco como lo haría con LOAD "" SCREEN$, sino que aparezca de golpe.
 
 Para eso lo que haremos será lo siguiente:
 
@@ -224,7 +224,7 @@ Nos crearemos un cargador BASIC que realice el trabajo de pokear nuestra rutina 
     60 RANDOMIZE USR 40000
     70 PAUSE 0
 
-Grabamos este cargador en cinta (o tap/tzx), y a continuación, tras el cargador, grabamos una pantalla de carga, que es cargada desde cinta en la dirección de memoria 50000 con la sentencia BASIC LOAD ”“ CODE.
+Grabamos este cargador en cinta (o tap/tzx), y a continuación, tras el cargador, grabamos una pantalla de carga, que es cargada desde cinta en la dirección de memoria 50000 con la sentencia BASIC LOAD "" CODE.
 
 Ejecutamos el programa resultante en emulador o Spectrum, y veremos cómo la carga de la pantalla no puede verse en el monitor. Cuando está termina su carga, la rutina ensamblador se ejecuta y se vuelca, de golpe, a la videoram (estad atentos a la carga, porque el volcado es muy rápido). 
 
@@ -242,9 +242,9 @@ Algunas instrucciones especiales
 Antes de comenzar con las instrucciones de manipulación de registros y datos a nivel de bits vamos a ver una serie de instrucciones difíciles de encuadrar en futuros apartados y que pueden sernos de utilidad en nuestros programas:
 
 * SCF: Set Carry Flag : Esta instrucción (que no admite parámetros) pone a 1 el Carry Flag del registro F. Puede sernos útil en determinadas operaciones aritméticas.
-* CCF: Complement Carry Flag : Esta instrucción (que tampoco admite parámetros) invierte el estado del bit de Carry Flag: si está a 1 lo pone a 0, y viceversa. Puede servirnos para poner a 0 el carry flag mediante la combinación de SCF + CCF, aunque esta misma operación se puede realizar con un simple “AND A”.
+* CCF: Complement Carry Flag : Esta instrucción (que tampoco admite parámetros) invierte el estado del bit de Carry Flag: si está a 1 lo pone a 0, y viceversa. Puede servirnos para poner a 0 el carry flag mediante la combinación de SCF + CCF, aunque esta misma operación se puede realizar con un simple "AND A".
 * NOP: No OPeration : Esta instrucción especial del microprocesador ocupa un byte en el código (opcode $00) y no efectúa ninguna operación ni afecta a ningún flag. En cambio, se toma 4 t-states (t-estados, o ciclos del procesador) para ejecutarse, debido al ciclo de fetch/decode/execute del procesador. ¿Para qué puede servir una instrucción que no realiza ninguna acción y que requiere tiempo del procesador (aunque sea muy poco) para ejecutarse? Por un lado, podemos utilizarla en bucles de retardos (varios NOPs ejecutados en un bucle que se repita varias veces) para poner retardos en nuestros programas o juegos. Por otro, como ocupa un byte en memoria (en el código) y no realiza ninguna operación, podemos utilizarla para rellenar zonas de nuestro código, y así alinear código posterior en una determinada dirección que nos interese.
-* DAA: Decimal Adjust Accumulator : Esta instrucción permite realizar ajustes en los resultados de operaciones con números BCD (tras operaciones aritméticas). ¿Qué son los números en formato BCD? Es una manera de representar números en los registros (o memoria) de forma que de los 8 bits de un byte se utilizan los 4 bits del 0 al 3 para representar un número del 0 al 9 (4 bits = desde 0000 hasta 1111), y los 4 bits del bit 4 al 7 para representar otro número del 0 al 9. A los 2 números BCD juntos se les llama “Byte BCD” o “números en formato BCD”. Un número BCD puede estar formado por varios bytes BCD, siendo cada byte 2 cifras del mismo. Así, para representar un número de 10 cifras en BCD sólo es necesario utilizar 5 bytes. Además, podemos utilizar un byte extra que indique la posición de la “coma decimal” para así poder trabajar con números decimales en ensamblador. Si queremos realizar operaciones entre este tipo de números deberemos programarnos nosotros mismos las rutinas para realizarlas.
+* DAA: Decimal Adjust Accumulator : Esta instrucción permite realizar ajustes en los resultados de operaciones con números BCD (tras operaciones aritméticas). ¿Qué son los números en formato BCD? Es una manera de representar números en los registros (o memoria) de forma que de los 8 bits de un byte se utilizan los 4 bits del 0 al 3 para representar un número del 0 al 9 (4 bits = desde 0000 hasta 1111), y los 4 bits del bit 4 al 7 para representar otro número del 0 al 9. A los 2 números BCD juntos se les llama "Byte BCD" o "números en formato BCD". Un número BCD puede estar formado por varios bytes BCD, siendo cada byte 2 cifras del mismo. Así, para representar un número de 10 cifras en BCD sólo es necesario utilizar 5 bytes. Además, podemos utilizar un byte extra que indique la posición de la "coma decimal" para así poder trabajar con números decimales en ensamblador. Si queremos realizar operaciones entre este tipo de números deberemos programarnos nosotros mismos las rutinas para realizarlas.
 
 A lo largo del curso no utilizaremos números en BCD y por lo tanto es muy probable que no lleguemos a utilizar DAA, pero conviene saber que el Z80 nos brinda la oportunidad de utilizar números más grandes de 16 bits, operando con números en BCD. Para realizar juegos normalmente no necesitaremos de estas instrucciones.
 
@@ -309,7 +309,7 @@ SET, RES y BIT
 
 Las siguientes instrucciones que vamos a ver nos permitirán el manejo de cualquiera de los bits de un registro o posición de memoria: activar un bit (ponerlo a uno), desactivar un bit (ponerlo a cero), o comprobar su valor (averiguar si es cero o uno) afectando a los flags.
 
-Comencemos con “SET”. Esta instrucción activa (pone a valor 1) uno de los bits de un registro o dirección de memoria. El formato de la instrucción es::
+Comencemos con "SET". Esta instrucción activa (pone a valor 1) uno de los bits de un registro o dirección de memoria. El formato de la instrucción es::
 
     SET bit, DESTINO
 
@@ -479,13 +479,13 @@ RL s               *      *      0      P      0      *
 RR s               *      *      0      P      0      *
 ==============   ====== ====== ====== ====== ====== ====== 
 
-El destino “s” puede ser cualquier registro de 8 bits, memoria apuntada por HL o registros índice con desplazamiento. Como veis hay muchos flags afectados, y en esta ocasión el flag P/V ya no nos sirve para indicar desbordamientos sino que su estado nos da la PARIDAD del resultado de la operación de rotación. Con el flag P a uno, tenemos paridad par (even), es decir, el número de bits a uno en el resultado es par. Si está a cero significa que el número de bits a uno en el resultado es impar.
+El destino "s" puede ser cualquier registro de 8 bits, memoria apuntada por HL o registros índice con desplazamiento. Como veis hay muchos flags afectados, y en esta ocasión el flag P/V ya no nos sirve para indicar desbordamientos sino que su estado nos da la PARIDAD del resultado de la operación de rotación. Con el flag P a uno, tenemos paridad par (even), es decir, el número de bits a uno en el resultado es par. Si está a cero significa que el número de bits a uno en el resultado es impar.
 
 
 RLA, RRA, RLCA y RRCA
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Aunque pueda parecer sorprendente (ya que podemos utilizar las 4 operaciones anteriores con el registro A como operando), existen 4 instrucciones más dedicadas exclusivamente a trabajar con “A”: hablamos de RLA, RRA, RLCA y RRCA. La diferencia entre estas 4 instrucciones y su versión con un espacio en medio (RL A, RR A, RLC A y RRC A) radica simplemente en que las nuevas 4 instrucciones alteran los flags de una forma diferente:
+Aunque pueda parecer sorprendente (ya que podemos utilizar las 4 operaciones anteriores con el registro A como operando), existen 4 instrucciones más dedicadas exclusivamente a trabajar con "A": hablamos de RLA, RRA, RLCA y RRCA. La diferencia entre estas 4 instrucciones y su versión con un espacio en medio (RL A, RR A, RLC A y RRC A) radica simplemente en que las nuevas 4 instrucciones alteran los flags de una forma diferente:
 
 
 ==============   ====== ====== ====== ====== ====== ====== 
@@ -579,7 +579,7 @@ Donde operando puede ser el mismo tipo de operando que en las instrucciones de r
 Literalmente::
 
     Rotar los bits a la izquierda (<<).
-    El bit “a” (bit 7) se copia al Carry Flag.
+    El bit "a" (bit 7) se copia al Carry Flag.
     Por la derecha entra un cero.
 
 
@@ -589,8 +589,8 @@ Literalmente::
 
 Literalmente:
 
-* Rotar los bits a la derecha (»).
-* El bit “h” (bit 0) se copia al Carry Flag.
+* Rotar los bits a la derecha (>>).
+* El bit "h" (bit 0) se copia al Carry Flag.
 * En la izquierda (bit 7) se mantiene su valor anterior.
 
 Nótese pues que SLA y SRA nos permiten trabajar también con números negativos. En el caso de SLA se utiliza el carry flag para almacenar el estado del bit 7 tras la rotación (con lo cual podemos conservar el signo si sabemos dónde buscarlo). En el caso de SRA, porque el bit 7 además de desplazarse hacia la derecha se mantiene en su posición (manteniendo el signo).
@@ -661,8 +661,8 @@ Existe una pequeña variante de SRA llamada SRL que realiza la misma acción que
 
 Literalmente:
 
-* Rotar los bits a la derecha (»).
-* El bit “h” (bit 0) se copia al Carry Flag.
+* Rotar los bits a la derecha (>>).
+* El bit "h" (bit 0) se copia al Carry Flag.
 * Por la izquierda entra un cero.
 
 .. figure:: sla_sra_srl.png
@@ -706,7 +706,7 @@ Además, gracias a la combinación de instrucciones de rotación y desplazamient
     SLA E
     RL  D
 
-Lo que hacemos con “SLA E” es desplazar el byte más bajo del registro de 16 bits DE hacia la izquierda, dejando el bit 7 de “E” en el Carry Flag, y después realizar una rotación de “D” hacia la izquierda introduciendo el carry flag de la operación anterior en el bit 0 de “D”.
+Lo que hacemos con "SLA E" es desplazar el byte más bajo del registro de 16 bits DE hacia la izquierda, dejando el bit 7 de "E" en el Carry Flag, y después realizar una rotación de "D" hacia la izquierda introduciendo el carry flag de la operación anterior en el bit 0 de "D".
 
 Registro DE original::
 
@@ -716,7 +716,7 @@ Registro DE original::
         -------------------------------------------------     -----
           a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p        ?
 
-Primero con SLA E rotamos la parte baja, metiendo el bit “i” en el Carry Flag:
+Primero con SLA E rotamos la parte baja, metiendo el bit "i" en el Carry Flag:
 
 SLA E::
 
@@ -726,7 +726,7 @@ SLA E::
         -------------------------------------------------     -----
           a  b  c  d  e  f  g  h  j  k  l  m  n  o  p  0        i
 
-Ahora con RL D rotamos D introduciendo el bit “i” en su bit 0:
+Ahora con RL D rotamos D introduciendo el bit "i" en su bit 0:
 
 RL D::
 
@@ -794,7 +794,7 @@ Podría decirse que:
 
 * AND es la multiplicación lógica: si cualquiera de los 2 bits es cero, el resultado es cero (0*0=0, 0*1=0, 1*0=0); dicho resultado sólo será uno cuando ambos bits sean 1 (1*1=1).
 * OR es la suma lógica: si alguno de los bits es uno, el resultado es uno (1+1=1, 0+1=1, 1+0=1). Sólo obtendremos un 0 al hacer un OR entre 2 bits cuando ambos son cero.
-* XOR es una operación de “O EXCLUSIVO” (exclusive OR) donde el resultado es cero cuando los 2 bits operandos son iguales, y uno cuando los 2 bits operandos son diferentes.
+* XOR es una operación de "O EXCLUSIVO" (exclusive OR) donde el resultado es cero cuando los 2 bits operandos son iguales, y uno cuando los 2 bits operandos son diferentes.
 
 Ejemplos::
 
@@ -829,7 +829,7 @@ La operación realizada por estas instrucciones sería::
     XOR ORIGEN -> A = A ^ ORIGEN
     (Donde & = AND, | = OR y ^ = XOR)
 
-Recordemos que AND, OR y XOR son operaciones lógicas de un sólo bit, de modo que al trabajar con registros (o memoria, o valores inmediatos), en realidad estamos realizando 8 operaciones AND, OR o XOR, entre los diferentes bits de los operandos. Por ejemplo, al hacer un AND entre los registros A y B con “AND B” (A=A&B), realizamos las siguientes operaciones::
+Recordemos que AND, OR y XOR son operaciones lógicas de un sólo bit, de modo que al trabajar con registros (o memoria, o valores inmediatos), en realidad estamos realizando 8 operaciones AND, OR o XOR, entre los diferentes bits de los operandos. Por ejemplo, al hacer un AND entre los registros A y B con "AND B" (A=A&B), realizamos las siguientes operaciones::
 
     Registro A:   Bit  7  6  5  4  3  2  1  0
                 ----------------------------
@@ -901,5 +901,5 @@ La afectación de flags de las 3 instrucciones es idéntica:
  ==============   ====== ====== ====== ====== ====== ====== 
  
 
-Una curiosidad: XOR A es equivalente a “LD A, 0”. Dejamos como ejercicio al lector comprobar por qué mediante algún ejemplo práctico con diferentes valores de A.
+Una curiosidad: XOR A es equivalente a "LD A, 0". Dejamos como ejercicio al lector comprobar por qué mediante algún ejemplo práctico con diferentes valores de A.
 

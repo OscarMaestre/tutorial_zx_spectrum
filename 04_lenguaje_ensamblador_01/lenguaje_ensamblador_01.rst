@@ -504,7 +504,7 @@ Veamos ejemplos válidos y cuál sería el resultado de su ejecución:
 
 Hagamos hincapié de nuevo en el mismo detalle: debido a que el juego de instrucciones del Z80 no es ortogonal, en ocasiones no podemos ejecutar ciertas operaciones que podrían sernos útiles con determinados registros. En ese caso tendremos que buscar una solución mediante los registros y operaciones válidas de que disponemos.
 
-Un detalle muy importante respecto a las instrucciones de carga: en el caso de las operaciones LD, el registro F no ve afectado ninguno de sus indicadores o flags en relación al resultado de la ejecución de las mismas (salvo en el caso de “LD A, I” y “LD A, R”). 
+Un detalle muy importante respecto a las instrucciones de carga: en el caso de las operaciones LD, el registro F no ve afectado ninguno de sus indicadores o flags en relación al resultado de la ejecución de las mismas (salvo en el caso de "LD A, I" y "LD A, R"). 
 
                       
 =============   === === === === === ===                 

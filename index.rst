@@ -15,6 +15,7 @@ Tutorial de ensamblador para ZX Spectrum
    03_arquitectura/arquitectura.rst
    04_lenguaje_ensamblador_01/lenguaje_ensamblador_01
    05_lenguaje_ensamblador_02/lenguaje_ensamblador_02
+   06_lenguaje_ensamblador_03/lenguaje_ensamblador_03
 
 Indices y tablas
 ==================

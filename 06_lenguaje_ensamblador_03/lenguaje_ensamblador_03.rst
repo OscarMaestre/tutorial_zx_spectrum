@@ -72,21 +72,21 @@ Si mostramos las direcciones de memoria en que se ensambla cada instrucción, ve
     50020   JP bucle
     50023   RET
 
-¿Dónde está en ese listado de instrucciones nuestra etiqueta “bucle”? Sencillo: no está. No es ninguna instrucción, sino, para el ensamblador, una referencia a la celdilla de memoria 50003, donde está la instrucción que sigue a la etiqueta.
+¿Dónde está en ese listado de instrucciones nuestra etiqueta "bucle"? Sencillo: no está. No es ninguna instrucción, sino, para el ensamblador, una referencia a la celdilla de memoria 50003, donde está la instrucción que sigue a la etiqueta.
 
-En nuestro ejemplo anterior, le decimos al programa ensamblador mediante ORG 50000 que nuestro código, una vez ensamblado, debe quedar situado a partir de la dirección 50000, con lo cual cuando calcule las direcciones de las etiquetas deberá hacerlo en relación a esta dirección de origen. Así, en nuestro ejemplo anterior la instrucción NOP, que se ensambla con el opcode $00, será “pokeada” (por nuestro cargador BASIC) en la dirección 50000. La instrucción LD B, 10, cuyo opcode tiene 2 bytes, será “pokeada” en 50001 y 50002, y así con todas las instrucciones del programa.
+En nuestro ejemplo anterior, le decimos al programa ensamblador mediante ORG 50000 que nuestro código, una vez ensamblado, debe quedar situado a partir de la dirección 50000, con lo cual cuando calcule las direcciones de las etiquetas deberá hacerlo en relación a esta dirección de origen. Así, en nuestro ejemplo anterior la instrucción NOP, que se ensambla con el opcode $00, será "pokeada" (por nuestro cargador BASIC) en la dirección 50000. La instrucción LD B, 10, cuyo opcode tiene 2 bytes, será "pokeada" en 50001 y 50002, y así con todas las instrucciones del programa.
 
-Cuando el ensamblador se encuentra la etiqueta “bucle:” después del “LD B, 10”, ¿cómo la ensambla? Supuestamente le corresponde la posición 50003, pero recordemos que esto no es una instrucción, sino una etiqueta: no tiene ningún significado para el microprocesador, sólo para el programa ensamblador. Por eso, cuando el ensamblador encuentra la etiqueta “bucle:”, asocia internamente esta etiqueta (el texto “bucle”) a la dirección 50003, que es la dirección donde hemos puesto la etiqueta.
+Cuando el ensamblador se encuentra la etiqueta "bucle:" después del "LD B, 10", ¿cómo la ensambla? Supuestamente le corresponde la posición 50003, pero recordemos que esto no es una instrucción, sino una etiqueta: no tiene ningún significado para el microprocesador, sólo para el programa ensamblador. Por eso, cuando el ensamblador encuentra la etiqueta "bucle:", asocia internamente esta etiqueta (el texto "bucle") a la dirección 50003, que es la dirección donde hemos puesto la etiqueta.
 
 Si la etiqueta fuera una instrucción, se ensamblaría en la dirección 50003, pero como no lo es, el programa ensamblador simplemente la agrega a una tabla interna de referencias, donde lo que anota es:
 
 
-* La etiqueta “bucle” apunta a la dirección 50003
+* La etiqueta "bucle" apunta a la dirección 50003
 
 
-Lo que realmente ensamblará en la dirección 50003 (y en la 50004) es la instrucción siguiente: “LD A, 20”.
+Lo que realmente ensamblará en la dirección 50003 (y en la 50004) es la instrucción siguiente: "LD A, 20".
 
-Pero, entonces, ¿para qué nos sirve la etiqueta? Sencillo: para poder hacer referencia en cualquier momento a esa posición de memoria (del programa, en este caso), mediante una cadena fácil de recordar en lugar de mediante un número. Es más sencillo recordar “bucle” que recordar “50003”, y si nuestro programa es largo y tenemos muchos saltos, funciones o variables, acabaremos utilizando decenas y centenares de números para saltos, con lo que el programa sería inmanejable.
+Pero, entonces, ¿para qué nos sirve la etiqueta? Sencillo: para poder hacer referencia en cualquier momento a esa posición de memoria (del programa, en este caso), mediante una cadena fácil de recordar en lugar de mediante un número. Es más sencillo recordar "bucle" que recordar "50003", y si nuestro programa es largo y tenemos muchos saltos, funciones o variables, acabaremos utilizando decenas y centenares de números para saltos, con lo que el programa sería inmanejable.
 
 El siguiente programa es equivalente al anterior, pero sin usar etiquetas:
 
@@ -102,7 +102,7 @@ El siguiente programa es equivalente al anterior, pero sin usar etiquetas:
     JP 50003
     RET
 
-En este caso, “JP 50003” no permite distinguir rápidamente a qué instrucción vamos a saltar, mientras que la etiqueta “bucle” que utilizamos en el anterior ejemplo marcaba de forma indiscutible el destino del salto.
+En este caso, "JP 50003" no permite distinguir rápidamente a qué instrucción vamos a saltar, mientras que la etiqueta "bucle" que utilizamos en el anterior ejemplo marcaba de forma indiscutible el destino del salto.
 
 Las etiquetas son muy útiles no sólo por motivos de legibilidad del código. Imaginemos que una vez acabado nuestro programa sin etiquetas (utilizando sólo direcciones numéricas), con muchos saltos (JP, CALL, JR, DJNZ…) a diferentes partes del mismo, tenemos que modificarlo para corregir alguna parte del mismo. Al añadir o quitar instrucciones del programa, estamos variando las posiciones donde se ensambla todo el programa. Si por ejemplo, añadiéramos un NOP extra al principio del mismo, ya no habría que saltar a 50003 sino a 50004:
 
@@ -120,7 +120,7 @@ Las etiquetas son muy útiles no sólo por motivos de legibilidad del código. I
     JP 50004   ; La dirección de salto cambia
     RET
 
-Para que nuestro programa funcione, tendríamos que cambiar TODAS las direcciones numéricas de salto del programa, a mano (recalculandolas todas). Las etiquetas evitan esto, ya que es el programa ensamblador quien, en tiempo de ensamblado, cuando está convirtiendo el programa a código objeto, cambia todas las referencias a la etiqueta por el valor numérico correcto (por la posición donde aparece la etiqueta). Un “JP bucle” siempre saltaría a la dirección correcta (la de la posición de la etiqueta) aunque cambiemos la cantidad de instrucciones del programa.
+Para que nuestro programa funcione, tendríamos que cambiar TODAS las direcciones numéricas de salto del programa, a mano (recalculandolas todas). Las etiquetas evitan esto, ya que es el programa ensamblador quien, en tiempo de ensamblado, cuando está convirtiendo el programa a código objeto, cambia todas las referencias a la etiqueta por el valor numérico correcto (por la posición donde aparece la etiqueta). Un "JP bucle" siempre saltaría a la dirección correcta (la de la posición de la etiqueta) aunque cambiemos la cantidad de instrucciones del programa.
 
 Como veremos posteriormente, la instrucción JP realiza un salto de ejecución de código a una posición de memoria dada. Literalmente, un JP XX hace el registro PC = XX, de forma que alteramos el orden de ejecución del programa. Las etiquetas nos permiten establecer posiciones donde saltar en nuestro programa para utilizarlas luego fácilmente: 
 
@@ -224,7 +224,7 @@ texto DB "Esto es una cadena de texto"
    Resultado de RANDOMIZE USR 50000 en nuestro programa
 
 
-Como puede verse, con DB hemos “insertado” datos directamente dentro de nuestro programa. Estos datos se cargarán en memoria (pokeados) también como parte del programa, y podremos acceder a ellos posteriormente. Los datos, en nuestro programa, están situados en la memoria, justo después de las instrucciones ensambladas (tras el último RET). Podemos verlo si ensamblamos el programa::
+Como puede verse, con DB hemos "insertado" datos directamente dentro de nuestro programa. Estos datos se cargarán en memoria (pokeados) también como parte del programa, y podremos acceder a ellos posteriormente. Los datos, en nuestro programa, están situados en la memoria, justo después de las instrucciones ensambladas (tras el último RET). Podemos verlo si ensamblamos el programa::
 
     $ pasmo --bin db.asm db.bin
 
@@ -235,11 +235,11 @@ Como puede verse, con DB hemos “insertado” datos directamente dentro de nues
     00000030  65 6e 61 20 64 65 20 74  65 78 74 6f              |ena de texto|
     0000003c
 
-Si os fijáis, podemos ver el RET (201, o $C9) justo antes del bloque de datos FF, FF, 0, FF. Concretamente, la etiqueta “datos” en el programa hará referencia (al pokear el programa a partir de 50000), a la posición de memoria 50022, que contendrá el 00 inicial de nuestros datos DB.
+Si os fijáis, podemos ver el RET (201, o $C9) justo antes del bloque de datos FF, FF, 0, FF. Concretamente, la etiqueta "datos" en el programa hará referencia (al pokear el programa a partir de 50000), a la posición de memoria 50022, que contendrá el 00 inicial de nuestros datos DB.
 
-Cuando en el programa hacemos “LD HL, datos”, el ensamblador transforma esa instrucción en realidad en “LD HL, 50022” (fijaos en el principio del programa: 21 66 C3, que corresponde a LD HL, C366, que es 50022). Gracias a esto podemos manipular los datos (que están en memoria) y leerlos y cambiarlos, utilizando un “nombre” como referencia a la celdilla de memoria de inicio de los mismos.
+Cuando en el programa hacemos "LD HL, datos", el ensamblador transforma esa instrucción en realidad en "LD HL, 50022" (fijaos en el principio del programa: 21 66 C3, que corresponde a LD HL, C366, que es 50022). Gracias a esto podemos manipular los datos (que están en memoria) y leerlos y cambiarlos, utilizando un "nombre" como referencia a la celdilla de memoria de inicio de los mismos.
 
-Lo mismo ocurre con el texto que se ha definido entre dobles comillas. A partir de la dirección definida por “texto” se colocan todos los bytes que forman la cadena “Esto es una cadena de texto”. Cada byte en memoria es una letra de la cadena, en formato ASCII (La “E” es $45, la “s” es $73“, etc.).
+Lo mismo ocurre con el texto que se ha definido entre dobles comillas. A partir de la dirección definida por "texto" se colocan todos los bytes que forman la cadena "Esto es una cadena de texto". Cada byte en memoria es una letra de la cadena, en formato ASCII (La "E" es $45, la "s" es $73", etc.).
 
 Con DB (o DEFB, que es un equivalente por compatibilidad con otros ensambladores) podremos definir:
 
@@ -304,4 +304,45 @@ Lo correcto sería:
 
 Los microprocesadores como el Z80 no saben distinguir entre datos e instrucciones, y es por eso que tenemos que tener cuidado de no ejecutar datos como si fueran códigos de instrucción del Z80. De hecho, si hacemos un RANDOMIZE USR XX (siendo XX cualquier valor de la memoria fuera de la ROM), lo más probable es que ejecutemos datos como si fueran instrucciones y el Spectrum se cuelgue, ya que los datos no son parte de un programa, y la ejecución resultante de interpretar esos datos no tendría ningún sentido.
 
+
+Saltos absolutos incondicionales: JP
+--------------------------------------------------------------------------------
+
+
+
+Ya sabemos definir etiquetas en nuestros programas y referenciarlas. Ahora la pregunta es: ¿para qué sirven estas etiquetas? Aparte de referencias para usarlas como variables o datos, su principal uso será saltar a ellas con las instrucciones de salto.
+
+Para empezar vamos a ver 2 instrucciones de salto incondicionales, es decir, cuando lleguemos a una de esas 2 instrucciones, se modificará el registro PC para cambiar la ejecución del programa. De esta forma podremos realizar bucles, saltos a rutinas o funciones, etc.
+
+Empecemos con JP (abreviatura de JumP):
+
+.. code-block:: tasm
+
+    ; Ejemplo de un programa con un bucle infinito
+        ORG 50000
+    
+        XOR A               ; A = 0
+    bucle:
+        INC A               ; A = A + 1
+        LD (16384), A       ; Escribir valor de A en (16384)
+        JP bucle   
+    
+        RET                 ; Esto nunca se ejecutará
+    
+        END 50000
+
+
+¿Qué hace el ejemplo anterior? Ensamblémoslo con ``pasmo –tapbas bucle.asm bucle.tap``  y carguémoslo en BASIC.
+
+Nada más entrar en 50000, se ejecuta un "INC A". Después se hace un "LD (16384), A", es decir, escribimos en la celdilla (16384) de la memoria el valor que contiene A. Esta celdilla se corresponde con los primeros 8 píxeles de la pantalla, con lo cual estaremos cambiando el contenido de la misma.
+
+Tras esta escritura, encontramos un "JP bucle", que lo que hace es cambiar el valor de PC y hacerlo, de nuevo, PC=50000. El código se volverá a repetir, y de nuevo al llegar a JP volveremos a saltar a la dirección definida por la etiqueta "bucle". Es un bucle infinito, realizado gracias a este salto incondicional (podemos reiniciar el Spectrum para retomar el control). Estaremos repitiendo una y otra vez la misma porción de código, que cambia el contenido de los 8 primeros píxeles de pantalla poniendo en ellos el valor de A (que varía desde 0 a 255 continuadamente).
+
+Utilizaremos pues JP para cambiar el rumbo del programa y cambiar PC para ejecutar otras porciones de código (anteriores o posteriores a la posición actual) del mismo. JP realiza pues lo que se conoce como "SALTO INCONDICIONAL ABSOLUTO", es decir, saltar a una posición absoluta de memoria (una celdilla de 0 a 65535), mediante la asignación de dicho valor al registro PC.
+
+Existen 3 maneras de usar JP: 
+
+* JP NN: Saltar a la dirección NN. Literalmente: PC = NN
+* JP (HL):  Saltar a la dirección contenida en el registro HL (ojo, no a la dirección apuntada por el registro HL, sino directamente a su valor). Literalmente: PC = HL
+* JP (registro_indice): Saltar a la dirección contenida en IX o IY. Literalmente: PC = IX o PC = IY
 

@@ -148,7 +148,6 @@ Como veremos posteriormente, la instrucción JP realiza un salto de ejecución d
     (...)
     salir:
     RET
-    
     (etc...)
 
 Así, podremos especificar múltiples etiquetas para hacer referencia a todas las posiciones que necesitemos dentro de nuestro programa.
@@ -207,9 +206,8 @@ bucle:
  
    DJNZ bucle
    RET
- 
-datos DB 0, $FF, $FF, 0, $FF, 12, 0, 0, 0, 10, 255
-texto DB "Esto es una cadena de texto"
+   datos DB 0, $FF, $FF, 0, $FF, 12, 0, 0, 0, 10, 255
+   texto DB "Esto es una cadena de texto"
  
    ; Fin del programa
    END

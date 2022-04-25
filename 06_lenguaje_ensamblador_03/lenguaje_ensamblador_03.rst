@@ -172,7 +172,7 @@ Como:
     etiqueta:
 
 
- Como vamos a ver, también podemos utilizar etiquetas para referenciar a bloques de datos, cadenas de texto, gráficos y en general cualquier tipo de dato en crudo que queramos insertar dentro de nuestro programa.
+Como vamos a ver, también podemos utilizar etiquetas para referenciar a bloques de datos, cadenas de texto, gráficos y en general cualquier tipo de dato en crudo que queramos insertar dentro de nuestro programa.
 
 
 

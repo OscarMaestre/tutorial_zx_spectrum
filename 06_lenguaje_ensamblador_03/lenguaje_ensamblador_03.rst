@@ -198,7 +198,7 @@ Por ejemplo:
  
    ; Ahora vamos a sumar 1 a cada carácter:
    LD B, 27
-bucle:
+  bucle:
    LD HL, texto
    LD A, (HL)
    INC A

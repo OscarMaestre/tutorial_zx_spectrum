@@ -148,7 +148,6 @@ Como veremos posteriormente, la instrucción JP realiza un salto de ejecución d
     (...)
     salir:
     RET
-    
     (etc...)
 
 Así, podremos especificar múltiples etiquetas para hacer referencia a todas las posiciones que necesitemos dentro de nuestro programa.
@@ -172,7 +171,7 @@ Como:
     etiqueta:
 
 
- Como vamos a ver, también podemos utilizar etiquetas para referenciar a bloques de datos, cadenas de texto, gráficos y en general cualquier tipo de dato en crudo que queramos insertar dentro de nuestro programa.
+Como vamos a ver, también podemos utilizar etiquetas para referenciar a bloques de datos, cadenas de texto, gráficos y en general cualquier tipo de dato en crudo que queramos insertar dentro de nuestro programa.
 
 
 
@@ -199,7 +198,7 @@ Por ejemplo:
  
    ; Ahora vamos a sumar 1 a cada carácter:
    LD B, 27
-bucle:
+  bucle:
    LD HL, texto
    LD A, (HL)
    INC A
@@ -207,9 +206,8 @@ bucle:
  
    DJNZ bucle
    RET
- 
-datos DB 0, $FF, $FF, 0, $FF, 12, 0, 0, 0, 10, 255
-texto DB "Esto es una cadena de texto"
+   datos DB 0, $FF, $FF, 0, $FF, 12, 0, 0, 0, 10, 255
+   texto DB "Esto es una cadena de texto"
  
    ; Fin del programa
    END

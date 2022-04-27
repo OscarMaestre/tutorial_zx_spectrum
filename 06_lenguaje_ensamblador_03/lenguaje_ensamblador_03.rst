@@ -344,3 +344,74 @@ Existen 3 maneras de usar JP:
 * JP (HL):  Saltar a la dirección contenida en el registro HL (ojo, no a la dirección apuntada por el registro HL, sino directamente a su valor). Literalmente: PC = HL
 * JP (registro_indice): Saltar a la dirección contenida en IX o IY. Literalmente: PC = IX o PC = IY
 
+
+Saltos relativos incondicionales: JR
+--------------------------------------------------------------------------------
+
+
+Además de JP, tenemos otra instrucción para realizar saltos incondicionales: JR. JR trabaja exactamente igual que JP: realiza un salto (cambiando el valor del registro PC), pero lo hace de forma diferente.
+
+JR son las siglas de "Jump Relative", y es que esta instrucción en lugar de realizar un salto absoluto (a una posición de memoria 0-65535), lo hace de forma relativa, es decir, a una posición de memoria alrededor de la posición actual (una vez decodificada la instrucción JR).
+
+El argumento de JR no es pues un valor numérico de 16 bits (0-65535) sino un valor de 8 bits en complemento a dos que nos permite saltar desde la posición actual (referenciada en el ensamblador como "$") hasta 127 bytes hacia adelante y 127 bytes hacia atrás:
+
+Ejemplos de instrucciones JR: 
+
+.. code-block:: tasm
+
+    JR $+25      ; Saltar adelante 25 bytes: PC = PC+25
+    JR $-100     ; Saltar atrás 100 bytes:   PC = PC-100
+
+Nosotros, gracias a las etiquetas, podemos olvidarnos de calcular posiciones y hacer referencia de una forma más sencilla a posiciones en nuestro programa:
+
+Veamos el mismo ejemplo anterior de JP, con JR: 
+
+.. code-block:: tasm
+
+        ; Ejemplo de un programa con un bucle infinito
+        ORG 50000
+    
+    bucle:
+        INC A
+        LD (16384), A
+        JR bucle   
+    
+        RET ; Esto nunca se ejecutará
+
+
+Como puede verse, el ejemplo es exactamente igual que en el caso anterior. No tenemos que utilizar el carácter $ (posición actual de ensamblado) porque al hacer uso de etiquetas es el ensamblador quien se encarga de traducir la etiqueta a un desplazamiento de 8 bits y ensamblarlo.
+
+¿Qué diferencia tiene JP con JR? Pues bien: para empezar en lugar de ocupar 3 bytes (JP + la dirección de 16 bits), ocupa sólo 2 (JR + el desplazamiento de 8 bits) con lo cual se decodifica y ejecuta más rápido.
+
+Además, como la dirección del salto no es absoluta, sino relativa, y de 8 bits en complemento a dos, no podemos saltar a cualquier punto del programa, sino que sólo podremos saltar a código que esté cerca de la línea actual: como máximo 127 bytes por encima o por debajo de la posición actual en memoria.
+
+Si tratamos de ensamblar un salto a una etiqueta que está más allá del alcance de un salto relativo, obtendremos un error como el siguiente::
+
+    ERROR: Relative jump out of range
+
+En ese caso, tendremos que cambiar la instrucción "JR etiqueta" por un "JP etiqueta", de forma que el ensamblador utilice un salto absoluto que le permita llegar a la posición de memoria que queremos saltar y que está más alejada de que la capacidad de salto de JR.
+
+¿Cuál es la utilidad o ventaja de los saltos relativos aparte de ocupar 2 bytes en lugar de 3? Pues que los saltos realizados en rutinas que usen JR y no JP son todos relativos a la posición actual, con lo cual la rutina es REUBICABLE. Es decir, si cambiamos nuestra rutina de 50000 a 60000 (por ejemplo), funcionará, porque los saltos son relativos a "$". En una rutina programada con JP, si la pokeamos en 60000 en lugar de en 50000, cuando hagamos saltos (JP 50003, por ejemplo), saltaremos a lugares donde no está el código (ahora está en 60003) y el programa no hará lo que esperamos. En resumen: JR permite programar rutinas reubicables y JP no.
+
+(Nota: se dice que una rutina es reubicable cuando estando programada a partir de una determinada dirección de memoria, podemos copiar la rutina a otra dirección y sus saltos funcionarán correctamente por no ser absolutos).
+
+¿Recordáis en los cursos y rutinas de Microhobby cuando se decía "Esta rutina es reubicable"? Pues quería decir exactamente eso, que podías copiar la rutina en cualquier lugar de la memoria y llamarla, dado que el autor de la misma había utilizado sólo saltos relativos y no absolutos, por lo que daría igual la posición de memoria en que la POKEaramos.
+
+En nuestro caso, al usar un programa ensamblador en lugar de simplemente disponer de las rutinas en código máquina (ya ensambladas) que nos mostraba microhobby, no se nos plantearán esos problemas, dado que nosotros podemos usar etiquetas y copiar cualquier porción del código a dónde queramos de nuestro programa. Aquellas rutinas etiquetadas como "reubicables" o "no reubicables" estaban ensambladas manualmente y utilizaban direcciones de memoria numéricas o saltos absolutos.
+
+Nuestro ensamblador (Pasmo, z80asm, etc) nos permite utilizar etiquetas, que serán reemplazadas por sus direcciones de memoria durante el proceso de ensamblado. Nosotros podemos modificar las posibles de nuestras rutinas en el código, y dejar que el ensamblador las "reubique" por nosotros, ya que al ensamblará cambiará todas las referencias a las etiquetas que usamos.
+
+Esta facilidad de trabajo contrasta con las dificultades que tenían los programadores de la época que no disponían de ensambladores profesionales. Imaginad la cantidad de usuarios que ensamblaban sus programas a mano, usando saltos relativos y absolutos (y como veremos, llamadas a subrutinas), que en lugar de sencillos nombres (JP A_mayor_que_B) utilizaban directamente direcciones en memoria.
+
+E imaginad el trabajo que suponía mantener un listado en papel todas los direcciones de saltos, subrutinas y variables, referenciados por direcciones de memoria y no por nombres, y tener que cambiar muchos de ellos cada vez que tenían que arreglar un fallo en una subrutina y cambiaban los destinos de los saltos por crecer el código que había entre ellos.
+
+Dejando ese tema aparte, la tabla de afectación de flags de JR es la misma que para JP: nula::
+ 
+                            Flags 
+    Instrucción       |S Z H P N C|
+    ----------------------------------
+    JR d              |- - - - - -|
+
+    (Donde "d" es un desplazamiento de 8 bits)
+
+Literalmente, JR d se traduce por PC=PC+d. 

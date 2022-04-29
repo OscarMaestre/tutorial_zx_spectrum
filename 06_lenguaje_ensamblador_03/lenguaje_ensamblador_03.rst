@@ -415,3 +415,634 @@ Dejando ese tema aparte, la tabla de afectación de flags de JR es la misma que 
     (Donde "d" es un desplazamiento de 8 bits)
 
 Literalmente, JR d se traduce por PC=PC+d. 
+
+
+Saltos condicionales con los flags
+--------------------------------------------------------------------------------
+
+
+
+Ya hemos visto la forma de realizar saltos incondicionales. A continuación veremos cómo realizar los saltos (ya sean absolutos con JP o relativos con JR) de acuerdo a unas determinadas condiciones.
+
+Las instrucciones condicionales disponibles trabajan con el estado de los flags del registro F, y son:
+
+
+* JP NZ, direccion : Salta si el indicador de cero (Z) está a cero (resultado no cero).
+* JP Z, direccion : Salta si el indicador de cero (Z) está a uno (resultado cero).
+* JP NC, direccion : Salta si el indicador de carry (C) está a cero.
+* JP C, direccion : Salta si el indicador de carry (C) está a uno.
+* JP PO, direccion : Salta si el indicador de paridad/desbordamiento (P/O) está a cero.
+* JP PE, direccion : Salta si el indicador de paridad/desbordamiento (P/O) está a uno.
+* JP P, direccion : Salta si el indicador de signo S está a cero (resultado positivo).
+* JP M, direccion : Salta si el indicador de signo S está a uno (resultado negativo).
+* JR NZ, relativo : Salta si el indicador de cero (Z) está a cero (resultado no cero).
+* JR Z, relativo : Salta si el indicador de cero (Z) está a uno (resultado cero).
+* JR NC, relativo : Salta si el indicador de carry (C) está a cero.
+* JR C, relativo : Salta si el indicador de carry (C) está a uno.
+
+Donde "dirección" es un valor absoluto 0-65535, y "relativo" es un desplazamiento de 8 bits con signo -127 a +127.
+
+(Nota: en el listado de instrucciones, positivo o negativo se refiere a considerando el resultado de la operación anterior en complemento a dos).
+
+Así, supongamos el siguiente programa:
+
+.. code-block:: tasm
+
+        JP Z, destino
+        LD A, 10
+    destino:
+        NOP
+
+(donde "destino" es una etiqueta definida en algún lugar de nuestro programa, aunque también habríamos podido especificar directamente una dirección como por ejemplo 50004).
+
+Cuando el procesador lee el "JP Z, destino", lo que hace es lo siguiente:
+
+* Si el flag Z está activado (a uno), saltamos a "destino" (con lo cual no se ejecuta el "LD A, 10"), ejecutándose el código a partir del "NOP".
+* Si no está activo (a cero) no se realiza ningún salto, con lo que se ejecutaría el "LD A, 10", y seguiría después con el "NOP".
+
+En BASIC, "JP Z, destino" sería algo como:
+
+.. code-block:: basic
+
+    IF FLAG_ZERO = 1 THEN GOTO destino
+
+Y "JP NZ, destino" sería:
+
+.. code-block:: basic
+
+    IF FLAG_ZERO = 0 THEN GOTO destino
+
+Con estas instrucciones podemos realizar saltos condicionales en función del estado de los flags o indicadores del registro F: podemos saltar si el resultado de una operación es cero, si no es cero, si hubo acarreo, si no lo hubo…
+
+Y el lector se preguntará: ¿y tiene utilidad realizar saltos en función de los flags? Pues la respuesta es: bien usados, lo tiene para todo tipo de tareas:
+
+
+.. code-block:: tasm
+
+        ; Repetir 100 veces la instruccion NOP
+        LD A, 100
+    bucle:
+        NOP
+        
+        DEC A          ; Decrementamos A.
+                        ; Cuando A sea cero, Z se pondrá a 1
+        JR NZ, bucle   ; Mientras Z=0, repetir el bucle
+        LD A, 200      ; Aquí llegaremos cuando Z sea 1 (A valga 0)
+        ; resto del programa
+
+Es decir: cargamos en A el valor 100, y tras ejecutar la instrucción "NOP", hacemos un "DEC A" que decrementa su valor (a 99). Como el resultado de "DEC A" es 99 y no cero, el flag de Z (de cero) se queda a 0, (recordemos que sólo se pone a uno cuando la última operación resultó ser cero).
+
+Y como el flag Z es cero (NON ZERO = no activado el flag zero) la instrucción "JR NZ, bucle" realiza un salto a la etiqueta "bucle". Allí se ejecuta el NOP y de nuevo el "DEC A", dejando ahora A en 98.
+
+Tras repetirse 100 veces el proceso, llegará un momento en que A valga cero tras el "DEC A". En ese momento se activará el flag de ZERO con lo que la instrucción "JR NZ, bucle" no realizará el salto y continuará con el "LD A, 200".
+
+Veamos otro ejemplo más gráfico: vamos a implementar en ASM una comparación de igualdad:
+
+
+.. code-block:: basic
+
+    IF A=B THEN GOTO iguales ELSE GOTO distintos
+
+En ensamblador:
+
+
+.. code-block:: tasm
+
+   SUB B              ; A = A-B
+   JR Z, iguales      ; Si Z=1 saltar a iguales 
+   JR NZ, distintos   ; Si Z=0 saltar a distintos 
+ 
+iguales:
+
+.. code-block:: tasm
+
+    ;;; (código)
+        JR seguir
+    distintos:
+        ;;; (código)
+        JR seguir
+        
+        seguir:
+
+
+(Nota: se podría haber usado JP en vez de JR)
+
+Para comparar A con B los restamos (A=A-B). Si el resultado de la resta es cero, es porque A era igual a B. Si no es cero, es que eran distintos. Y utilizando el flag de Zero con JP Z y JP NZ podemos detectar esa diferencia.
+
+Pronto veremos más a fondo otras instrucciones de comparación, pero este ejemplo debe bastar para demostrar la importancia de los flags y de su uso en instrucciones de salto condicionales. Bien utilizadas podemos alterar el flujo del programa a voluntad. Es cierto que no es tan inmediato ni cómodo como los >, <, = y <> de BASIC, pero el resultado es el mismo, y es fácil acostumbrarse a este tipo de comparaciones mediante el estado de los flags.
+
+Para finalizar, un detalle sobre DEC+JR: La combinación DEC B / JR NZ se puede sustituir (es más eficiente, y más sencillo) por el comando DJNZ, que literalmente significa "Decrementa B y si no es cero, salta a <direccion>".
+
+
+DJNZ direccion
+
+Equivale a decrementar B y a la dirección indicada en caso de que B no valga cero tras el decremento.
+
+Esta instrucción se usa habitualmente en bucles (usando B como iterador del mismo) y, al igual que JP y JR, no afecta al estado de los flags::
+
+                            Flags 
+    Instrucción       |S Z H P N C|
+    ----------------------------------
+    |JP COND, NN       |- - - - - -|
+    |JR COND, d        |- - - - - -|
+    |DJNZ d            |- - - - - -|
+
+
+El argumento de salto de DJNZ es de 1 byte, por lo que para saltos relativos de más de 127 bytes hacia atrás o hacia adelante (-127 a +127), DJNZ se tiene que sustituir por la siguiente combinación de instrucciones:
+
+.. code-block:: tasm
+
+  DEC B                      ; Decrementar B, afecta a los flags
+  JP NZ, direccion           ; Salto absoluto: permite cualquier distancia
+
+
+DJNZ trabaja con el registro B como contador de repeticiones, lo que implica que podemos realizar de 0 a 255 iteraciones. En caso de necesitar realizar hasta 65535 iteraciones tendremos que utilizar un registro de 16 bits como BC de la siguiente forma:
+
+.. code-block:: tasm
+
+   DEC BC                    ; Decrementamos BC -> no afecta a los flags
+   LD A, B                   ; Cargamos B en A
+   OR C                      ; Hacemos OR a de A y C (de B y C)
+   JR NZ, direccion          ; Si (B OR C) no es cero, BC != 0, saltar
+
+Instruccion de comparacion CP
+--------------------------------------------------------------------------------
+
+
+
+
+Comparaciones de 8 bits
+
+Para realizar comparaciones (especialmente de igualdad, mayor que y menor que) utilizaremos la instrucción CP. Su formato es::
+    
+    CP origen
+
+Donde "origen" puede ser A, F, B, C, D, E, H, L, un valor numérico de 8 bits directo, (HL), (IX+d) o (IY+d).
+
+Al realizar una instrucción "CP origen", el microprocesador ejecuta la operación "A-origen", pero no almacena el resultado en ningún sitio. Lo que sí que hace es alterar el estado de los flags de acuerdo al resultado de la operación.
+
+Recordemos el ejemplo de comparación anterior donde realizábamos una resta, perdiendo por tanto el valor de A:
+
+.. code-block:: tasm
+
+   SUB B                  ; A = A-B
+   JR Z, iguales          ; Si Z=1 saltar a iguales
+   JR NZ, distintos       ; Si Z=0 saltar a distintos
+
+Gracias a CP, podemos hacer la misma operación pero sin perder el valor de A (por la resta):
+
+   CP B                   ; Flags = estado(A-B)
+   JR Z, iguales          ; Si Z=1 saltar a iguales
+   JR NZ, distintos       ; Si Z=0 saltar a distintos
+
+¿Qué nos permite esto? Aprovechando todos los flags del registro F (flag de acarreo, flag de zero, etc), realizar comparaciones como las siguientes:
+
+.. code-block:: tasm
+
+        ; Comparación entre A Y B (=, > y <)
+        LD B, 5
+        LD A, 3
+        
+        CP B                            ; Flags = estado(A-B)
+        JP Z, A_Igual_que_B             ; IF(a-b)=0 THEN a=b
+        JP NC, A_Mayor_o_igual_que_B    ; IF(a-b)>0 THEN a>=b
+        JP C, A_Menor_que_B             ; IF(a-b)<0 THEN a<b
+        
+    A_Mayor_que_B:
+        ;;; (instrucciones)
+        JP fin
+        
+    A_Menor_que_B:
+        ;;; (instrucciones)
+        JP fin
+        
+    A_Igual_que_B:
+        ;;; (instrucciones)
+        
+    fin:
+        ;;; (continúa el programa)
+
+Vamos a ilustrar la anterior porción de código con un ejemplo que nos permitirá, además, descubrir una forma muy singular de hacer debugging en vuestras pruebas aprendiendo ensamblador. Vamos a sacar información por pantalla de forma que podamos ver en qué parte del programa estamos. Este mismo "sistema" podéis emplearlo (hasta que veamos cómo sacar texto o gráficos concretos por pantalla) para "depurar" vuestros programas y hacer pruebas.
+
+Consiste en escribir un valor en la memoria, justo en la zona de la pantalla, para así distinguir las partes de nuestro programa por las que pasamos. Así, escribiremos 255 (8 pixeles activos) en una línea de la parte superior de la pantalla izquierda (16960), en el centro de la misma (19056), o en la parte inferior derecha (21470):
+
+.. code-block:: tasm
+
+        ; Principio del programa
+        ORG 50000
+        
+        ; Comparacion entre A Y B (=, > y <)
+        LD B, 7
+        LD A, 5
+        
+        CP B                    ; Flags = estado(A-B)
+        JP Z, A_Igual_que_B     ; IF(a-b)=0 THEN a=b
+        JP NC, A_Mayor_que_B    ; IF(a-b)>0 THEN a>b
+        JP C, A_Menor_que_B     ; IF(a-b)<0 THEN a<b
+        
+    A_Mayor_que_B:
+        LD A, 255
+        LD (16960), A           ; 8 pixels en la parte sup-izq
+        JP fin
+        
+    A_Menor_que_B:
+        LD A, 255
+        LD (19056), A           ; centro de la pantalla
+        JP fin
+        
+    A_Igual_que_B:
+        LD A, 255
+        LD (21470), A           ; parte inferior derecha
+        
+    fin:
+        JP fin                  ; bucle infinito, para que podamos ver 
+                                ; el resultado de la ejecucion
+        
+        END 50000
+
+Lo ensamblamos con: ``pasmo –tapbas compara.asm compara.tap``, y lo cargamos en el Spectrum o emulador. La sentencia END 50000 nos ahorra el teclear "RANDOMIZE USR 50000" ya que pasmo lo introducirá en el cargador BASIC por nosotros. Jugando con los valores de A y B del listado deberemos ver cómo cambia el lugar al que saltamos (representado por el lugar de la pantalla en que vemos dibujada nuestra pequeña línea de 8 píxeles).
+
+
+Salida del programa anterior con A=5 y B=7
+
+
+
+.. figure:: compara.png
+   :scale: 80%
+   :align: center
+   :alt: Salida del programa anterior con A=5 y B=7
+
+   Salida del programa anterior con A=5 y B=7
+
+
+
+Finalmente, destacar que nada nos impide el hacer comparaciones multiples o anidadas:
+
+.. code-block:: tasm
+            
+        LD B, 5
+        LD A, 3
+        LD C, 6
+        
+        CP B                  ; IF A==B
+        JR Z, A_Igual_a_B     ; THEN goto A_Igual_a_B
+        CP C                  ; IF A==C
+        JR Z, A_Igual_a_C     ; THEN goto A_Igual_a_C
+        JP Fin                ; si no, salimos
+    A_Igual_a_B:
+        ;;; (...)
+        JR Fin
+        
+    A_Igual_a_C:
+        ;;; (...)
+        
+    Fin:
+        (resto del programa)
+
+La instrucción CP afecta a todos los flags::
+
+                            Flags 
+    Instrucción       |S Z H P N C|
+    ----------------------------------
+    |CP s               |* * * V 1 *|
+
+El flag "N" se pone a uno porque, aunque se ignore el resultado, la operación efectuada es una resta. 
+
+
+
+Comparaciones de 16 bits
+--------------------------------------------------------------------------------
+
+
+
+Aunque la instrucción CP sólo permite comparar un valor de 8 bits con el valor contenido en el registro A, podemos realizar 2 comparaciones CP para verificar si un valor de 16 bits es menor, igual o mayor que otro.
+
+Si lo que queremos comparar es un registro con otro, podemos hacerlo mediante un CP de su parte alta y su parte baja. Por ejemplo, para comparar HL con DE:
+
+.. code-block:: tasm
+            
+        ;;; Comparacion 16 bits de HL y DE
+        LD A, H
+        CP D
+        JR NZ, no_iguales
+        LD A, L
+        CP E
+        JR NZ, no_iguales
+    iguales:
+        ;;; (...)
+        
+    no_iguales:
+        ;;; (...)
+
+Para comparar si el valor de un registro es igual a un valor numérico inmediato (introducido directamente en el código de programa), utilizaríamos el siguiente código:
+
+.. code-block:: tasm
+            
+        ;;; Comparacion 16 bits de HL y VALOR_NUMERICO (inmediato)
+        ;;; VALOR_NUMERICO puede ser cualquier valor de 0 a 65535
+        LD A, H
+        CP VALOR_NUMERICO / 256         ; Parte alta (VALOR/256)
+        JR NZ, no_iguales
+        LD A, L
+        CP VALOR_NUMERICO % 256         ; Parte baja (Resto de VALOR/256)
+        JR NZ, no_iguales
+    iguales:
+        ;;; (...)
+        
+    no_iguales:
+        ;;; (...)
+
+
+Consideraciones de las condiciones
+--------------------------------------------------------------------------------
+
+
+
+A la hora de utilizar instrucciones condicionales hay que tener en cuenta que no todas las instrucciones afectan a los flags. Por ejemplo, la instrucción "DEC BC" no pondrá el flag Z a uno cuando BC sea cero. Si intentamos montar un bucle mediante DEC BC + JR NZ, nunca saldremos del mismo, ya que DEC BC no afecta al flag de zero.
+
+
+.. code-block:: tasm
+        
+        LD BC, 1000        ; BC = 1000
+    bucle:
+        (...)
+    
+        DEC BC             ; BC = BC-1 (pero NO ALTERA el Carry Flag)
+        JR NZ, bucle       ; Nunca se pondrá a uno el ZF, siempre salta
+
+Para evitar estas situaciones necesitamos conocer la afectación de los flags ante cada instrucción, que podéis consultar en todas las tablas que os hemos proporcionado.
+
+Podemos realizar algo similar al ejemplo anterior aprovechándonos (de nuevo) de los flags y de los resultados de las operaciones lógicas (y sus efectos sobre el registro F). Como ya vimos al tratar la instrucción DJNZ, podemos comprobar si un registro de 16 bits vale 0 realizando un OR entre la parte alta y la parte baja del mismo. Esto sí afectará a los flags y permitirá realizar el salto condicional:
+
+.. code-block:: tasm
+
+        LD BC, 1000        ; BC = 1000
+ 
+    bucle:
+        (...)
+        DEC BC             ; Decrementamos BC. No afecta a F.
+        LD A, B            ; A = B
+        OR C               ; A = A OR C 
+                        ; Esto sí que afecta a los flags.
+                        ; Si B==C y ambos son cero, el resultado
+                        ; del OR será cero y el ZF se pondrá a 1.
+        JR NZ, bucle       ; ahora sí que funcionará el salto si BC=0
+
+Más detalles sobre los saltos condicionales: esta vez respecto al signo. Las condiciones P y M (JP P, JP M) nos permitirán realizar saltos según el estado del bit de signo. Resultará especialmente útil después de operaciones aritméticas.
+
+Los saltos por Paridad/Overflow (JP PO, JP PE) permitirán realizar saltos en función de la paridad cuando la última operación realizada modifique ese bit de F según la paridad del resultado. La misma condición nos servirá para desbordamientos si la última operación que afecta a flags realizada modifica este bit con respecto a dicha condición.
+
+¿Qué quiere decir esto? Que si, por ejemplo, realizamos una suma o resta, JP PO y JP PE responderán en función de si ha habido un desbordamiento o no y no en función de la paridad, porque las sumas y restas actualizan dicho flag según los desbordamientos, no según la paridad.
+
+
+La importancia de la probabilidad de salto
+--------------------------------------------------------------------------------
+
+
+
+Ante una instrucción condicional, el microprocesador tendrá 2 opciones, según los valores que comparemos y el tipo de comparación que hagamos (si es cero, si no es cero, si es mayor o menor, etc.). Al final, sólo habrá 2 caminos posibles: saltar a una dirección de destino, o no saltar y continuar en la dirección de memoria siguiente al salto condicional.
+
+Aunque pueda parecer una pérdida de tiempo, en rutinas críticas es muy interesante el pararse a pensar cuál puede ser el caso con más probabilidades de ejecución, ya que el tiempo empleado en la opción "CONDICION CIERTA, POR LO QUE SE PRODUCE EL SALTO" es mayor que el empleado en "CONDICION FALSA, NO SALTO Y SIGO".
+
+Por ejemplo, ante un "JP Z, direccion", el microprocesador tardará 10 ciclos de reloj en ejecutar un salto si la condición se cumple, y sólo 1 si no se cumple (ya que entonces no tiene que realizar salto alguno).
+
+Supongamos que tenemos una rutina crítica donde la velocidad es importante. Vamos a utilizar, como ejemplo, la siguiente rutina que devuelve 1 si el parámetro que le pasamos es mayor que 250 y devuelve 0 si es menor:
+
+.. code-block:: tasm
+            
+        ; Comparar A con 250:
+        ;
+        ; Devuelve A = 0 si A < 250
+        ;          A = 1 si A > 250
+        
+    Valor_Mayor_Que_250:
+        
+        CP 250                      ; Comparamos A con 250
+        JP C, A_menor_que_250       ; Si es menor, saltamos
+        LD A, 1                     ; si es mayor, devolvemos 1
+        RET
+        
+    A_menor_que_250:
+        LD A, 0
+        RET
+
+En el ejemplo anterior se produce el salto si A es menor que 250 (10 t-estados) y no se produce si A es mayor que 250 (1 t-estado).
+
+Supongamos que llamamos a esta rutina con 1000 valores diferentes. En ese caso, existen más probabilidades de que el valor esté entre 0 y 250 a que esté entre 250 y 255, por lo que sería más óptimo que el salto que hay dentro de la rutina se haga no cuando A sea menor que 250 sino cuando A sea mayor, de forma que se produzcan menos saltos.
+
+Lo normal es que, ante datos aleatorios, haya más probabilidad de encontrar datos del segundo caso (0-250) que del primero (250-255), simplemente por el hecho de que del primer caso hay 250 probabilides de 255, mientras que del segundo hay 5 probabilidades de 255.
+
+En tal caso, la rutina debería organizarse de forma que la comparación realice el salto cuando encuentre un dato mayor de 250, dado que ese supuesto se dará menos veces. Si lo hicieramos a la inversa, se saltaría más veces y la rutina tardaría más en realizar el mismo trabajo.
+
+.. code-block:: tasm
+            
+        ; Comparar A con 250:
+        ;
+        ; Devuelve A = 0 si A < 250
+        ;          A = 1 si A > 250
+        
+    Valor_Mayor_Que_250:
+        
+        CP 250                      ; Comparamos A con 250
+        JP NC, A_mayor_que_250      ; Si es mayor, saltamos
+        LD A, 0                     ; si es menor, devolvemos 1
+        RET
+        
+    A_mayor_que_250:
+        LD A, 1
+        RET
+
+Eso hace que haya más posibilidades de no saltar que de saltar, es decir, de emplear un ciclo de procesador y no 10 para la mayoría de las ejecuciones.
+
+
+Instrucciones de comparacion repetitivas
+--------------------------------------------------------------------------------
+
+
+
+Para acabar con las instrucciones de comparación vamos a ver las instrucciones de comparación repetitivas. Son parecidas a CP, pero trabajan (igual que LDI, LDIR, LDD y LDDR) con HL y BC para realizar las comparaciones con la memoria: son CPI, CPD, CPIR y CPDR.
+
+Comencemos con CPI (ComPare and Increment):
+
+
+
+CPI:
+
+* Al registro A se le resta el byte contenido en la posición de memoria apuntada por HL.
+* El resultado de la resta no se almacena en ningún sitio.
+* Los flags resultan afectados por la comparación:
+    * Si A==(HL), se pone a 1 el flag de Zero (si no es igual se pone a 0).
+    * Si BC==0000, se pone a 0 el flag Parity/Overflow (a 1 en caso contrario).
+* Se incrementa HL.
+* Se decrementa BC.
+
+Técnicamente (con un pequeño matiz que veremos ahora), CPI equivale a::
+    
+ CPI =     CP [HL]
+           INC HL
+           DEC BC
+
+
+CPD:
+Su instrucción "hermana" CPD (ComPare and Decrement) funciona de idéntica forma, pero decrementando HL::
+
+ CPD =     CP [HL]
+           DEC HL
+           DEC BC
+
+Y el pequeño matiz: así como CP [HL] afecta al indicador C de Carry, CPI y CPD, aunque realizan esa operación intermedia, no lo afectan.
+
+Las instrucciones CPIR y CPDR son equivalentes a CPI y CPD, pero ejecutándose múltiples veces: hasta que BC sea cero o bien se encuentre en la posición de memoria apuntada por HL un valor numérico igual al que contiene el registro A. Literalmente, es una instrucción de búsqueda: buscamos hacia adelante (CPIR) o hacia atrás (CPDR), desde una posición de memoria inicial (HL), un valor (A), entre dicha posición inicial (HL) y una posición final (HL+BC o HL-BC para CPIR y CPDR).
+
+
+
+CPIR:
+
+* Al registro A se le resta el byte contenido en la posición de memoria apuntada por HL.
+* El resultado de la resta no se almacena en ningún sitio.
+* Los flags resultan afectados por la comparación:
+    * Si A==(HL), se pone a 1 el flag de Zero (si no es igual se pone a 0).
+    * Si BC==0000, se pone a 0 el flag Parity/Overflow (a 1 en caso contrario).
+* Se incrementa HL.
+* Se decrementa BC.
+* Si BC===0 o A=(HL), se finaliza la instrucción. Si no, repetimos el proceso.
+
+
+
+CPDR:
+CPDR es, como podéis imaginar, el equivalente a CPIR pero decrementando HL, para buscar hacia atrás en la memoria.
+
+Como ya hemos comentado, muchos flags se ven afectados::
+
+                            Flags 
+    Instrucción         |S Z H P N C|
+    ----------------------------------
+    |CPI                |* * * * 1 -|
+    |CPD                |* * * * 1 -|
+    |CPIR               |* * * * 1 -|
+    |CPDR               |* * * * 1 -|
+
+Un ejemplo de uso de un CP repetitivo es realizar búsquedas de un determinado valor en memoria. Supongamos que deseamos buscar la primera aparición del valor "123" en la memoria a partir de la dirección 20000, y hasta la dirección 30000, es decir, encontrar la dirección de la primera celdilla de memoria entre 20000 y 30000 que contenga el valor 123.
+
+Podemos hacerlo mediante el siguiente ejemplo con CPIR:
+
+.. code-block:: tasm
+
+   LD HL, 20000      ; Origen de la busqueda
+   LD BC, 10000      ; Número de bytes a buscar (20000-30000)
+   LD A, 123         ; Valor a buscar
+   CPIR
+
+Este código realizará lo siguiente::
+
+  HL = 20000
+  BC = 10000
+  A  = 123
+
+CPIR::
+        
+    Repetir:
+        Leer el contenido de (HL)
+        Si A==(HL) -> Fin_de_CPIR
+        Si BC==0   -> Fin_de_CPIR
+        HL = HL+1
+        BC = BC-1
+    Fin_de_CPIR:
+
+Con esto, si la celdilla 15000 contiene el valor "123", la instrucción CPIR del ejemplo anterior acabará su ejecución, dejando en HL el valor 15001 (tendremos que decrementar HL para obtener la posición exacta). Dejará además el flag "P/O" (paridad/desbordamiento) y el flag Z a uno. En BC tendremos restado el número de iteraciones del "bucle" realizadas.
+
+Si no se encuentra ninguna aparición de "123", BC llegará a valer cero, porque el "bucle CPI" se ejecutará 10000 veces. El flag P/O estará a cero, al igual que Z, indicando que se finalizó el CPIR y no se encontró nada.
+
+Nótese que si en vez de utilizar CPIR hubiéramos utilizado CPDR, podríamos haber buscado hacia atrás, desde 20000 a 10000, decrementando HL. Incluso haciendo HL=0 y usando CPDR, podemos encontrar la última aparición del valor de A en la memoria (ya que 0000 - 1 = $FFFF, es decir: 0-1=65535 en nuestros 16 bits).
+
+
+Un ejemplo con CPIR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Veamos un ejemplo práctico con CPIR. El código que veremos a continuación realiza una búsqueda de un determinado carácter ASCII en una cadena de texto:
+
+.. code-block:: tasm
+            
+        ; Principio del programa
+        ORG 50000
+        
+        LD HL, texto     ; Inicio de la busqueda
+        LD A, 'X'        ; Carácter (byte) a buscar
+        LD BC, 100       ; Número de bytes donde buscar
+        CPIR             ; Realizamos la búsqueda
+        
+        JP NZ, No_Hay    ; Si no encontramos el caracter buscado
+                            ; el flag de Z estará a cero.
+        
+                            ; Si seguimos por aquí es que se encontró
+        DEC HL           ; Decrementamos HL para apuntar al byte
+                            ; encontrado en memoria.
+        
+        LD BC, texto
+        SCF              
+        CCF              ; Ponemos el carry flag a 0 (SCF+CCF)
+        SBC HL, BC       ; HL = HL - BC 
+                            ;    = (posicion encontrada) - (inicio cadena)
+                            ;    = posición de 'X' dentro de la cadena.
+        
+        LD B, H
+        LD C, L          ; BC = HL
+        
+        RET              ; Volvemos a basic con el resultado en BC
+        
+    No_Hay:
+        LD BC, $FFFF
+        RET
+        
+        texto DB "Esto es una X cadena de texto."
+ 
+        ; Fin del programa
+        END 
+
+Lo compilamos con ``pasmo –tapbas buscatxt.asm buscatxt.tap``, lo cargamos en el emulador y tras un RUN ejecutamos nuestra rutina como "PRINT AT 10,10 ; USR 50000". En pantalla aparecerá el valor 12:
+
+Salida del programa buscatxt.asm:
+
+
+
+.. figure:: buscatxt.png
+   :scale: 80%
+   :align: center
+   :alt: Salida del programa buscatxt.asm
+
+   Salida del programa buscatxt.asm
+
+
+
+
+¿Qué significa este "12"? Es la posición del carácter 'X' dentro de la cadena de texto. La hemos obtenido de la siguiente forma:
+
+* Hacemos HL = posición de memoria donde empieza la cadena.
+* Hacemos A = 'X'.
+* Ejecutamos un CPIR
+* En HL obtendremos la posición absoluta + 1 donde se encuentra el carácter 'X' encontrado (o FFFFh si no se encuentra). Exactamente 50041.
+* Decrementamos HL para que apunte a la 'X' (50040).
+* Realizamos la resta de Posicion('X') - PrincipioCadena para obtener la posición del carácter dentro de la cadena. De esta forma, si la 'E' de la cadena está en 50028, y la X encontrada en 50040, eso quiere decir que la 'X' está dentro del array en la posición 50040-50028 = 12.
+Volvemos al BASIC con el resultado en BC. El PRINT USR 50000 imprimirá dicho valor de retorno.
+
+Nótese que el bloque desde "SCF" hasta "LD C, L" tiene como objetivo ser el equivalente a "HL = HL - BC", y se tiene que hacer de esta forma porque no existe "SUB HL, BC" ni "LD BC, HL"::
+
+    SUB HL, BC =  SCF
+                  CCF              ; Ponemos el carry flag a 0 (SCF+CCF)
+                  SBC HL, BC       ; HL = HL - BC
+
+    LD BC, HL  =  LD B, H
+                  LD C, L          ; BC = HL
+
+(Podemos dar las gracias por estas extrañas operaciones a la no ortogonalidad del juego de instrucciones del Z80).
+
+
+En resumen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+En este capítulo hemos aprendido a utilizar todas las funciones condicionales y de salto de que nos provee el Z80. En el próximo trataremos la PILA (Stack) del Spectrum, gracias a la cual podremos implementar en ensamblador el equivalente a GOSUB/RETURN de BASIC, es decir, subrutinas.
+

@@ -1025,7 +1025,7 @@ Salida del programa buscatxt.asm:
 * En HL obtendremos la posición absoluta + 1 donde se encuentra el carácter 'X' encontrado (o FFFFh si no se encuentra). Exactamente 50041.
 * Decrementamos HL para que apunte a la 'X' (50040).
 * Realizamos la resta de Posicion('X') - PrincipioCadena para obtener la posición del carácter dentro de la cadena. De esta forma, si la 'E' de la cadena está en 50028, y la X encontrada en 50040, eso quiere decir que la 'X' está dentro del array en la posición 50040-50028 = 12.
-Volvemos al BASIC con el resultado en BC. El PRINT USR 50000 imprimirá dicho valor de retorno.
+* Volvemos al BASIC con el resultado en BC. El PRINT USR 50000 imprimirá dicho valor de retorno.
 
 Nótese que el bloque desde "SCF" hasta "LD C, L" tiene como objetivo ser el equivalente a "HL = HL - BC", y se tiene que hacer de esta forma porque no existe "SUB HL, BC" ni "LD BC, HL"::
 

@@ -16,11 +16,11 @@ Este capítulo se centra en una de las estructuras más importantes del micropro
 
 La pila es una porción de memoria donde se pueden almacenar valores de 16 bits, apilados uno a continuación del siguiente.
 
-Su nombre viene del hecho que los datos se almacenan unos “encima” de los otros, como, por ejemplo, en una pila de platos.
+Su nombre viene del hecho que los datos se almacenan unos "encima" de los otros, como, por ejemplo, en una pila de platos.
 
 Cuando almacenamos un nuevo plato en una pila, lo dejamos en la parte superior de la misma, sobre el plato anterior. Cuando queremos coger un plato, cogemos el plato de arriba, el situado en la parte superior de la pila.
 
-Es lo que se conoce como una estructura de datos “tipo LIFO” (“Last In, First Out”): el último que entró es el primero que sale. En nuestro ejemplo de los platos, efectivamente cuando retiramos un plato extraemos el que está arriba del todo, por lo que el primero en salir (First Out) es el último que habíamos dejado (Last In).
+Es lo que se conoce como una estructura de datos "tipo LIFO" ("Last In, First Out"): el último que entró es el primero que sale. En nuestro ejemplo de los platos, efectivamente cuando retiramos un plato extraemos el que está arriba del todo, por lo que el primero en salir (First Out) es el último que habíamos dejado (Last In).
 
 En una pila de ordenador (como en nuestra pila de datos) sólo podemos trabajar con el dato que está arriba del todo de la pila: no podemos extraer uno de los platos intermedios. Sólo podemos apilar un dato nuevo y desapilar el dato apilado arriba del todo de la pila.
 
@@ -45,11 +45,11 @@ Por ejemplo, podemos guardar el valor que contiene un registro en la pila si ten
     POP BC          ; Hemos terminado de trabajar con BC, ahora
                     ; recuperamos el valor que tenia BC (1000).
 
-La instrucción “PUSH BC” introduce en memoria, en lo alto de la pila, el valor contenido en BC (1000), que recuperamos posteriormente con el “POP BC”.
+La instrucción "PUSH BC" introduce en memoria, en lo alto de la pila, el valor contenido en BC (1000), que recuperamos posteriormente con el "POP BC".
 
 La realidad es que el Spectrum no tiene una zona de memoria especial o aislada de la RAM dedicada a la pila. En su lugar se utiliza la misma RAM del Spectrum (0-65535).
 
-El Z80 tiene un registro conocido como SP (Stack Pointer), o puntero de pila, que es un registro de 16 bits que contiene una dirección de memoria. Esa dirección de memoria es “la cabeza de la pila”: apunta al próximo lugar donde almacenaremos un dato.
+El Z80 tiene un registro conocido como SP (Stack Pointer), o puntero de pila, que es un registro de 16 bits que contiene una dirección de memoria. Esa dirección de memoria es "la cabeza de la pila": apunta al próximo lugar donde almacenaremos un dato.
 
 La peculiaridad de la pila del Spectrum es que crece hacia abajo, en lugar de hacia arriba. Veamos un ejemplo práctico: 
 
@@ -277,9 +277,9 @@ Veamos algunos de los más habituales:
 * Dado que la pila decrece en memoria, tenemos que tener cuidado con el valor de SP y la posición más alta de memoria donde hayamos almacenado datos o rutinas. Si ponemos un gráfico o una rutina cerca del valor inicial de SP, y realizamos muchas operaciones de PUSH, podemos sobreescribir nuestros datos con los valores que estamos apilando.
 * Hacer más PUSH que POP o más POP que PUSH. Recordemos que la pila tiene que ser consistente. Si hacemos un push, debemos recordar hacer el pop correspondiente (a menos que haya una razón para ello), y viceversa. Como veremos a continuación, la pila es utilizada tanto para pasar parámetros a funciones como para volver de ellas, si introducimos un valor en ella con PUSH dentro de una función y no lo sacamos antes de hacer el RET, nuestro programa continuará su ejecución en algún lugar de la memoria que no era al que debía volver. Es más, si nuestro programa debe volver a BASIC correctamente tras su ejecución, entonces es obligatorio que hagamos tantos PUSH como POP para que el punto final de retorno del programa al BASIC esté en la siguiente posición de la pila cuando nuestro programa acabe.
 * Ampliando la regla anterior, hay que tener cuidado con los bucles a la hora de hacer PUSH y POP.
-* Finalmente, no hay que asumir que SP tiene un valor correcto para nosotros. Tal vez tenemos planeado usar una zona de la memoria para guardar datos o subrutinas y el uso de PUSH y POP pueda sobreescribir estos datos. Si sabemos dónde no puede hacer daño SP y sus escrituras en memoria, basta con inicializar la pila al principio de nuestro programa a una zona de memoria libre (por ejemplo, “LD SP, 49999”, o cualquier otra dirección que sepamos que no vamos a usar). Esto no es obligatorio y muchas veces el valor por defecto de SP será válido, siempre que no usemos zonas de la memoria que creemos libres como “almacenes temporales”. Si usamos “variables” creadas en tiempo de ensamblado (definidas como DB o DW en el ensamblador) no deberíamos tener problemas, al menos con programas pequeños.
+* Finalmente, no hay que asumir que SP tiene un valor correcto para nosotros. Tal vez tenemos planeado usar una zona de la memoria para guardar datos o subrutinas y el uso de PUSH y POP pueda sobreescribir estos datos. Si sabemos dónde no puede hacer daño SP y sus escrituras en memoria, basta con inicializar la pila al principio de nuestro programa a una zona de memoria libre (por ejemplo, "LD SP, 49999", o cualquier otra dirección que sepamos que no vamos a usar). Esto no es obligatorio y muchas veces el valor por defecto de SP será válido, siempre que no usemos zonas de la memoria que creemos libres como "almacenes temporales". Si usamos "variables" creadas en tiempo de ensamblado (definidas como DB o DW en el ensamblador) no deberíamos tener problemas, al menos con programas pequeños.
 
-Veamos algunos ejemplos de “errores” con la pila. Empecemos con el típico PUSH del cual se nos olvida hacer POP:
+Veamos algunos ejemplos de "errores" con la pila. Empecemos con el típico PUSH del cual se nos olvida hacer POP:
 
 
 .. code-block:: tasm
@@ -342,7 +342,7 @@ Comenzando en la dirección de memoria 16384 está el área de videomemoria del 
 
 El haz de electrones del monitor se mueve de forma constante recorriendo la pantalla y la ULA, sincronizada con él, lee regularmente el contenido de la videomemoria para construir la señal de vídeo que debe representar dicho haz.
 
-Cuando la ULA necesita leer un dato de la videoram bloquea temporalmente el acceso del Z80 al chip de memoria que contiene los datos de vídeo, ya que el dibujado de la pantalla tiene prioridad (el haz de electrones del monitor no se puede detener y se le debe proporcionar la información de imagen conforme la necesita). Cuando tanto la ULA como nuestro programa necesitan acceder a la memoria simultaneamente, es la ULA quien accede y el Z80 quien espera a que la ULA acabe. Esto es lo que se conoce como “contented memory” o “memoria contenida”.
+Cuando la ULA necesita leer un dato de la videoram bloquea temporalmente el acceso del Z80 al chip de memoria que contiene los datos de vídeo, ya que el dibujado de la pantalla tiene prioridad (el haz de electrones del monitor no se puede detener y se le debe proporcionar la información de imagen conforme la necesita). Cuando tanto la ULA como nuestro programa necesitan acceder a la memoria simultaneamente, es la ULA quien accede y el Z80 quien espera a que la ULA acabe. Esto es lo que se conoce como "contented memory" o "memoria contenida".
 
 Esto implica que las lecturas y escrituras de nuestro programa (ejecutado por el Z80) en la página de memoria de 16KB que va desde 16384 a 32767 se ven interrumpidas de forma constante por la ULA (aunque de forma transparente para nuestro programa), por lo que ubicar la pila en esta zona puede suponer una gran ralentización con respecto a ubicarla más arriba de la dirección 32768. Recuerda que cada operación PUSH y POP es, físicamente, un acceso de escritura y lectura a memoria, y las rutinas de nuestro programa harán, seguro, gran uso de ellas, además de los CALLs y RETs (PUSH PC + JP DIR / POP PC).
 
@@ -352,7 +352,7 @@ Por ahora, y hasta que veamos más información respecto a la ULA y la memoria c
 Subrutinas: CALL y RET
 -----------------------------------
 
-Ya de por sí el lenguaje ensamblador es un lenguaje de listados “largos” y enrevesados, y donde teníamos 10 líneas en BASIC podemos tener 100 ó 1000 en ensamblador.
+Ya de por sí el lenguaje ensamblador es un lenguaje de listados "largos" y enrevesados, y donde teníamos 10 líneas en BASIC podemos tener 100 ó 1000 en ensamblador.
 
 Lo normal para hacer el programa más legible es utilizar bloques de código que hagan unas funciones concretas y a los cuales podamos llamar a lo largo de nuestro programa. Esos bloques de código son las funciones o subrutinas.
 
@@ -362,7 +362,7 @@ Para saltar a subrutinas utilizamos la instrucción CALL, y estas deben de termi
 
 El lector podría preguntar, ¿por qué no utilizar las instrucciones de salto JP y JR vistas hasta ahora? La respuesta es: debido a la necesidad de una dirección de retorno.
 
-Veamos un ejemplo ilustrativo de la importancia de CALL/RET realizando una subrutina que se utilice JP para su llamada. Supongamos la siguiente “subrutina” sin RET:
+Veamos un ejemplo ilustrativo de la importancia de CALL/RET realizando una subrutina que se utilice JP para su llamada. Supongamos la siguiente "subrutina" sin RET:
 
 
 .. code-block:: tasm
@@ -379,7 +379,7 @@ Veamos un ejemplo ilustrativo de la importancia de CALL/RET realizando una subru
 
 Nuestra función/subrutina de ejemplo espera obtener en A un valor, y devuelve el resultado de su ejecución en B. Antes de llamar a esta rutina, nosotros deberemos poner en A el valor sobre el que actuar, y posteriormente interpretar el resultado (sabiendo que lo tenemos en B).
 
-Pero, ¿cómo llamamos a las subrutinas y volvemos de ellas? Comencemos probando con “JP”:
+Pero, ¿cómo llamamos a las subrutinas y volvemos de ellas? Comencemos probando con "JP":
 
 .. code-block:: tasm
 
@@ -398,7 +398,7 @@ Pero, ¿cómo llamamos a las subrutinas y volvemos de ellas? Comencemos probando
 
 En este caso, cargaríamos A con el valor 35, saltaríamos a la subrutina, sumaríamos 10 a A (pasando a valer 45), haríamos B = 45, y volveríamos al lugar posterior al punto de llamada.
 
-Pero … ¿qué pasaría si quisieramos volver a llamar a la subrutina desde otro punto de nuestro programa? Que sería inviable, porque nuestra subrutina acaba con un “JP volver1” que no devolvería la ejecución al punto desde donde la hemos llamado, sino a “volver1”.
+Pero … ¿qué pasaría si quisieramos volver a llamar a la subrutina desde otro punto de nuestro programa? Que sería inviable, porque nuestra subrutina acaba con un "JP volver1" que no devolvería la ejecución al punto desde donde la hemos llamado, sino a "volver1".
 
 .. code-block:: tasm
 
@@ -460,9 +460,9 @@ Veamos la aplicación de CALL y RET con nuestro ejemplo anterior:
         LD B, A           ; B = A
         RET               ; Volvemos de la subrutina
 
-En esta ocasión, cuando ejecutamos el primer CALL, se introduce en la pila el valor de PC, que se corresponde exáctamente con la dirección de memoria donde estaría ensamblada la siguiente instrucción (LD A, 50). El CALL cambia el valor de PC al de la dirección de “SUMA_A_10”, y se continúa la ejecución dentro de la subrutina.
+En esta ocasión, cuando ejecutamos el primer CALL, se introduce en la pila el valor de PC, que se corresponde exáctamente con la dirección de memoria donde estaría ensamblada la siguiente instrucción (LD A, 50). El CALL cambia el valor de PC al de la dirección de "SUMA_A_10", y se continúa la ejecución dentro de la subrutina.
 
-Al acabar la subrutina encontramos el RET, quien extrae de la pila el valor de PC anteriormente introducido, con lo que en el siguiente ciclo de instrucción del microprocesador, el Z80 leerá, decodificará y ejecutará la instrucción “LD A, 50”, siguiendo el flujo del programa linealmente desde ahí. Con la segunda llamada a CALL ocurriría lo mismo, pero esta vez lo que se introduce en la pila es la dirección de memoria en la que está ensamblada la instrucción “LD C, B”. Esto asegura el retorno de nuestra subrutina al punto adecuado.
+Al acabar la subrutina encontramos el RET, quien extrae de la pila el valor de PC anteriormente introducido, con lo que en el siguiente ciclo de instrucción del microprocesador, el Z80 leerá, decodificará y ejecutará la instrucción "LD A, 50", siguiendo el flujo del programa linealmente desde ahí. Con la segunda llamada a CALL ocurriría lo mismo, pero esta vez lo que se introduce en la pila es la dirección de memoria en la que está ensamblada la instrucción "LD C, B". Esto asegura el retorno de nuestra subrutina al punto adecuado.
 
 Al hablar de la pila os contamos lo importante que era mantener la misma cantidad de PUSH que de POPs en nuestro código. Ahora entenderéis por qué: si dentro de una subrutina hacéis un PUSH que no elimináis después con un POP, cuando lleguéis al RET éste obtendrá de la pila un valor que no será el introducido por CALL, y saltará allí. Por ejemplo:
 
@@ -493,7 +493,7 @@ Ni CALL ni RET afectan a la tabla de flags del registro F::
 Saltos y retornos condicionales
 -----------------------------------
 
-Una de las peculiaridades de CALL y RET es que tienen instrucciones condicionales con respecto al estado de los flags, igual que “JP cc” o “JR cc”, de forma que podemos condicionar el SALTO (CALL) o el retorno (RET) al estado de un determinado flag.
+Una de las peculiaridades de CALL y RET es que tienen instrucciones condicionales con respecto al estado de los flags, igual que "JP cc" o "JR cc", de forma que podemos condicionar el SALTO (CALL) o el retorno (RET) al estado de un determinado flag.
 
 Para eso, utilizamos las siguientes instrucciones:
 
@@ -579,7 +579,7 @@ b)  Qué registros espera como entrada.
 c)  Qué registros devuelve como salida.
 d)  Qué registros modifica además de los de entrada y salida.
 
-Con este tipo de paso de parámetros tenemos el mayor ahorro y la mayor velocidad: no se accede a la pila y no se accede a la memoria, pero por contra tenemos que tenerlo todo controlado. Tendremos que saber en cada momento qué parámetros de entrada y de salida utiliza (de ahí la importancia del comentario explicativo, al que acudiremos más de una vez cuando no recordemos en qué registros teníamos que pasarle los datos de entrada), y asegurarnos de que ninguno de los registros “extra” que modifica están en uso antes de llamar a la función, puesto que se verán alterados.
+Con este tipo de paso de parámetros tenemos el mayor ahorro y la mayor velocidad: no se accede a la pila y no se accede a la memoria, pero por contra tenemos que tenerlo todo controlado. Tendremos que saber en cada momento qué parámetros de entrada y de salida utiliza (de ahí la importancia del comentario explicativo, al que acudiremos más de una vez cuando no recordemos en qué registros teníamos que pasarle los datos de entrada), y asegurarnos de que ninguno de los registros "extra" que modifica están en uso antes de llamar a la función, puesto que se verán alterados.
 
 Si no queremos que la función modifique muchos registros además de los de entrada y salida, siempre podemos poner una serie de PUSH y POP en su inicio y final, al estilo:
 
@@ -809,7 +809,7 @@ Hemos considerado importante explicar este tipo de paso de parámetros y devoluc
 Integracion de ASM en Z88DK
 ------------------------------------
 
-Para aprovechar esta introducción de “uso de ASM en Z88DK”, veamos el código de alguna función en C que use ASM internamente y que muestre, entre otras cosas, la lectura de parámetros de la pila, el acceso a variables del código C, el uso de etiquetas, o la devolución de valores.
+Para aprovechar esta introducción de "uso de ASM en Z88DK", veamos el código de alguna función en C que use ASM internamente y que muestre, entre otras cosas, la lectura de parámetros de la pila, el acceso a variables del código C, el uso de etiquetas, o la devolución de valores.
 
 .. code-block:: c
 
@@ -938,7 +938,7 @@ Para aprovechar esta introducción de “uso de ASM en Z88DK”, veamos el códi
         #endasm
     }
 
-Si tenéis curiosidad por ver el funcionamiento de esta rutina de Fade (fundido), podéis verla integramente en ASM en el fichero fade.asm. Un detalle a tener en cuenta, en Z88DK se soporta “EX AF, AF”, mientras que pasmo requiere poner la comilla del shadow-register: “EX AF, AF'”. 
+Si tenéis curiosidad por ver el funcionamiento de esta rutina de Fade (fundido), podéis verla integramente en ASM en el fichero fade.asm. Un detalle a tener en cuenta, en Z88DK se soporta "EX AF, AF", mientras que pasmo requiere poner la comilla del shadow-register: "EX AF, AF'". 
 
 .. figure:: fade.png
 
@@ -948,7 +948,7 @@ La importancia de usar subrutinas
 
 Usar subrutinas es mucho más importante de lo que parece a simple vista: nos permite organizar el programa en unidades o módulos funcionales que cumplen una serie de funciones específicas, lo que hace mucha más sencilla su depuración y optimización.
 
-Si en el menú de nuestro juego estamos dibujando una serie de sprites móviles, y también lo hacemos a lo largo del juego, resulta absurdo “construir” 2 bloques de código, uno para mover los sprites del menú y otro para los del juego. Haciendo esto, si encontramos un error en una de las 2 rutinas, o realizamos una mejora, deberemos corregirlo en ambas.
+Si en el menú de nuestro juego estamos dibujando una serie de sprites móviles, y también lo hacemos a lo largo del juego, resulta absurdo "construir" 2 bloques de código, uno para mover los sprites del menú y otro para los del juego. Haciendo esto, si encontramos un error en una de las 2 rutinas, o realizamos una mejora, deberemos corregirlo en ambas.
 
 Por contra, si creamos una subrutina, digamos, DrawSprite, que podamos llamar con los parámetros adecuados en ambos puntos del programa, cualquier cambio, mejora o corrección que realicemos en DrawSprite afectará a todas las llamadas que le hagamos. También reducimos así el tamaño de nuestro programa (y con él el tiempo de carga del mismo), las posibilidades de fallo, y la longitud del listado (haciéndolo más legible y manejable).
 
@@ -976,7 +976,7 @@ Después, se teclea un programa vacío que siga esos pasos, pero que no haga nad
     Comprobar_Estado:
         RET
 
-Tras esto, ya tenemos el “esqueleto del programa”. Y ahora hay que rellenar ese esqueleto, y la mejor forma de hacerlo es aprovechar esa “modularidad” que hemos obtenido con ese diseño en papel.
+Tras esto, ya tenemos el "esqueleto del programa". Y ahora hay que rellenar ese esqueleto, y la mejor forma de hacerlo es aprovechar esa "modularidad" que hemos obtenido con ese diseño en papel.
 
 Por ejemplo, supongamos que nuestro juego tiene que poder dibujar sprites y pantallas hechas a bases de bloques que se repiten (tiles). Gracias a nuestro diseño, sabemos que necesitamos una rutina que imprima un sprite, una rutina que dibuje un tile y una rutina que dibuje una pantalla llena de tiles.
 
@@ -1003,7 +1003,7 @@ Pues bien, creamos un programa en ASM nuevo, desde cero, y en él creamos una fu
     
     END 50000
 
-Gracias a esto, podremos probar nuestra nueva rutina y trabajar con ella limpiamente y en un fichero de programa pequeño. Cuando la tenemos lista, basta con copiarla a nuestro programa “principal” y ya sabemos que la tenemos disponible para su uso con CALL.
+Gracias a esto, podremos probar nuestra nueva rutina y trabajar con ella limpiamente y en un fichero de programa pequeño. Cuando la tenemos lista, basta con copiarla a nuestro programa "principal" y ya sabemos que la tenemos disponible para su uso con CALL.
 
 Así, vamos creando diferentes rutinas en un entorno controlado y testeable, y las vamos incorporando a nuestro programa. Si hay algún bug en una rutina y tenemos que reproducirlo, podemos hacerlo en nuestros pequeños programas de prueba, evitando el típico problema de tener que llegar a un determinado punto de nuestro programa para chequear una rutina, o modificar su bucle principal para hacerlo.
 
@@ -1017,7 +1017,7 @@ Pero si, por ejemplo, nosotros sólo dibujamos la pantalla una vez cuando nuestr
 
 Al final hay que llegar a un compromiso entre modularidad y optimización, en algunos casos nos interesará desgranar mucho el código, y en otros nos interesará hacer funciones específicas. Y esa decisión no deja de ser, al fin y al cabo, diseño del programa.
 
-En cualquier caso, el diseño nos asegura que podremos implementar nuestro programa en cualquier lenguaje y en cualquier momento. Podremos retomar nuestros “papeles de diseño” 3 meses después y, pese a no recordar en qué parte del programa estábamos, volver a su desarrollo sin excesivas dificultades.
+En cualquier caso, el diseño nos asegura que podremos implementar nuestro programa en cualquier lenguaje y en cualquier momento. Podremos retomar nuestros "papeles de diseño" 3 meses después y, pese a no recordar en qué parte del programa estábamos, volver a su desarrollo sin excesivas dificultades.
 
 Una de las cosas más complicadas de hacer un juego es el pensar por dónde empezar. Todo este proceso nos permite empezar el programa por la parte del mismo que realmente importa. Todos hemos empezado alguna vez a realizar nuestro juego por el menú, perdiendo muchas horas de trabajo para descubrir que teníamos un menú, pero no teníamos un juego, y que ya estábamos cansados del desarrollo sin apenas haber empezado.
 
@@ -1025,11 +1025,11 @@ Veamos un ejemplo: suponiendo que realizamos, por ejemplo, un juego de puzzles t
 
 Tras esto, ya tenemos el esqueleto funcional del juego y podemos añadir opciones, menúes y demás. Tendremos algo tangible, funcional, donde podemos hacer cambios que implican un inmediato resultado en pantalla, y no habremos malgastado muchas horas con un simple menú.
 
-Por otra parte, el diseñar correctamente nuestro programa y desgranarlo en piezas reutilizables redundará en nuestro beneficio no sólo actual (con respecto al programa que estamos escribiendo) sino futuro, ya que podremos crearnos nuestras propias “bibliotecas” de funciones que reutilizar en futuros programas.
+Por otra parte, el diseñar correctamente nuestro programa y desgranarlo en piezas reutilizables redundará en nuestro beneficio no sólo actual (con respecto al programa que estamos escribiendo) sino futuro, ya que podremos crearnos nuestras propias "bibliotecas" de funciones que reutilizar en futuros programas.
 
 Aquella rutina de dibujado de Sprites, de zoom de pantalla o de compresión de datos que tanto nos costó programar, bien aislada en una subrutina y con sus parámetros de entrada y salida bien definidos puede ser utilizada directamente en nuestros próximos programas simplemente copiando y pegando el código correspondiente.
 
-Más aún, podemos organizar funciones con finalidades comunes en ficheros individuales. Tendremos así nuestro fichero / biblioteca con funciones gráficas, de sonido, de teclado/joystick, etc. El ensamblador PASMO nos permite incluir un fichero en cualquier parte de nuestro código con la directiva “INCLUDE”.
+Más aún, podemos organizar funciones con finalidades comunes en ficheros individuales. Tendremos así nuestro fichero / biblioteca con funciones gráficas, de sonido, de teclado/joystick, etc. El ensamblador PASMO nos permite incluir un fichero en cualquier parte de nuestro código con la directiva "INCLUDE".
 
 Así, nuestro programa en ASM podría comenzar (o acabar) por algo como:
 
@@ -1042,4 +1042,4 @@ Así, nuestro programa en ASM podría comenzar (o acabar) por algo como:
 
 También podemos utilizar este sistema para los programas de prueba y testeo de las funciones que vamos realizando para el programa principal. Así, podemos verificar con un sencillo programa que incluya algunos .asm del juego si la rutina que acabamos de crear funciona correctamente.
 
-La organización del código en bibliotecas de funciones contribuye a reducir fallos en la codificación, hacer más corto el “listado general del programa”, y, sobre todo, reduce el tiempo de desarrollo. 
+La organización del código en bibliotecas de funciones contribuye a reducir fallos en la codificación, hacer más corto el "listado general del programa", y, sobre todo, reduce el tiempo de desarrollo. 

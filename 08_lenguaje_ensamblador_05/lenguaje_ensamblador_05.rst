@@ -9,7 +9,7 @@ Finalmente, para acabar con la descripción del juego de instrucciones del Z80 v
 Los puertos E/S
 ---------------------
 
-Como ya vimos en su momento, el microprocesador Z80 se conecta mediante los puertos de entrada/salida de la CPU a los periféricos externos (teclado, cassette y altavoz de audio), pudiendo leer el estado de los mismos (leer del teclado, leer del cassette) y escribir en ellos (escribir en el altavoz para reproducir sonido, escribir en el cassette) por medio de estas conexiones conocidas como “I/O Ports”. 
+Como ya vimos en su momento, el microprocesador Z80 se conecta mediante los puertos de entrada/salida de la CPU a los periféricos externos (teclado, cassette y altavoz de audio), pudiendo leer el estado de los mismos (leer del teclado, leer del cassette) y escribir en ellos (escribir en el altavoz para reproducir sonido, escribir en el cassette) por medio de estas conexiones conocidas como "I/O Ports". 
 
 .. figure:: esquema_zx.png
 
@@ -28,10 +28,10 @@ Comenzaremos con IN, que nos permite leer el valor de un puerto ya sea directame
 
     IN registro, (C)
 
-Leemos el puerto “BC” y ponemos su contenido en el registro especificado. En realidad, pese a que teóricamente el Spectrum sólo tiene acceso a puertos E/S de 8 bits (0-255), para acceder a los puertos, IN r, (C) pone todo el valor de BC en el bus de direcciones.
+Leemos el puerto "BC" y ponemos su contenido en el registro especificado. En realidad, pese a que teóricamente el Spectrum sólo tiene acceso a puertos E/S de 8 bits (0-255), para acceder a los puertos, IN r, (C) pone todo el valor de BC en el bus de direcciones.
 
 IN A, (puerto)
-Leemos el puerto “A*256 + Puerto” y ponemos su contenido en A. En esta ocasión, el Spectrum pone en el bus de direcciones el valor del registro de 16 bits formado por A y (puerto) (en lugar de BC).
+Leemos el puerto "A*256 + Puerto" y ponemos su contenido en A. En esta ocasión, el Spectrum pone en el bus de direcciones el valor del registro de 16 bits formado por A y (puerto) (en lugar de BC).
 
 Por ejemplo, estas 2 lecturas de puerto (usando los 2 formatos de la instrucción IN vistos anteriormente) son equivalentes:
 
@@ -45,22 +45,22 @@ Por ejemplo, estas 2 lecturas de puerto (usando los 2 formatos de la instrucció
     LD A, FFh
     IN A, (FEh)     ; A = Lectura de puerto FFFEh
 
-Aunque la instrucción de la “Forma 1” hable del puerto C, en realidad el puerto es un valor de 16 bits y se carga en el registro BC.
+Aunque la instrucción de la "Forma 1" hable del puerto C, en realidad el puerto es un valor de 16 bits y se carga en el registro BC.
 
-De la misma forma, podemos escribir un valor en un puerto con sus equivalentes “OUT”:
+De la misma forma, podemos escribir un valor en un puerto con sus equivalentes "OUT":
 
 .. code-block:: tasm
     OUT (puerto), A
 
-Escribimos en “puerto” (valor de 8 bits) el valor de A.
+Escribimos en "puerto" (valor de 8 bits) el valor de A.
 
 .. code-block:: tasm
     
     OUT (C), registro
 
-Escribimos en el puerto “C” el valor contenido en “registro” (aunque se pone el valor de BC en el bus de direcciones).
+Escribimos en el puerto "C" el valor contenido en "registro" (aunque se pone el valor de BC en el bus de direcciones).
 
-Curiosamente, como se explica en el excelente documento “The Undocumented Z80 Documented” (que habla de las funcionalidades y opcodes no documentados del Z80), los puertos del Spectrum son oficialmente de 8 bits (0-255) aunque realmente se pone o bien BC o bien (A*256)+PUERTO en el bus de direcciones, por lo que en el fondo se pueden acceder a todos los 65536 puertos disponibles.
+Curiosamente, como se explica en el excelente documento "The Undocumented Z80 Documented" (que habla de las funcionalidades y opcodes no documentados del Z80), los puertos del Spectrum son oficialmente de 8 bits (0-255) aunque realmente se pone o bien BC o bien (A*256)+PUERTO en el bus de direcciones, por lo que en el fondo se pueden acceder a todos los 65536 puertos disponibles.
 
 La forma en que estas instrucciones afectan a los flags es la siguiente::
 
@@ -72,13 +72,13 @@ La forma en que estas instrucciones afectan a los flags es la siguiente::
     OUT (C), r        |- - - - - -|
     OUT (n), A        |- - - - - -|
 
-Aunque entre los 2 formatos OUT no debería haber ninguna diferencia funcional, cabe destacar que “OUT (N), A” es 1 t-estado o ciclo de reloj más rápida que “OUT (C), A”, tardando 11 y 12 t-estados respectivamente.
+Aunque entre los 2 formatos OUT no debería haber ninguna diferencia funcional, cabe destacar que "OUT (N), A" es 1 t-estado o ciclo de reloj más rápida que "OUT (C), A", tardando 11 y 12 t-estados respectivamente.
 
 
 Instrucciones de puerto repetitivas e incrementales
 -----------------------------------------------------------
 
-Al igual que LD carga un valor de un origen a un destino, y tiene sus correspondientes instrucciones incrementales (LDI “carga e incrementa”, LDD “carga y decrementa”) o repetitivas (LDIR “carga, incrementa y repite BC veces”, LDDR “carga, decrementa, y repite BC veces”), IN y OUT tienen sus equivalentes incrementales y repetidores.
+Al igual que LD carga un valor de un origen a un destino, y tiene sus correspondientes instrucciones incrementales (LDI "carga e incrementa", LDD "carga y decrementa") o repetitivas (LDIR "carga, incrementa y repite BC veces", LDDR "carga, decrementa, y repite BC veces"), IN y OUT tienen sus equivalentes incrementales y repetidores.
 
 Así:
 
@@ -147,25 +147,26 @@ Como veremos en capítulo dedicado al teclado, existe una serie de puertos E/S q
     salir:
         RET
 
-El anterior ejemplo lee constantemente el puerto $DFFE a la espera de que el bit 0 de la respuesta obtenida de dicha lectura sea 0, lo que quiere decir que la tecla “p” ha sido pulsada.
+El anterior ejemplo lee constantemente el puerto $DFFE a la espera de que el bit 0 de la respuesta obtenida de dicha lectura sea 0, lo que quiere decir que la tecla "p" ha sido pulsada.
 
 Aunque los veremos en su momento en profundidad, estos son los puertos asociados a las diferentes filas de teclas:
+
 +------------------+-----------+-------+-------+-------+--------+---------+
-| 65278d (FEFEh)   |  Teclas:  |  “V”  |  “C”  |  “X”  |  “Z”   |  CAPS   |
+| 65278d (FEFEh)   |  Teclas:  |  "V"  |  "C"  |  "X"  |  "Z"   |  CAPS   |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  65022d (FDFEh)  |  Teclas:  |  “G”  |  “F”  |  “D”  |  “S”   |  “A”    |
+|  65022d (FDFEh)  |  Teclas:  |  "G"  |  "F"  |  "D"  |  "S"   |  "A"    |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  64510d (FBFEh)  |  Teclas:  |  “T”  |  “R”  |  “E”  |  “W”   |  “Q”    |
+|  64510d (FBFEh)  |  Teclas:  |  "T"  |  "R"  |  "E"  |  "W"   |  "Q"    |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  63486d (F7FEh)  |  Teclas:  |  “5”  |  “4”  |  “3”  |  “2”   |  “1”    |
+|  63486d (F7FEh)  |  Teclas:  |  "5"  |  "4"  |  "3"  |  "2"   |  "1"    |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  61438d (EFFEh)  |  Teclas:  |  “0”  |  “9”  |  “8”  |  “7”   |  “6”    |
+|  61438d (EFFEh)  |  Teclas:  |  "0"  |  "9"  |  "8"  |  "7"   |  "6"    |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  57342d (DFFEh)  |  Teclas:  |  “Y”  |  “U”  |  “I”  |  “O”   |  “P”    |
+|  57342d (DFFEh)  |  Teclas:  |  "Y"  |  "U"  |  "I"  |  "O"   |  "P"    |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  49150d (BFFEh)  |  Teclas:  |  “H”  |  “J”  |  “K”  |  “L”   |  ENTER  |
+|  49150d (BFFEh)  |  Teclas:  |  "H"  |  "J"  |  "K"  |  "L"   |  ENTER  |
 +------------------+-----------+-------+-------+-------+--------+---------+
-|  32766d (7FFEh)  |  Teclas:  |  “B”  |  “N”  |  “M”  |  SYMB  |  SPACE  |
+|  32766d (7FFEh)  |  Teclas:  |  "B"  |  "N"  |  "M"  |  SYMB  |  SPACE  |
 +------------------+-----------+-------+-------+-------+--------+---------+
 
 El bit 6 de los puertos que hemos visto para el teclado tiene un valor aleatorio, excepto cuando se pulsa PLAY en el cassette, y es a través de dicho bit de donde podremos obtener los datos a cargar.
@@ -216,235 +217,528 @@ Tabla de instrucciones, ciclos y tamaños
 
 A continuación se incluye una tabla donde se hace referencia a las instrucciones del microprocesador Z80 (campo Mnemonic), los ciclos de reloj que tarda en ejecutarse (campo Clck), el tamaño en bytes de la instrucción codificada (Siz), la afectación de Flags (SZHPNC), el opcode y su descripción en cuanto a ejecución.
 
-La tabla forma parte de un documento llamado “The Complete Z80 OP-Code Reference”, de Devin Gardner.
+La tabla forma parte de un documento llamado "The Complete Z80 OP-Code Reference", de Devin Gardner.
 
---------------+----+---+------+------------+---------------------+-----------------------
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
 |Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
---------------+----+---+------+------------+---------------------+-----------------------
-|ADC A,r      | 4  | 1 |***V0*|88+rb       |Add with Carry       |A=A+s+CY              |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADC A,r      | 4  | 1 |xxxV0x|88+rb       |Add with Carry       |A=A+s+CY              |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC A,N      | 7  | 2 |      |CE XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC A,(HL)   | 7  | 1 |      |8E          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC A,(IX+N) | 19 | 3 |      |DD 8E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC A,(IY+N) | 19 | 3 |      |FD 8E XX    |                     |                      |
-|ADC HL,BC    | 15 | 2 |**?V0*|ED 4A       |Add with Carry       |HL=HL+ss+CY           |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADC HL,BC    | 15 | 2 |xx?V0x|ED 4A       |Add with Carry       |HL=HL+ss+CY           |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC HL,DE    | 15 | 2 |      |ED 5A       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC HL,HL    | 15 | 2 |      |ED 6A       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADC HL,SP    | 15 | 2 |      |ED 7A       |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|ADD A,r      | 4  | 1 |***V0*|80+rb       |Add (8-bit)          |A=A+s                 |
+
+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADD A,r      | 4  | 1 |xxxV0x|80+rb       |Add (8-bit)          |A=A+s                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD A,N      | 7  | 2 |      |C6 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD A,(HL)   | 7  | 1 |      |86          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD A,(IX+N) | 19 | 3 |      |DD 86 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD A,(IY+N) | 19 | 3 |      |FD 86 XX    |                     |                      |
-|ADD HL,BC    | 11 | 1 |--?-0*|09          |Add (16-bit)         |HL=HL+ss              |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADD HL,BC    | 11 | 1 |--?-0x|09          |Add (16-bit)         |HL=HL+ss              |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD HL,DE    | 11 | 1 |      |19          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD HL,HL    | 11 | 1 |      |29          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD HL,SP    | 11 | 1 |      |39          |                     |                      |
-|ADD IX,BC    | 15 | 2 |--?-0*|DD 09       |Add (IX register)    |IX=IX+pp              |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADD IX,BC    | 15 | 2 |--?-0x|DD 09       |Add (IX register)    |IX=IX+pp              |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IX,DE    | 15 | 2 |      |DD 19       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IX,IX    | 15 | 2 |      |DD 29       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IX,SP    | 15 | 2 |      |DD 39       |                     |                      |
-|ADD IY,BC    | 15 | 2 |--?-0*|FD 09       |Add (IY register)    |IY=IY+rr              |
++-------------+----+---+------+------------+---------------------+----------------------+
+|ADD IY,BC    | 15 | 2 |--?-0x|FD 09       |Add (IY register)    |IY=IY+rr              |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IY,DE    | 15 | 2 |      |FD 19       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IY,IY    | 15 | 2 |      |FD 29       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |ADD IY,SP    | 15 | 2 |      |FD 39       |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|AND r        | 4  | 1 |***P00|A0+rb       |Logical AND          |A=A&s                 |
+
+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|AND r        | 4  | 1 |xxxP00|A0+rb       |Logical AND          |A=A&s                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |AND N        | 7  | 2 |      |E6 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |AND (HL)     | 7  | 1 |      |A6          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |AND (IX+N)   | 19 | 3 |      |DD A6 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |AND (IY+N)   | 19 | 3 |      |FD A6 XX    |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|BIT b,r      | 8  | 2 |?*1?0-|CB 40+8*b+rb|Test Bit             |m&{2^b}               |
-|BIT b,(HL)   | 12 | 2 |      |CB 46+8*b   |                     |                      |
-|BIT b,(IX+N) | 20 | 4 |      |DD CB XX 46+8*b                   |                      |
-|BIT b,(IY+N) | 20 | 4 |      |FD CB XX 46+8*b                   |                      |
+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|BIT b,r      | 8  | 2 |?x1?0-|CB 40+8xb+rb|Test Bit             |m&{2^b}               |
++-------------+----+---+------+------------+---------------------+----------------------+
+|BIT b,(HL)   | 12 | 2 |      |CB 46+8xb   |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
+|BIT b,(IX+N) | 20 | 4 |      |DD CB XX 46+8xb                   |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
+|BIT b,(IY+N) | 20 | 4 |      |FD CB XX 46+8xb                   |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |CALL NN      | 17 | 3 |------|CD XX XX    |Unconditional Call   |-(SP)=PC,PC=nn        |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL C,NN    |17/1| 3 |------|DC XX XX    |Conditional Call     |If Carry = 1          |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL NC,NN   |17/1| 3 |      |D4 XX XX    |                     |If carry = 0          |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL M,NN    |17/1| 3 |      |FC XX XX    |                     |If Sign = 1 (negative)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL P,NN    |17/1| 3 |      |F4 XX XX    |                     |If Sign = 0 (positive)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL Z,NN    |17/1| 3 |      |CC XX XX    |                     |If Zero = 1 (ans.=0)  |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL NZ,NN   |17/1| 3 |      |C4 XX XX    |                     |If Zero = 0 (non-zero)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL PE,NN   |17/1| 3 |      |EC XX XX    |                     |If Parity = 1 (even)  |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CALL PO,NN   |17/1| 3 |      |E4 XX XX    |                     |If Parity = 0 (odd)   |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|CCF          | 4  | 1 |--?-0*|3F          |Complement Carry Flag|CY=~CY                |
+
+
+
 +-------------+----+---+------+------------+---------------------+----------------------+
-|CP r         | 4  | 1 |***V1*|B8+rb       |Compare              |Compare A-s           |
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|CCF          | 4  | 1 |--?-0x|3F          |Complement Carry Flag|CY=~CY                |
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|CP r         | 4  | 1 |xxxV1x|B8+rb       |Compare              |Compare A-s           |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CP N         | 7  | 2 |      |FE XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CP (HL)      | 7  | 1 |      |BE          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CP (IX+N)    | 19 | 3 |      |DD BE XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |CP (IY+N)    | 19 | 3 |      |FD BE XX    |                     |                      |
-|CPD          | 16 | 2 |****1-|ED A9       |Compare and Decrement|A-(HL),HL=HL-1,BC=BC-1|
-|CPDR         |21/1| 2 |****1-|ED B9       |Compare, Dec., Repeat|CPD till A=(HL)or BC=0|
-|CPI          | 16 | 2 |****1-|ED A1       |Compare and Increment|A-(HL),HL=HL+1,BC=BC-1|
-|CPIR         |21/1| 2 |****1-|ED B1       |Compare, Inc., Repeat|CPI till A=(HL)or BC=0|
++-------------+----+---+------+------------+---------------------+----------------------+
+|CPD          | 16 | 2 |xxxx1-|ED A9       |Compare and Decrement|A-(HL),HL=HL-1,BC=BC-1|
++-------------+----+---+------+------------+---------------------+----------------------+
+|CPDR         |21/1| 2 |xxxx1-|ED B9       |Compare, Dec., Repeat|CPD till A=(HL)or BC=0|
++-------------+----+---+------+------------+---------------------+----------------------+
+|CPI          | 16 | 2 |xxxx1-|ED A1       |Compare and Increment|A-(HL),HL=HL+1,BC=BC-1|
++-------------+----+---+------+------------+---------------------+----------------------+
+|CPIR         |21/1| 2 |xxxx1-|ED B1       |Compare, Inc., Repeat|CPI till A=(HL)or BC=0|
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |CPL          | 4  | 1 |--1-1-|2F          |Complement           |A=~A                  |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|DAA          | 4  | 1 |***P-*|27          |Decimal Adjust Acc.  |A=BCD format  (dec.)  |
+
 +-------------+----+---+------+------------+---------------------+----------------------+
-|DEC A        | 4  | 1 |***V1-|3D          |Decrement (8-bit)    |s=s-1                 |
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|DAA          | 4  | 1 |xxxP-x|27          |Decimal Adjust Acc.  |A=BCD format  (dec.)  |
++-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|DAA          | 4  | 1 |xxxP-x|27          |Decimal Adjust Acc.  |A=BCD format  (dec.)  |
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|DEC A        | 4  | 1 |xxxV1-|3D          |Decrement (8-bit)    |s=s-1                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC B        | 4  | 1 |      |05          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC C        | 4  | 1 |      |0D          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC D        | 4  | 1 |      |15          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC E        | 4  | 1 |      |1D          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC H        | 4  | 1 |      |25          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC L        | 4  | 2 |      |2D          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC (HL)     | 11 | 1 |      |35          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC (IX+N)   | 23 | 3 |      |DD 35 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC (IY+N)   | 23 | 3 |      |FD 35 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC BC       | 6  | 1 |------|0B          |Decrement (16-bit)   |ss=ss-1               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC DE       | 6  | 1 |      |1B          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC HL       | 6  | 1 |      |2B          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC SP       | 6  | 1 |      |3B          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC IX       | 10 | 2 |------|DD 2B       |Decrement            |xx=xx-1               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DEC IY       | 10 | 2 |      |FD 2B       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |DI           | 4  | 1 |------|F3          |Disable Interrupts   |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
 |DJNZ $+2     |13/8| 1 |------|10          |Dec., Jump Non-Zero  |B=B-1 till B=0        |
++-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |EI           | 4  | 1 |------|FB          |Enable Interrupts    |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EX (SP),HL   | 19 | 1 |------|E3          |Exchange             |(SP)<->HL             |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EX (SP),IX   | 23 | 2 |------|DD E3       |                     |(SP)<->xx             |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EX (SP),IY   | 23 | 2 |      |FD E3       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EX AF,AF'    | 4  | 1 |------|08          |                     |AF<->AF'              |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EX DE,HL     | 4  | 1 |------|EB          |                     |DE<->HL               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |EXX          | 4  | 1 |------|D9          |Exchange             |qq<->qq'   (except AF)|
++-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |HALT         | 4  | 1 |------|76          |Halt                 |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IM 0         | 8  | 2 |------|ED 46       |Interrupt Mode       |             (n=0,1,2)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |IM 1         | 8  | 2 |      |ED 56       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IM 2         | 8  | 2 |      |ED 5E       |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN A,(N)     | 11 | 2 |------|DB XX       |Input                |A=(n)                 |
-|IN (C)       | 12 | 2 |***P0-|ED 70       |Input*               |         (Unsupported)|
-|IN A,(C)     | 12 | 2 |***P0-|ED 78       |Input                |r=(C)                 |
++-------------+----+---+------+------------+---------------------+----------------------+
+|IN (C)       | 12 | 2 |xxxP0-|ED 70       |Inputx               |         (Unsupported)|
++-------------+----+---+------+------------+---------------------+----------------------+
+|IN A,(C)     | 12 | 2 |xxxP0-|ED 78       |Input                |r=(C)                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN B,(C)     | 12 | 2 |      |ED 40       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN C,(C)     | 12 | 2 |      |ED 48       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN D,(C)     | 12 | 2 |      |ED 50       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN E,(C)     | 12 | 2 |      |ED 58       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN H,(C)     | 12 | 2 |      |ED 60       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |IN L,(C)     | 12 | 2 |      |ED 68       |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|INC A        | 4  | 1 |***V0-|3C          |Increment (8-bit)    |r=r+1                 |
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|INC A        | 4  | 1 |xxxV0-|3C          |Increment (8-bit)    |r=r+1                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC B        | 4  | 1 |      |04          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC C        | 4  | 1 |      |0C          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC D        | 4  | 1 |      |14          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC E        | 4  | 1 |      |1C          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC H        | 4  | 1 |      |24          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC L        | 4  | 1 |      |2C          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC BC       | 6  | 1 |------|03          |Increment (16-bit)   |ss=ss+1               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC DE       | 6  | 1 |      |13          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC HL       | 6  | 1 |      |23          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC SP       | 6  | 1 |      |33          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC IX       | 10 | 2 |------|DD 23       |Increment            |xx=xx+1               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC IY       | 10 | 2 |      |FD 23       |                     |                      |
-|INC (HL)     | 11 | 1 |***V0-|34          |Increment (indirect) |(HL)=(HL)+1           |
-|INC (IX+N)   | 23 | 3 |***V0-|DD 34 XX    |Increment            |(xx+d)=(xx+d)+1       |
++-------------+----+---+------+------------+---------------------+----------------------+
+|INC (HL)     | 11 | 1 |xxxV0-|34          |Increment (indirect) |(HL)=(HL)+1           |
++-------------+----+---+------+------------+---------------------+----------------------+
+|INC (IX+N)   | 23 | 3 |xxxV0-|DD 34 XX    |Increment            |(xx+d)=(xx+d)+1       |
++-------------+----+---+------+------------+---------------------+----------------------+
 |INC (IY+N)   | 23 | 3 |      |FD 34 XX    |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|IND          | 16 | 2 |?*??1-|ED AA       |Input and Decrement  |(HL)=(C),HL=HL-1,B=B-1|
+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|IND          | 16 | 2 |?x??1-|ED AA       |Input and Decrement  |(HL)=(C),HL=HL-1,B=B-1|
++-------------+----+---+------+------------+---------------------+----------------------+
 |INDR         |21/1| 2 |?1??1-|ED BA       |Input, Dec., Repeat  |IND till B=0          |
-|INI          | 16 | 2 |?*??1-|ED A2       |Input and Increment  |(HL)=(C),HL=HL+1,B=B-1|
++-------------+----+---+------+------------+---------------------+----------------------+
+|INI          | 16 | 2 |?x??1-|ED A2       |Input and Increment  |(HL)=(C),HL=HL+1,B=B-1|
++-------------+----+---+------+------------+---------------------+----------------------+
 |INIR         |21/1| 2 |?1??1-|ED B2       |Input, Inc., Repeat  |INI till B=0          |
 +-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP $NN       | 10 | 3 |------|C3 XX XX    |Unconditional Jump   |PC=nn                 |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP (HL)      | 4  | 1 |------|E9          |Unconditional Jump   |PC=(HL)               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP (IX)      | 8  | 2 |------|DD E9       |Unconditional Jump   |PC=(xx)               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP (IY)      | 8  | 2 |      |FD E9       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP C,$NN     |10/1| 3 |------|DA XX XX    |Conditional Jump     |If Carry = 1          |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP NC,$NN    |10/1| 3 |      |D2 XX XX    |                     |If Carry = 0          |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP M,$NN     |10/1| 3 |      |FA XX XX    |                     |If Sign = 1 (negative)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP P,$NN     |10/1| 3 |      |F2 XX XX    |                     |If Sign = 0 (positive)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP Z,$NN     |10/1| 3 |      |CA XX XX    |                     |If Zero = 1 (ans.= 0) |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP NZ,$NN    |10/1| 3 |      |C2 XX XX    |                     |If Zero = 0 (non-zero)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP PE,$NN    |10/1| 3 |      |EA XX XX    |                     |If Parity = 1 (even)  |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JP PO,$NN    |10/1| 3 |      |E2 XX XX    |                     |If Parity = 0 (odd)   |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |JR $N+2      | 12 | 2 |------|18 XX       |Relative Jump        |PC=PC+e               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JR C,$N+2    |12/7| 2 |------|38 XX       |Cond. Relative Jump  |If cc JR(cc=C,NC,NZ,Z)|
++-------------+----+---+------+------------+---------------------+----------------------+
 |JR NC,$N+2   |12/7| 2 |      |30 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JR Z,$N+2    |12/7| 2 |      |28 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |JR NZ,$N+2   |12/7| 2 |      |20 XX       |                     |                      |
 +-------------+----+---+------+------------+---------------------+----------------------+
-|LD I,A       | 9  | 2 |------|ED 47       |Load*                |dst=src               |
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
++-------------+----+---+------+------------+---------------------+----------------------+
+|LD I,A       | 9  | 2 |------|ED 47       |Load\x               |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD R,A       | 9  | 2 |      |ED 4F       |                     |                      |
-|LD A,I       | 9  | 2 |**0*0-|ED 57       |Load*                |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
+|LD A,I       | 9  | 2 |xx0x0-|ED 57       |Load\                |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,R       | 9  | 2 |      |ED 5F       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,r       | 4  | 1 |------|78+rb       |Load (8-bit)         |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,N       | 7  | 2 |      |3E XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(BC)    | 7  | 1 |      |0A          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(DE)    | 7  | 1 |      |1A          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(HL)    | 7  | 1 |      |7E          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(IX+N)  | 19 | 3 |      |DD 7E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(IY+N)  | 19 | 3 |      |FD 7E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD A,(NN)    | 13 | 3 |      |3A XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD B,r       | 4  | 1 |      |40+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD B,N       | 7  | 2 |      |06 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD B,(HL)    | 7  | 1 |      |46          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD B,(IX+N)  | 19 | 3 |      |DD 46 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD B,(IY+N)  | 19 | 3 |      |FD 46 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD C,r       | 4  | 1 |      |48+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD C,N       | 7  | 2 |      |0E XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD C,(HL)    | 7  | 1 |      |4E          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD C,(IX+N)  | 19 | 3 |      |DD 4E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD C,(IY+N)  | 19 | 3 |      |FD 4E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD D,r       | 4  | 1 |      |50+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD D,N       | 7  | 2 |      |16 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD D,(HL)    | 7  | 1 |      |56          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD D,(IX+N)  | 19 | 3 |      |DD 56 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD D,(IY+N)  | 19 | 3 |      |FD 56 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD E,r       | 4  | 1 |      |58+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD E,N       | 7  | 2 |      |1E XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD E,(HL)    | 7  | 1 |      |5E          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD E,(IX+N)  | 19 | 3 |      |DD 5E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD E,(IY+N)  | 19 | 3 |      |FD 5E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD H,r       | 4  | 1 |      |60+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD H,N       | 7  | 2 |      |26 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD H,(HL)    | 7  | 1 |      |66          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD H,(IX+N)  | 19 | 3 |      |DD 66 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD H,(IY+N)  | 19 | 3 |      |FD 66 XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD L,r       | 4  | 1 |      |68+rb       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD L,N       | 7  | 2 |      |2E XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD L,(HL)    | 7  | 1 |      |6E          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD L,(IX+N)  | 19 | 3 |      |DD 6E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD L,(IY+N)  | 19 | 3 |      |FD 6E XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD BC,(NN)   | 20 | 4 |------|ED 4B XX XX |Load (16-bit)        |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD BC,NN     | 10 | 3 |      |01 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD DE,(NN)   | 20 | 4 |      |ED 5B XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD DE,NN     | 10 | 3 |      |11 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD HL,(NN)   | 20 | 3 |      |2A XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD HL,NN     | 10 | 3 |      |21 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD SP,(NN)   | 20 | 4 |      |ED 7B XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD SP,HL     | 6  | 1 |      |F9          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD SP,IX     | 10 | 2 |      |DD F9       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD SP,IY     | 10 | 2 |      |FD F9       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD SP,NN     | 10 | 3 |      |31 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD IX,(NN)   | 20 | 4 |      |DD 2A XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD IX,NN     | 14 | 4 |      |DD 21 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD IY,(NN)   | 20 | 4 |      |FD 2A XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD IY,NN     | 14 | 4 |      |FD 21 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (HL),r    | 7  | 1 |------|70+rb       |Load (Indirect)      |dst=src               |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (HL),N    | 10 | 2 |      |36 XX       |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (BC),A    | 7  | 1 |      |02          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (DE),A    | 7  | 1 |      |12          |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),A    | 13 | 3 |      |32 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),BC   | 20 | 4 |      |ED 43 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),DE   | 20 | 4 |      |ED 53 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),HL   | 16 | 3 |      |22 XX XX    |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),IX   | 20 | 4 |      |DD 22 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),IY   | 20 | 4 |      |FD 22 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (NN),SP   | 20 | 4 |      |ED 73 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (IX+N),r  | 19 | 3 |      |DD 70+rb XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (IX+N),N  | 19 | 4 |      |DD 36 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (IY+N),r  | 19 | 3 |      |FD 70+rb XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
 |LD (IY+N),N  | 19 | 4 |      |FD 36 XX XX |                     |                      |
++-------------+----+---+------+------------+---------------------+----------------------+
+
+
++-------------+----+---+------+------------+---------------------+----------------------+
+|Mnemonic     |Clck|Siz|SZHPNC|  OP-Code   |    Description      |        Notes         |
 +-------------+----+---+------+------------+---------------------+----------------------+
 |LDD          | 16 | 2 |--0*0-|ED A8       |Load and Decrement   |(DE)=(HL),HL=HL-1,#   |
 |LDDR         |21/1| 2 |--000-|ED B8       |Load, Dec., Repeat   |LDD till BC=0         |
@@ -600,7 +894,7 @@ La tabla forma parte de un documento llamado “The Complete Z80 OP-Code Referen
 |               |Implied addressing                           |
 | b             |Bit addressing                               |
 | p             |Modified page zero addressing (see RST)      |
-| *             |Undocumented opcode                          |
+| x             |Undocumented opcode                          |
 +---------------+---------------------------------------------+
 | A  B  C  D  E |Registers (8-bit)                            |
 | AF BC DE HL   |Register pairs (16-bit)                      |
@@ -642,7 +936,7 @@ La tabla forma parte de un documento llamado “The Complete Z80 OP-Code Referen
 
  Unos apuntes sobre esta tabla:
 
-1.- En instrucciones como “ADC A, r” podemos ver una defición del OPCODE como “88+rb”. En este caso, el opcode final se obtendría sumando a “88h” un valor de 0 a 7 según el registro al que nos referimos:
+1.- En instrucciones como "ADC A, r" podemos ver una defición del OPCODE como "88+rb". En este caso, el opcode final se obtendría sumando a "88h" un valor de 0 a 7 según el registro al que nos referimos:
 
 +----------+----------+
 | Registro | Valor RB |
@@ -664,14 +958,14 @@ La tabla forma parte de un documento llamado “The Complete Z80 OP-Code Referen
 | (HL)     | 6        |
 +----------+----------+
 
-Por ejemplo, “ADC A, B” se codificaría en memoria como “88+0=88”.
+Por ejemplo, "ADC A, B" se codificaría en memoria como "88+0=88".
 
 2.- En los saltos hay 2 tiempos de ejecución diferentes (por ejemplo, 10/1). En este caso el valor más alto (10) son los t-estados o ciclos que toma la instrucción cuando el salto se realiza, y el más bajo (1) es lo que tarda la instrucción cuando no se salta al destino. Como véis, a la hora de programar una rutina que tenga saltos o bifurcaciones, es interesante programarla de forma que el caso más común, el que se produzca la mayoría de las veces, no produzca un salto.
 
 3.- La descripción de las afectaciones de flags son las siguientes:
 
 +-------+-------+---------------------------------------------+
-| F     | -*01? |Flag unaffected/affected/reset/set/unknown   |
+| F     | -x01? |Flag unaffected/affected/reset/set/unknown   |
 | S     | S     |Sign flag (Bit 7)                            |
 | Z     |  Z    |Zero flag (Bit 6)                            |
 | HC    |   H   |Half Carry flag (Bit 4)                      |
@@ -681,23 +975,24 @@ Por ejemplo, “ADC A, B” se codificaría en memoria como “88+0=88”.
 +-------+-------+---------------------------------------------+
 
 Instrucciones no documentadas del Z80
-==============================================
+------------------------------------------
 
 En Internet podemos encontrar gran cantidad de documentación acerca del Z80 y su juego de instrucciones, incluyendo las especificaciones oficiales del microprocesador Z80 de Zilog.
 
 No obstante, existen una serie de instrucciones u opcodes que el microprocesador puede ejecutar y que no están detallados en la documentación oficial de Zilog. Con respecto a esto, tenemos la suerte de disponer de algo que los programadores de la época del Spectrum no tenían: una descripción detallada de las instrucciones no documentadas del Z80. Aunque la mayoría son instrucciones repetidas de sus versiones documentadas, hay algunas instrucciones curiosas y a las que tal vez le podamos sacar alguna utilidad.
 
-¿Por qué existen estos opcodes y no fueron documentados? Supongo que algunos de ellos no fueron considerados como “merecedores de utilidad alguna” y los ingenieros de Zilog no los documentaron, o tal vez sean simplemente un resultado no previsto de la ejecución del Z80 porque los diseñadores no pensaron que al microprocesador pudieran llegarle dichos códigos. El caso es que para el microprocesador existen “todos” los opcodes, otra cosa es qué haga al leerlos y decodificarlos. En este caso algunos de ellos realizan funciones válidas mientras que otros son el equivalente a ejecutar 2 instrucciones NOP, por ejemplo.
+¿Por qué existen estos opcodes y no fueron documentados? Supongo que algunos de ellos no fueron considerados como "merecedores de utilidad alguna" y los ingenieros de Zilog no los documentaron, o tal vez sean simplemente un resultado no previsto de la ejecución del Z80 porque los diseñadores no pensaron que al microprocesador pudieran llegarle dichos códigos. El caso es que para el microprocesador existen "todos" los opcodes, otra cosa es qué haga al leerlos y decodificarlos. En este caso algunos de ellos realizan funciones válidas mientras que otros son el equivalente a ejecutar 2 instrucciones NOP, por ejemplo.
 
 ¿Cuál es la utilidad de estas instrucciones para los programadores? Para ser sinceros, como programadores con un ensamblador o un ensamblador cruzado, poca. Si haces tus programas desde cero con un programa ensamblador, éste se encargará de la conversión de instrucciones estándar a opcodes, aunque no viene mal conocer la existencia de estas instrucciones. Para los programadores de emuladores y de desensambladores, el conocimiento de estos opcodes es vital.
 
 El juego Sabre Wulf, por ejemplo, utiliza una de estas instrucciones en la determinación del camino de uno de los enemigos en pantalla (la instrucción SLL, que veremos a continuación), hasta el punto en que los primeros emuladores de Spectrum emulaban mal este juego hasta que incluyeron dicha instrucción en la emulación.
 
-Los “undocumented opcodes” son esencialmente opcodes con prefijos CB, ED, DD o FD que hacen unas determinadas operaciones y que no están incluídos en la “lista oficial” que hemos visto hasta ahora. Todos los ejemplos que veremos a continuación están extraídos del documento “The Undocumented Z80 Documented”, de Sean Young.
+Los "undocumented opcodes" son esencialmente opcodes con prefijos CB, ED, DD o FD que hacen unas determinadas operaciones y que no están incluídos en la "lista oficial" que hemos visto hasta ahora. Todos los ejemplos que veremos a continuación están extraídos del documento "The Undocumented Z80 Documented", de Sean Young.
 
 
 Prefijo CB
----------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Por ejemplo, los opcodes CB 30, CB 31, CB 32, CB 33, CB 34, CB 35, CB 36 y CB 37 definen una nueva instrucción: SLL. 
 
@@ -724,7 +1019,8 @@ Por ejemplo, los opcodes CB 30, CB 31, CB 32, CB 33, CB 34, CB 35, CB 36 y CB 37
 **SLL (Shift Logical Left)** funciona exactamente igual que SLA salvo porque pone a 1 el bit 0 (mientras que SLA lo ponía a 0). 
 
 Prefijos DD y FD
---------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 En general, una instrucción precedida por el opcode DD se ejecuta igual que sin él excepto por las siguientes reglas:
 
@@ -749,7 +1045,8 @@ Por ejemplo:
 
 
 Prefijo ED
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Hay una gran cantidad de instrucciones ED XX indocumentadas. Muchos de ellos realizan la misma función que sus equivalentes sin ED delante, mientras que otros simplemente son leídos y decodificados, resultando, a niveles prácticos, equivalentes a 2 instrucciones NOP. Veamos algunos de ellos: 
 
@@ -810,6 +1107,8 @@ Aparte de los duplicados de NOP, NEG, IM0, etc, podemos ver un par de instruccio
 Esta instrucción lee el puerto C, pero no almacena el resultado de la lectura en ningún lugar. No obstante, altera los flags del registro F como corresponde al resultado leído. Puede ser interesante si sólo nos interesa, por ejemplo, si el valor leído es cero o no (flag Z), y no queremos perder un registro para almacenar el resultado. 
 
 Prefijos DDCB y FDCB
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Las instrucciones DDCB y FDCB no documentadas almacenan el resultado de la operación de la instrucción equivalente sin prefijo (si existe dicho resultado) en uno de los registros de propósito general: B, C, D, E, H, L, ninguno o A, según los 3 bits más bajos del último byte del opcode (000=B, 001=C, 010=D, etc).
 
@@ -817,7 +1116,7 @@ Así, supongamos el siguiente opcode sí documentado::
 
     DD CB 01 06         RLC (IX+01h)
 
-Si hacemos los 3 últimos bits de dicho opcode 010 (010), el resultado de la operación se copia al registro D (010 = D en nuestra definición anterior), con lo que realmente, en lugar de “RLC (IX+01h)” se ejecuta:
+Si hacemos los 3 últimos bits de dicho opcode 010 (010), el resultado de la operación se copia al registro D (010 = D en nuestra definición anterior), con lo que realmente, en lugar de "RLC (IX+01h)" se ejecuta:
 
 .. code-block:: tasm
 
@@ -825,7 +1124,7 @@ Si hacemos los 3 últimos bits de dicho opcode 010 (010), el resultado de la ope
     RLC D
     LD (IX+01h), D
 
-La notación que sugiere Sean Young para estos opcodes es: “RLC (IX+01h), D”.
+La notación que sugiere Sean Young para estos opcodes es: "RLC (IX+01h), D".
 
 Con el prefijo FDCB ocurre igual que con DDCB, salvo que se usa el registro IY en lugar de IX.
 

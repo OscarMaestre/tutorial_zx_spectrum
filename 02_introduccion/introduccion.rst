@@ -22,22 +22,7 @@ BASIC tiene una serie de trucos más o menos conocidos para acelerar su ejecuci�
    El editor del intérprete de BASIC
 
 
-Los límites de BASIC
----------------------------
 
-Todos aquel lector que haya programado en BASIC conocerá sin duda la principal limitación de este sencillo lenguaje de alto nivel: es lento, muy lento. A cambio de su sencillez pagamos una penalización enorme en velocidad.
-
-BASIC es un lenguaje interpretado, lo que quiere decir que el Spectrum (más bien el intérprete BASIC integrado en la ROM) tiene que leer línea a línea nuestro programa, decodificar lo que estamos diciendo en lenguaje BASIC, traducirlo a instrucciones comprensibles por el procesador y ejecutarlo, todo ello en tiempo real.
-
-Eso implica que cada vez que se ejecuta el programa BASIC, para cada línea del programa se ejecuta un proceso de lectura, decodificación, traducción y ejecución. Este proceso es lento e implica que no sólo se está ejecutando nuestro programa sino que debajo de él tenemos al intérprete de BASIC realizando todas estas tareas y restándonos parte de la potencia de CPU del Spectrum, que ya de por sí no es especialmente potente.
-
-No importa lo elegantemente optimizado que esté nuestro programa en BASIC, el proceso de interpretación en sí hará que se ejecute con una lentitud que no podemos salvar.
-
-BASIC tiene una serie de trucos más o menos conocidos para acelerar su ejecución: escribir muchas instrucciones en una sóla línea BASIC, poner las rutinas que más velocidad necesitan en las primeras líneas de programa, reducir el nombre (en longitud) de las variables, etc. Pero al final llegamos a un punto en que no podemos mejorar nuestros programas en cuanto a velocidad.
-
-
-Lenguaje BASIC y su intérprete
-El editor del intérprete de BASIC
 
 
 Para muchos, el BASIC del Spectrum es un comienzo prácticamente obligado para programar, pero si queremos realizar programas con la calidad del software comercial no puede ser la herramienta a utilizar. Dejando de lado que sigue siendo una herramienta muy útil para programar en el Spectrum, para muchos llega la hora de dar el siguiente paso. 
@@ -55,7 +40,7 @@ Subrutinas en ensamblador dentro de un programa BASIC
 
 Para empezar, como primera opción, podemos realizar pequeñas rutinas en ensamblador y utilizarlas desde nuestros programas en BASIC. El lenguaje ensamblador se trata del lenguaje más cercano a lo que es el código binario que entiende directamente un microprocesador. Es de bajo nivel, es decir, está más lejos del lenguaje humano de lo que está BASIC, y a la vez está muy cerca del lenguaje que entiende el microprocesador de nuestro Spectrum.
 
-En BASIC, una instrucción es traducida por el intérprete BASIC a una serie más o menos larga de comandos en lenguaje máquina. Por ejemplo, 10 PRINT "HOLA", se traduce como una serie de comandos en lenguaje máquina que podrían ser algo como "para cada una de las letras de la palabra HOLA, realiza todas las operaciones necesarias para mostrar en pantalla todos los píxels que forman dichas letras, actualizando la posición del cursor y usando el color INK y PAPER actual".
+En BASIC, una instrucción es traducida por el intérprete BASIC a una serie más o menos larga de comandos en lenguaje máquina. Por ejemplo, ``10 PRINT "HOLA"``, se traduce como una serie de comandos en lenguaje máquina que podrían ser algo como "para cada una de las letras de la palabra HOLA, realiza todas las operaciones necesarias para mostrar en pantalla todos los píxels que forman dichas letras, actualizando la posición del cursor y usando el color INK y PAPER actual".
 
 Una instrucción BASIC equivale a una gran cantidad de instrucciones en código máquina.
 
@@ -88,13 +73,13 @@ La primera de las opciones que estamos tratando, la de programar rutinas en ensa
 
 * Programamos una rutina en lenguaje ensamblador que realice una función concreta: por ejemplo, dibujar el personaje o enemigos de nuestro juego, borrar la pantalla, actualizar los marcadores, etc.
 * Ensamblamos la rutina con un programa ensamblador y obtenemos un bloque de datos que contiene la traducción del programa que hemos escrito a código máquina directamente comprensible por el microprocesador.
-* Cargamos en memoria el bloque de datos de código máquina que acabamos de obtener mediante un LOAD "" CODE o POKEando cada byte de este bloque de datos en memoria.
-* Programamos nuestro programa en BASIC, y llamamos a la rutina que hemos programando cuando la necesitemos utilizando RANDOMIZE USR hacia la dirección en que hemos cargado o POKEado la rutina.
+* Cargamos en memoria el bloque de datos de código máquina que acabamos de obtener mediante un ``LOAD "" CODE`` o POKEando cada byte de este bloque de datos en memoria.
+* Programamos nuestro programa en BASIC, y llamamos a la rutina que hemos programando cuando la necesitemos utilizando ``RANDOMIZE USR`` hacia la dirección en que hemos cargado o POKEado la rutina.
 
 
 Es decir: realizamos una rutina o un conjunto de rutinas en ensamblador y mediante un programa ensamblador, traducimos el código ASM a código que entiende directamente la máquina (código binario) y lo salvamos en cinta (o si es corto, anotamos sus valores para meterlos en DATAs). Después, al inicio de nuestro programa, introducimos ese código binario en memoria de forma que lo podamos llamar en cualquier momento desde BASIC con RANDOMIZE USR.
 
-Esto permite realizar rutinas importantes y críticas en lenguaje ensamblador, y mantener el esqueleto del programa principal en BASIC. Las rutinas creadas en ensamblador son llamadas desde BASIC con la instrucción **USR** en aquellos puntos del programa en que las necesitemos.
+Esto permite realizar rutinas importantes y críticas en lenguaje ensamblador, y mantener el esqueleto del programa principal en BASIC. Las rutinas creadas en ensamblador son llamadas desde BASIC con la instrucción ``USR`` en aquellos puntos del programa en que las necesitemos.
 
 Más adelante en este capítulo veremos un ejemplo de cómo realizar el ensamblado de una rutina en ensamblador, su carga en memoria y su utilización desde un programa en BASIC.
 
@@ -388,7 +373,8 @@ A continuación vamos a ver el mismo programa escrito en lenguaje ensamblador:
     LDIR
     RET
 
- Si ensamblamos este programa con un programa ensamblador y lo ejecutamos, veremos que tarda menos de 1 segundo en ejecutar la misma tarea. Es en ejemplos tan sencillos como este donde podemos ver la diferencia de velocidad entre BASIC y ASM.
+
+Si ensamblamos este programa con un programa ensamblador y lo ejecutamos, veremos que tarda menos de 1 segundo en ejecutar la misma tarea. Es en ejemplos tan sencillos como este donde podemos ver la diferencia de velocidad entre BASIC y ASM.
 
 Supongamos que ensamblamos a mano el listado anterior, mediante una tabla de conversión de Instrucciones ASM a Códigos de Operación (opcodes) del Z80, ensamblando manualmente (tenemos una tabla de conversión en el mismo manual del +2, por ejemplo).
 
@@ -408,9 +394,9 @@ Así pues, ensamblamos manualmente la siguiente rutina:
 
 Tras el ensamblado del código ensamblador obtendremos el siguiente código máquina (una rutina de 15 bytes de tamaño): ``$21, $00, $40, $3e, $a2, $77, $11, $01, $40, $01, $ff, $1a, $ed, $b0, $c9`` O, en base decimal: ``33, 0, 64, 62, 162, 119, 17, 1, 64, 1, 255, 26, 237, 176, 201``
 
- Como ya hemos visto en la definición de "código máquina", esta extraña ristra de bytes para nosotros incomprensible tiene un total significado para nuestro Spectrum: cuando él encuentra, por ejemplo, los bytes "62, 162", sabe que eso quiere decir "LD A, 162"; cuando encuentra el byte "201", sabe que tiene que ejecutar un "RET", y así con todas las demás instrucciones.
+Como ya hemos visto en la definición de "código máquina", esta extraña ristra de bytes para nosotros incomprensible tiene un total significado para nuestro Spectrum: cuando él encuentra, por ejemplo, los bytes "62, 162", sabe que eso quiere decir "LD A, 162"; cuando encuentra el byte "201", sabe que tiene que ejecutar un "RET", y así con todas las demás instrucciones.
 
-Un detalle: si no queremos ensamblar a mano podemos ensamblar el programa con un ensamblador como "PASMO" o "z80asm" y después obtener esos números abriendo el fichero .bin resultando con un editor hexadecimal (que no de texto).
+Un detalle: si no queremos ensamblar a mano podemos ensamblar el programa con un ensamblador como ``pasmo`` o ``z80asm``  y después obtener esos números abriendo el fichero .bin resultando con un editor hexadecimal (que no de texto).
 
 A continuación vamos a BASIC y tecleamos el siguiente programa: 
 
@@ -423,7 +409,7 @@ A continuación vamos a BASIC y tecleamos el siguiente programa:
     50 POKE (40000+n), I
     60 NEXT n
 
- Este programa guarda a partir de la dirección 40000 los diferentes bytes del DATA (usando POKE), almacenando así nuestra rutina en memoria.
+Este programa guarda a partir de la dirección 40000 los diferentes bytes del DATA (usando POKE), almacenando así nuestra rutina en memoria.
 
 Tras esto ejecutamos un RANDOMIZE USR 40000 lo que provoca la ejecución de la rutina posicionada en la dirección 40000, que justo es la rutina que hemos ensamblado a mano y pokeado mediante el programa en BASIC.
 
@@ -435,11 +421,11 @@ Lo que hemos hecho en el programa BASIC es:
 * Con el bucle FOR hemos POKEado la rutina en memoria a partir de la dirección 40000 (desde 40000 a 40015).
 * El RANDOMIZE USR 40000 salta la ejecución del Z80 a la dirección 40000, donde está nuestra rutina. Recordad que nuestra rutina acaba con un RET, que es una instrucción de retorno que finaliza la rutina y realiza una "vuelta" al BASIC.
 
- Siguiendo este mismo procedimiento podemos generar todas las rutinas que necesitemos y ensamblarlas, obteniendo ristras de código máquina que meteremos en DATAs y pokearemos en memoria.
+Siguiendo este mismo procedimiento podemos generar todas las rutinas que necesitemos y ensamblarlas, obteniendo ristras de código máquina que meteremos en DATAs y pokearemos en memoria.
 
-Otra opción, para evitar los DATAs y los POKEs, es grabar en cinta el fichero BIN resultante del ensamblado (convertido a TAP) tras nuestro programa en BASIC, y realizar en nuestro programa un **LOAD "" CODE DIRECCION_DESTINO** de forma que carguemos todo el código binario ensamblado en memoria.
+Otra opción, para evitar los DATAs y los POKEs, es grabar en cinta el fichero BIN resultante del ensamblado (convertido a TAP) tras nuestro programa en BASIC, y realizar en nuestro programa un ``LOAD "" CODE DIRECCION_DESTINO`` de forma que carguemos todo el código binario ensamblado en memoria.
 
-Podemos así realizar muchas rutinas en un mismo fichero ASM y ensamblarlas y cargarlas en memoria de una sola vez. Tras tenerlas en memoria, tan sólo necesitaremos saber la dirección de inicio de cada una de las rutinas para llamarlas con el **RANDOMIZE USR DIRECCION_RUTINA** correspondiente en cualquier momento de nuestro programa BASIC.
+Podemos así realizar muchas rutinas en un mismo fichero ASM y ensamblarlas y cargarlas en memoria de una sola vez. Tras tenerlas en memoria, tan sólo necesitaremos saber la dirección de inicio de cada una de las rutinas para llamarlas con el ``RANDOMIZE USR DIRECCION_RUTINA`` correspondiente en cualquier momento de nuestro programa BASIC.
 
 Para hacer esto, ese fichero ASM podría tener una forma como la siguiente: 
 
@@ -490,7 +476,7 @@ Nuestro programa en BASIC a la hora de llamar a esta rutina (una vez ensamblada 
     POKE 50000, 162
     RANDOMIZE USR 40000
 
- Este código produciría la misma ejecución que el ejemplo anterior, porque como parámetro estamos pasando el valor 162, pero podríamos llamar de nuevo a la misma función en cualquier otro punto de nuestro programa pasando otro parámetro diferente a la misma, cambiando el valor de la dirección 50000 de la memoria. Esto rellenaría la pantalla con un patrón que deseemos, pudiendo ser éste diferente del utilizado en el anterior ejemplo, simplemente variando el valor pokeado en la dirección 50000 (el parámetro de la rutina).
+Este código produciría la misma ejecución que el ejemplo anterior, porque como parámetro estamos pasando el valor 162, pero podríamos llamar de nuevo a la misma función en cualquier otro punto de nuestro programa pasando otro parámetro diferente a la misma, cambiando el valor de la dirección 50000 de la memoria. Esto rellenaría la pantalla con un patrón que deseemos, pudiendo ser éste diferente del utilizado en el anterior ejemplo, simplemente variando el valor pokeado en la dirección 50000 (el parámetro de la rutina).
 
 En el caso de necesitar más de un parámetro, podemos usar direcciones consecutivas de memoria: en una rutina de dibujado de sprites, podemos pasar la X en la dirección 50000, la Y en la 50001, y en la 50002 y 50003 la dirección en memoria (2 bytes porque las direcciones de memoria son de 16 bits) donde tenemos el Sprite a dibujar, por ejemplo. Todo eso lo veremos con más detalle en posteriores capítulos. En este ejemplo hemos utilizado la dirección 50000, pero lo normal es utilizar direcciones concretas y reservadas dentro del propio programa ensamblado para asegurar que no hay colisión con otras rutinas que pueda haber o podamos necesitar instalar en la dirección 50000.
 
@@ -516,7 +502,7 @@ Algunas veces lo hacíamos en forma de DATAs, integrados en el programa BASIC qu
 Para que os hagáis una idea de qué era el CUCM de Microhobby, no era más que un programa en el cual tecleabamos los códigos binarios de rutinas ASM ensambladas previamente. Se tecleaba una larga línea de números en hexadecimal agrupados juntos (ver la siguiente figura), y cada 10 bytes o pares de dígitos se debía introducir un número a modo de CRC que aseguraba que los 10 dígitos (20 caracteres) anteriores habían sido introducidos correctamente. Este CRC podía no ser más que la suma de todos los valores anteriores, para asegurarse de que no habíamos tecleado incorrectamente el listado. 
 
 .. figure:: cucm.jpg
-   :scale: 80 %
+   :scale: 100 %
    :alt: Un listado para el cargador universal de código máquina
 
    Un listado para el cargador universal de código máquina
@@ -529,7 +515,7 @@ Al acabar la introducción en todo el listado en el CUCM, se nos daba la opción
 
     SAVE "DATOS.BIN" CODE 53000, 115
 
-Esto grababa el bloque de código máquina en cinta (justo tras nuestro programa en BASIC), de forma que el juego en algún momento cargaba esta rutina con LOAD "" CODE, y podía utilizarla mediante un RANDOMIZE USR 53000. 
+Esto grababa el bloque de código máquina en cinta (justo tras nuestro programa en BASIC), de forma que el juego en algún momento cargaba esta rutina con ``LOAD "" CODE``, y podía utilizarla mediante un ``RANDOMIZE USR 53000``. 
 
 
 PASMO: ensamblador cruzado
@@ -543,9 +529,9 @@ Los programadores "originales" en la época del Spectrum tenían que utilizar pr
 
 Nuestra opción preferente como ensamblador cruzado es Pasmo. Pasmo es un ensamblador cruzado, opensource y multiplataforma. Con Pasmo podremos programar en nuestro PC, grabar un fichero ASM y ensamblarlo cómodamente, sin cintas de por medio. Tras todo el proceso de desarrollo, podremos llevar el programa resultante a una cinta (o disco) y ejecutarlo por lo tanto en un Spectrum real, pero lo que es el proceso de desarrollo se realiza en un PC, con toda la comodidad que eso conlleva.
 
-Pasmo en su versión para Windows/DOS es un simple ejecutable (pasmo.exe) acompañado de ficheros README de información. Podemos mover el fichero pasmo.exe a cualquier directorio que esté en el PATH o directamente ensamblar programas (siempre desde la línea de comandos o CMD, no directamente mediante "doble click" al ejecutable) en el directorio en el que lo tengamos copiado.
+Pasmo en su versión para Windows/DOS es un simple ejecutable (``pasmo.exe``) acompañado de ficheros README de información. Podemos mover el fichero ``pasmo.exe`` a cualquier directorio que esté en el PATH o directamente ensamblar programas (siempre desde la línea de comandos o CMD, no directamente mediante "doble click" al ejecutable) en el directorio en el que lo tengamos copiado.
 
-La versión para Linux viene en formato código fuente (y se compila con un simple make) y su binario "pasmo" lo podemos copiar, por ejemplo, en /usr/local/bin.
+La versión para Linux viene en formato código fuente (y se compila con un simple ``make``) y su binario ``pasmo`` lo podemos copiar, por ejemplo, en ``/usr/local/bin``.
 
 
 
@@ -555,7 +541,7 @@ Iremos viendo el uso de pasmo conforme lo vayamos utilizando, pero a título de 
 
      pasmo ejemplo1.asm ejemplo1.bin
 
- Como resultado del proceso de ensamblado obtendremos un fichero .bin que contiene el código máquina que podremos utilizar directamente en los DATAs de nuestro programa en BASIC.
+Como resultado del proceso de ensamblado obtendremos un fichero .bin que contiene el código máquina que podremos utilizar directamente en los DATAs de nuestro programa en BASIC.
 
 El fichero .bin es binario, por lo que para obtener los valores numéricos que introducir en los datas debemos utilizar un editor hexadecimal o alguna utilidad como "hexdump" de Linux::
 
@@ -566,9 +552,9 @@ Ahí tenemos los datos listos para convertirlos a decimal y pasarlos a sentencia
 
     pasmo --tap ejemplo1.asm ejemplo1.tap
 
-Este fichero tap contendrá ahora un tap con el código binario compilado tal y como si lo hubieras introducido en memoria y grabado con SAVE "" CODE, para ser cargado posteriormente en nuestro programa BASIC con LOAD "" CODE.
+Este fichero tap contendrá ahora un tap con el código binario compilado tal y como si lo hubieras introducido en memoria y grabado con ``SAVE "" CODE``, para ser cargado posteriormente en nuestro programa BASIC con ``LOAD "" CODE``.
 
-Esta segunda opción (LOAD "" CODE) es la más cómoda, pues nos evita el pokeado de valores en memoria, pero implica ubicar el bloque de datos a cargar con LOAD "" CODE a continuación del programa en BASIC dentro del fichero .tap.
+Esta segunda opción (``LOAD "" CODE``) es la más cómoda, pues nos evita el pokeado de valores en memoria, pero implica ubicar el bloque de datos a cargar con LOAD "" CODE a continuación del programa en BASIC dentro del fichero .tap.
 
 Para realizar esta concatenación escribimos las rutinas en un fichero .ASM y las compilamos con "pasmo –tap fichero.asm bloque_cm.tap". Después, escribimos nuestro programa en BASIC y lo salvamos en cinta, obteniendo otro fichero tap (programa_basic.tap).
 
@@ -586,9 +572,9 @@ Generando un binario desde un programa íntegramente en ensamblador
 
 Si estamos realizando un programa completo en ensamblador, sin ninguna parte en BASIC, deberemos compilar el programa mediante "pasmo –tapbas fichero.asm fichero.tap". La opción –tapbas añade una cabecera BASIC que carga el bloque código máquina en la dirección indicada por la sentencia ORG del programa en ensamblador (por ejemplo, 40000).
 
-El fichero resultante del ensamblado será un TAP sin autoejecución listo para cargar en el Spectrum y que deberemos lanzar con un RANDOMIZE USR 40000.
+El fichero resultante del ensamblado será un TAP sin autoejecución listo para cargar en el Spectrum y que deberemos lanzar con un ``RANDOMIZE USR 40000``.
 
-Finalmente, si agregamos una sentencia END a nuestro programa y le agregamos la dirección de inicio (ORG) del mismo, en ese caso "pasmo –tapbas" agregará el RANDOMIZE USR correspondiente al listado BASIC y el programa se autoejecutará al ser cargado. 
+Finalmente, si agregamos una sentencia ``END`` a nuestro programa y le agregamos la dirección de inicio (ORG) del mismo, en ese caso ``pasmo –tapbas`` agregará el ``RANDOMIZE USR`` correspondiente al listado BASIC y el programa se autoejecutará al ser cargado. 
 
 .. code-block:: tasm
 
@@ -604,11 +590,11 @@ Finalmente, si agregamos una sentencia END a nuestro programa y le agregamos la 
     RET
     END 40000            ; Pasmo añade RANDOMIZE USR 40000
 
-El resultado del ensamblado de este ejemplo con –tapbas será directamente ejecutable en un Spectrum con un simple LOAD "". 
+El resultado del ensamblado de este ejemplo con –tapbas será directamente ejecutable en un Spectrum con un simple ``LOAD ""``. 
 
 En resumen
 -----------------------
 
 En esta entrega hemos definido las bases del curso de ensamblador de Z80, comenzando por las limitaciones de BASIC y la necesidad de conocer un lenguaje más potente y rápido. Hemos visto qué aspecto tiene el código en ensamblador (aunque todavía no conozcamos la sintaxis) y, muy importante, hemos visto cómo se integra este código en ensamblador dentro de programas en BASIC.
 
-Por último, hemos conocido una utilidad (pasmo) que nos permitirá, a lo largo del curso, ensamblar todos los programas que realicemos, así como probarlos en un emulador o integrar rutinas en nuestros programas BASIC. 
+Por último, hemos conocido una utilidad (``pasmo``) que nos permitirá, a lo largo del curso, ensamblar todos los programas que realicemos, así como probarlos en un emulador o integrar rutinas en nuestros programas BASIC. 

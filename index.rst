@@ -19,6 +19,8 @@ Tutorial de ensamblador para ZX Spectrum
    07_lenguaje_ensamblador_04/lenguaje_ensamblador_04
    08_lenguaje_ensamblador_05/lenguaje_ensamblador_05
 
+   a0_tablas_instrucciones/a0_tablas_instrucciones
+
 Indices y tablas
 ==================
 

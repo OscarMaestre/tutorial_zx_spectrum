@@ -150,20 +150,19 @@ Lo que hacen PUSH y POP, tal y como funciona la pila, es:
    xx   = (SP)
    SP   = SP+2
 
-Nótese cómo la pila se decrementa ANTES de poner los datos en ella, y se incrementa DESPUES de sacar datos de la misma. Esto mantiene siempre SP apuntando al TOS (Top Of Stack).
+Nótese cómo la pila se decrementa ANTES de poner los datos en ella, y se incrementa DESPUES de sacar datos de la misma. Esto mantiene siempre SP apuntando al TOS (Top Of Stack).::
 
-                        Flags 
-   Instrucción       |S Z H P N C|
- ----------------------------------
- POP xx              |- - - - - -|
- PUSH xx             |- - - - - -|
+                            Flags 
+    Instrucción         |S Z H P N C|
+    ----------------------------------
+    POP xx              |- - - - - -|
+    PUSH xx             |- - - - - -|
 
 Nótese que también podemos apilar y desapilar AF. De hecho, es una forma de manipular los bits del registro F (hacer PUSH BC con un valor determinado, por ejemplo, y hacer un POP AF).
 
 
 Utilidad de la pila del Spectrum
 --------------------------------------------------------------------------------
-
 
 La pila resulta muy útil para gran cantidad de tareas en programas en ensamblador. Veamos algunos ejemplos:
 

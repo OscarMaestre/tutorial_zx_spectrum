@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 from typing import List
+from utilidades.documentos.Documento import Documento
+
 import sqlite3
 
 class Flag(object):
@@ -84,7 +86,7 @@ class Instruccion(object):
         
     def set_ciclos(self, trozos):
         campo=trozos[2]
-        print(campo)
+        #print(campo)
         if campo.find("/")==-1:
             self.condicional=False
             self.ciclos_reloj=int(campo.strip())
@@ -128,15 +130,57 @@ class Instruccion(object):
         self.set_descripcion(trozos)
         self.set_notas(trozos)
     
+    def modificar_asterisco(self, flag):
+        if flag=="*":
+            return "x"
+        else:
+            return flag
+
+    def get_flags(self):
+        flags="".join([self.modificar_asterisco( self.flags[0].valor ), 
+            self.modificar_asterisco( self.flags[1].valor ), 
+            self.modificar_asterisco( self.flags[2].valor ), 
+            self.modificar_asterisco( self.flags[3].valor ), 
+            self.modificar_asterisco( self.flags[4].valor ), 
+            self.modificar_asterisco( self.flags[5].valor )])
+        return flags
+
+    def get_valores(self):
+        lista=[
+            self.mnemonico, self.get_ciclos_reloj(), self.bytes,
+            " "+self.get_flags()+" ",
+            self.opcode, self.descripcion, self.notas
+        ]
+        return lista
+
+    def get_ciclos_reloj(self):
+        if self.condicional:
+            return "{0}/{1}".format(self.ciclos_reloj_si_condicion_se_cumple, self.ciclos_reloj_si_condicion_no_se_cumple)
+        return self.ciclos_reloj
+
     def get_sql_insert(self):
         valores="""
         ("{0}", {1}, {2}, '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', "{11}")
         """
-        insert=valores.format(self.mnemonico, self.ciclos_reloj, self.bytes,
+        insert=valores.format(self.mnemonico, self.get_ciclos_reloj(), self.bytes,
         self.flags[0].valor, self.flags[1].valor, self.flags[2].valor,
         self.flags[3].valor, self.flags[4].valor, self.flags[5].valor,
         self.opcode, self.descripcion, self.notas)
         return SQL_INSERT+ insert
+
+def generar_documento_instrucciones(self, lista_instrucciones):
+        #Generamos la tabla de instrucciones en formato RST
+        documento_instrucciones=Documento("Instrucciones.rst")
+        
+        filas=[]
+        for i in lista_instrucciones:
+            filas.append(i.get_valores())
+        
+        cabeceras=["Mnemónico", "Ciclos", "Bytes", "SZHPNC", "COD OP","Descr.", "Notas"]
+        documento_instrucciones.anadir_tabla("Instrucciones.rst", 
+        cabeceras, filas)
+        documento_instrucciones.guardar()
+        print("RST Generado")
 
 def extraer_informacion_instrucciones_en_sqlite(nombre_archivo_instrucciones, nombre_bd_sqlite):
     instrucciones=[]
@@ -154,13 +198,15 @@ def extraer_informacion_instrucciones_en_sqlite(nombre_archivo_instrucciones, no
         conexion=sqlite3.connect("instrucciones.db")
         cursor=conexion.cursor()
         sql_crear_tabla=SQL_CREAR_TABLA_INSTRUCCIONES
-        print(sql_crear_tabla)
+        #print(sql_crear_tabla)
         cursor.execute(sql_crear_tabla)
         for i in instrucciones:
-            print(i.get_sql_insert())
-            print(SQL_CREAR_TABLA_INSTRUCCIONES)
+            #print(i.get_sql_insert())
+            #print(SQL_CREAR_TABLA_INSTRUCCIONES)
             cursor.execute(i.get_sql_insert())
         conexion.commit()
+        #generar_documento_instrucciones("Instrucciones.rst", instrucciones)
 
 if __name__=="__main__":
     extraer_informacion_instrucciones_en_sqlite("tabla_instrucciones.txt", "instrucciones.db")
+    

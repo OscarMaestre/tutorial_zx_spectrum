@@ -1173,6 +1173,3 @@ Con este capítulo hemos cubierto el 99% de las instrucciones soportadas por el 
 No obstante, todavía quedan por delante muchas horas de programación para dominar este lenguaje, así como diferentes técnicas, trucos, rutinas y mapas de memoria que nos permitan dibujar nuestros gráficos, realizar rutinas complejas, utilizar el sistema de interrupciones del microprocesador para realizar controles de temporización de nuestros programas, o reproducir sonido. 
 
 
-.. rubric:: Nota
-
-.. [#anexotablas] Para un mejor resultado estético, las tablas se han editado. Se ha dejado la tabla con el formato original ASCII en el anexo I.

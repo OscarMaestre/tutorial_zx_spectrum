@@ -19,6 +19,7 @@ Tutorial de ensamblador para ZX Spectrum
    07_lenguaje_ensamblador_04/lenguaje_ensamblador_04
    08_lenguaje_ensamblador_05/lenguaje_ensamblador_05
    09_rutinas_de_carga/rutinas_de_carga
+   10_lectura_del_teclado/lectura_del_teclado
    a0_tablas_instrucciones/a0_tablas_instrucciones
 
 Indices y tablas

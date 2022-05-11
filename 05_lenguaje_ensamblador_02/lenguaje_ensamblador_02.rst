@@ -164,7 +164,7 @@ Este código no funcionará como esperamos: ambas zonas se superponen, con lo cu
 
     El byte en [25000] se copiará a [25100].
     El byte en [25001] se copiará a [25101].
-    etc…
+    etc...
 
 ¿Qué ocurrirá cuando LDIR llegue al byte número 25100 y lo intente copiar a 25200? Sencillamente, que hemos perdido el contenido REAL del byte número 25100, porque fue machacado al principio de la ejecución del LDIR por el byte contenido en [25000]. No estamos moviendo el bloque correctamente, porque las zonas se superponen y cuando llegamos a la zona destino, estamos copiando bytes que movimos desde el origen.
 
@@ -184,7 +184,7 @@ En este ejemplo::
     El byte en [26000] se copia en [26100].
     El byte en [25999] se copia en [26099].
     El byte en [25998] se copia en [26098].
-    (…)
+    (...)
     El byte en [25001] se copia en [25101].
     El byte en [25000] se copia en [25100].
 
@@ -628,10 +628,10 @@ Dirección Desplaz.  Núm. desplazamientos    Operación (con SLA)
 Izquierda (<<)               1                N = N*2
 Izquierda (<<)               2                N = (N*2)*2 = N*4
 Izquierda (<<)               3                N = ((N*2)*2)*2 = N*8
-Izquierda (<<)               4                N = (…) N*16
-Izquierda (<<)               5                N = (…) N*32
-Izquierda (<<)               6                N = (…) N*64
-Izquierda (<<)               7                N = (…) N*128 
+Izquierda (<<)               4                N = (...) N*16
+Izquierda (<<)               5                N = (...) N*32
+Izquierda (<<)               6                N = (...) N*64
+Izquierda (<<)               7                N = (...) N*128 
 ==================  ====================    =======================
 
 
@@ -642,10 +642,10 @@ Dirección Desplaz.  Núm. desplazamientos     Operación (con SRA)
 Derecha (>>)               1                N = N/2
 Derecha (>>)               2                N = (N/2)/2 = N/4
 Derecha (>>)               3                N = ((N/2)/2)/2 = N/8
-Derecha (>>)               4                N = (…) N/16
-Derecha (>>)               5                N = (…) N/32
-Derecha (>>)               6                N = (…) N/64
-Derecha (>>)               7                N = (…) N/128 
+Derecha (>>)               4                N = (...) N/16
+Derecha (>>)               5                N = (...) N/32
+Derecha (>>)               6                N = (...) N/64
+Derecha (>>)               7                N = (...) N/128 
 ==================  ====================    =======================
 
 

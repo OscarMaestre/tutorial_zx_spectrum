@@ -54,7 +54,7 @@ Concretamente:
 +-----------+----------+------------------+
 |           | c3 53 c3 | JP $C353 (53000) |
 +-----------+----------+------------------+
-| …+1       | c9       | RET              |
+| ...+1       | c9       | RET              |
 +-----------+----------+------------------+
 
 
@@ -104,7 +104,7 @@ El siguiente programa es equivalente al anterior, pero sin usar etiquetas:
 
 En este caso, "JP 50003" no permite distinguir rápidamente a qué instrucción vamos a saltar, mientras que la etiqueta "bucle" que utilizamos en el anterior ejemplo marcaba de forma indiscutible el destino del salto.
 
-Las etiquetas son muy útiles no sólo por motivos de legibilidad del código. Imaginemos que una vez acabado nuestro programa sin etiquetas (utilizando sólo direcciones numéricas), con muchos saltos (JP, CALL, JR, DJNZ…) a diferentes partes del mismo, tenemos que modificarlo para corregir alguna parte del mismo. Al añadir o quitar instrucciones del programa, estamos variando las posiciones donde se ensambla todo el programa. Si por ejemplo, añadiéramos un NOP extra al principio del mismo, ya no habría que saltar a 50003 sino a 50004:
+Las etiquetas son muy útiles no sólo por motivos de legibilidad del código. Imaginemos que una vez acabado nuestro programa sin etiquetas (utilizando sólo direcciones numéricas), con muchos saltos (JP, CALL, JR, DJNZ...) a diferentes partes del mismo, tenemos que modificarlo para corregir alguna parte del mismo. Al añadir o quitar instrucciones del programa, estamos variando las posiciones donde se ensambla todo el programa. Si por ejemplo, añadiéramos un NOP extra al principio del mismo, ya no habría que saltar a 50003 sino a 50004:
 
 
 .. code-block:: tasm
@@ -243,7 +243,7 @@ Con DB (o DEFB, que es un equivalente por compatibilidad con otros ensambladores
 
 
 * Cadenas de texto (todos los mensajes de texto de nuestros programas/juegos).
-* Datos numéricos con los que trabajar (bytes, words, caracteres…).
+* Datos numéricos con los que trabajar (bytes, words, caracteres...).
 * Tablas precalculadas para optimizar. Por ejemplo, podemos tener un listado como el siguiente::
 
      numeros_primos  DB  1, 3, 5, 7, 11, 13, (etc...)
@@ -472,7 +472,7 @@ Y "JP NZ, destino" sería:
 
     IF FLAG_ZERO = 0 THEN GOTO destino
 
-Con estas instrucciones podemos realizar saltos condicionales en función del estado de los flags o indicadores del registro F: podemos saltar si el resultado de una operación es cero, si no es cero, si hubo acarreo, si no lo hubo…
+Con estas instrucciones podemos realizar saltos condicionales en función del estado de los flags o indicadores del registro F: podemos saltar si el resultado de una operación es cero, si no es cero, si hubo acarreo, si no lo hubo...
 
 Y el lector se preguntará: ¿y tiene utilidad realizar saltos en función de los flags? Pues la respuesta es: bien usados, lo tiene para todo tipo de tareas:
 

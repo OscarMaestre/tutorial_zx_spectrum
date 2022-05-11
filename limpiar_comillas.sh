@@ -1,6 +1,6 @@
 #!/bin/bash
 
-reemplazos=('s/\“/\"/g' 's/\”/\"/g' 's/\»/\>>/g' 's/\«/\<</g')
+reemplazos=('s/\“/\"/g' 's/\”/\"/g' 's/\»/\>>/g' 's/\«/\<</g', 's/\…/\.../g')
 
 for reemplazo in "${reemplazos[@]}"
 do

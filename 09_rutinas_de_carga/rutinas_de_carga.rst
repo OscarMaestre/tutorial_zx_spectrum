@@ -118,7 +118,7 @@ Tras la cabecera (tono guía + bloque datos) viene el bloque de datos en sí mis
 
 Ahora bien  ¿cómo es posible que se almacenen como audio datos digitales? ¿Cómo entiende el Spectrum si los datos que está cargando son unos o ceros y los agrupa en bloques de bytes que podemos interpretar de forma lógica?
 
-Como ya hemos comentado al hablar del tono guía, la clave está en la temporización precisa a la hora de leer datos desde la cinta. Aparte de tonos guía y pulsos de sincronización … ¿qué es un cero en la cinta? ¿qué es un uno? ¿Cómo se almacena (y lee) un byte de 8 bits? ¿Y cómo se almacena (y lee) un conjunto de bytes?
+Como ya hemos comentado al hablar del tono guía, la clave está en la temporización precisa a la hora de leer datos desde la cinta. Aparte de tonos guía y pulsos de sincronización ... ¿qué es un cero en la cinta? ¿qué es un uno? ¿Cómo se almacena (y lee) un byte de 8 bits? ¿Y cómo se almacena (y lee) un conjunto de bytes?
 
 * Un cero (bit=0) se codifica en cinta como 2 pulsos de una duración de 855 t-stados cada uno.
 * Un uno (bit=1) se codifica en cinta como 2 pulsos de una duración de 1710 t-stados cada uno.
@@ -391,7 +391,7 @@ Gracias a este formato tan sencillo, podemos unir ficheros TAP simplemente conca
 * Linux:    ``cat programa.tap graficos.tap > programa_final.tap``
 * Windows:  ``copy /B programa.tap graficos.tap programa_final.tap``
 
-Sabemos cómo podemos obtener nuestro programa en formato TAP: cogemos el código fuente, lo compilamos, y o bien obtenemos un TAP directamente (``pasmo –tapbas``), o bien obtenemos un BIN que convertimos con BIN2TAP. Pero  ¿cómo convertimos nuestro "graficos.bin", "pantalla_carga.bin", "musica.bin" o cualquier otro fichero de datos en crudo? No podemos usar el BIN2TAP original porque éste añade un cargador BASIC al principio del programa… hay múltiples soluciones, pero la más sencilla es utilizar un ensamblador como pasmo.
+Sabemos cómo podemos obtener nuestro programa en formato TAP: cogemos el código fuente, lo compilamos, y o bien obtenemos un TAP directamente (``pasmo –tapbas``), o bien obtenemos un BIN que convertimos con BIN2TAP. Pero  ¿cómo convertimos nuestro "graficos.bin", "pantalla_carga.bin", "musica.bin" o cualquier otro fichero de datos en crudo? No podemos usar el BIN2TAP original porque éste añade un cargador BASIC al principio del programa... hay múltiples soluciones, pero la más sencilla es utilizar un ensamblador como pasmo.
 
 Para convertir un fichero .bin en un fichero tap sin cabecera, creamos un pequeño programa ASM (rom.asm) como el siguiente::
 

@@ -1035,7 +1035,7 @@ Viendo esto, podría surgirnos la tentación de utilizar COMPARACIONES para cheq
     valor = IN(63486)
     SI valor == 253 ENTONCES: TECLA_DOS_PULSADA
 
-Comparando con 253 (11111101b), estamos asumiendo que los bits D7, D6 y D5 valen siempre 1, porque en *nuestro* Spectrum es así, pero … ¿Qué valor tienen los bits D7, D6 y D5? La realidad es que la gran mayoría de las veces será, efectivamente, 1, pero este valor puede verse alterado si tenemos determinados periféricos hardware conectados al bus de expansión trasero, e incluso existen unos determinados modelos de placas (ISSUE 2) que contienen otros valores en estos bits.
+Comparando con 253 (11111101b), estamos asumiendo que los bits D7, D6 y D5 valen siempre 1, porque en *nuestro* Spectrum es así, pero ... ¿Qué valor tienen los bits D7, D6 y D5? La realidad es que la gran mayoría de las veces será, efectivamente, 1, pero este valor puede verse alterado si tenemos determinados periféricos hardware conectados al bus de expansión trasero, e incluso existen unos determinados modelos de placas (ISSUE 2) que contienen otros valores en estos bits.
 
 Uno de los componentes del grupo Mojon Twins, na_th_an, nos proporciona a través de su blog la siguiente prueba de concepto BASIC:
 

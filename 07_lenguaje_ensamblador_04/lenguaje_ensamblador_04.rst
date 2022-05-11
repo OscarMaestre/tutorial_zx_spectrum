@@ -397,7 +397,7 @@ Pero, ¿cómo llamamos a las subrutinas y volvemos de ellas? Comencemos probando
 
 En este caso, cargaríamos A con el valor 35, saltaríamos a la subrutina, sumaríamos 10 a A (pasando a valer 45), haríamos B = 45, y volveríamos al lugar posterior al punto de llamada.
 
-Pero … ¿qué pasaría si quisieramos volver a llamar a la subrutina desde otro punto de nuestro programa? Que sería inviable, porque nuestra subrutina acaba con un "JP volver1" que no devolvería la ejecución al punto desde donde la hemos llamado, sino a "volver1".
+Pero ... ¿qué pasaría si quisieramos volver a llamar a la subrutina desde otro punto de nuestro programa? Que sería inviable, porque nuestra subrutina acaba con un "JP volver1" que no devolvería la ejecución al punto desde donde la hemos llamado, sino a "volver1".
 
 .. code-block:: tasm
 

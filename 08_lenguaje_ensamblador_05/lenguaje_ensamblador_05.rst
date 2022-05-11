@@ -1,7 +1,7 @@
 Puertos de E/S y Tabla de Opcodes
 =======================================
 
-En este capítulo se introducirán las instrucciones IN y OUT para la exploración de los puertos del microprocesador, mostrando cómo el acceso a dichos puertos nos permitirá la gestión de los diferentes dispositivos conectados al microprocesador (teclado, altavoz, controladora de disco, etc…).
+En este capítulo se introducirán las instrucciones IN y OUT para la exploración de los puertos del microprocesador, mostrando cómo el acceso a dichos puertos nos permitirá la gestión de los diferentes dispositivos conectados al microprocesador (teclado, altavoz, controladora de disco, etc...).
 
 Finalmente, para acabar con la descripción del juego de instrucciones del Z80 veremos algunos ejemplos de opcodes no documentados, y una tabla-resumen con la mayoría de instrucciones, así como sus tiempos de ejecución y tamaños.
 

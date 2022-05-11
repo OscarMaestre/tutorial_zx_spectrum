@@ -59,7 +59,7 @@ Lo que vamos a ver a continuación son las normas que debe cumplir un programa p
 * Normas para cadenas de texto:
     * Podemos separar las cadenas de texto mediante comillas simples o dobles.
     * El texto encerrado entre comillas simples no recibe ninguna interpretación, excepto si se encuentran 2 comillas simples consecutivas, que sirven para introducir una comilla simple en la cadena.
-    * El texto encerrado entre comillas dobles permite introducir caracteres especiales al estilo de C/C++ como \n, \r o \t (nueva línea, retorno de carro, tabulador…).
+    * El texto encerrado entre comillas dobles permite introducir caracteres especiales al estilo de C/C++ como \n, \r o \t (nueva línea, retorno de carro, tabulador...).
     * El texto encerrado entre comillas dobles también admite \xNN para introducir el carácter correspondiente a un número hexadecimal NN.
     * Una cadena de texto de longitud 1 (un carácter) puede usarse como una constante (valor ASCII del carácter) en expresiones como, por ejemplo, 'C'+10h.
 
@@ -191,7 +191,7 @@ Aparte de estos registros, existen otra serie de registros de 16 bits:
 
 * IX, IY: Dos registros de 16 bits pensados para acceder a memoria de forma indexada. Gracias a estos registros podemos realizar operaciones como: "LD (IX+desplazamiento), VALOR". Este tipo de registros se suele utilizar pues para hacer de índices dentro de tablas o vectores. El desplazamiento es un valor numérico de 8 bits en complemento a 2, lo que nos permite un rango desde -128 a +127 (puede ser negativo para acceder a posiciones de memoria anteriores a IX).
 * SP: Puntero de pila, como veremos en su momento apunta a la posición actual de la "cabeza" de la pila.
-* PC: Program Counter o Contador de Programa. Como ya vimos en la anterior entrega, contiene la dirección de la instrucción actual a ejecutar. No modificaremos PC directamente moviendo valores a este registro, sino que lo haremos mediante instrucciones de salto (JP, JR, CALL…).
+* PC: Program Counter o Contador de Programa. Como ya vimos en la anterior entrega, contiene la dirección de la instrucción actual a ejecutar. No modificaremos PC directamente moviendo valores a este registro, sino que lo haremos mediante instrucciones de salto (JP, JR, CALL...).
 
 
 Por último, tenemos disponible un banco alternativo de registros, conocidos como Shadow Registers o Registros Alternativos, que se llaman igual que sus equivalentes principales pero con una comilla simple detrás: A', F', B', C', D'. E', H' y L'.

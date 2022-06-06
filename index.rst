@@ -22,6 +22,7 @@ Tutorial de ensamblador para ZX Spectrum
    10_lectura_del_teclado/lectura_del_teclado
    11_interrupciones/interrupciones
    12_paginacion/paginacion
+   13_graficos_01/graficos
    a0_tablas_instrucciones/a0_tablas_instrucciones
 
 Indices y tablas

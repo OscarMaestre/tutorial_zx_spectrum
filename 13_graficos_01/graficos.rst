@@ -330,3 +330,127 @@ La forma más elaborada es la de realizar un diseño gráfico teniendo en mente 
 
 
 
+
+
+.. figure:: buen_disenyo.png
+   :scale: 50%
+   :align: center
+   :alt: Excelente diseño gráfico que disimula la colisión de atributos
+   
+   Excelente diseño gráfico que disimula la colisión de atributos
+
+En este capítulo trataremos la organización de la zona de imagen y la zona de atributos de cara a tratar en el próximo capítulo el cómo calcular las posiciones de memoria relativas a cada coordenada (x,y) de pixel o de atributo en que deseemos escribir. Tras estos 2 capítulos sobre la videoram trabajaremos con sprites de baja o alta resolución (movimiento de 32×24 vs 256×192 posiciones diferentes), fuentes de texto, etc.
+
+A continuación veremos una descripción más detallada de cada una de estas 2 áreas de memoria.
+
+
+Videomemoria: Área de Imagen
+--------------------------------------------------------------------------------
+
+
+
+El área de imagen del Spectrum es el bloque de 6144 bytes (6KB) entre 16384 ($4000) y 22527 ($57FF). Cada una de las posiciones de memoria de este área almacenan la información de imagen (estado de los píxeles) de 8 píxeles de pantalla consecutivos, donde un bit a 1 significa que el pixel está encendido y un valor de 0 que está apagado.
+
+Como veremos cuando hablemos del área de atributos, que los píxeles estén a ON o a OFF no implica que la ULA sólo dibuje los píxeles activos. Si el pixel está activo (bit a 1), la ULA lo traza en pantalla utilizando el color de tinta actual que corresponda a ese píxel mientras que un bit a 0 significa que el pixel no está encendido y que la ULA debe de dibujarlo con el color de papel actual.
+
+Así pues, en este área se codifica el estado de cada pixel a razón de 1 bit por píxel, lo que implica que cada byte almacena la información de 8 píxeles consecutivos requiriendo la totalidad de la pantalla (256/8) * 192 = 32 * 192 = 6144 bytes.
+
+Tomemos como ejemplo la primera celdilla de memoria del área de imagen, la $4000 o 16384. Los diferentes bits de esta celdilla de memoria se corresponden con el estado de los píxeles desde (0,0) hasta (7,0): 
+
++------------------+---------+---------+---------+---------+---------+---------+---------+---------+
+| Bits de (16384)  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
++==================+=========+=========+=========+=========+=========+=========+=========+=========+
+|  Pixel           |  (0,0)  |  (1,0)  |  (2,0)  |  (3,0)  |  (4,0)  |  (5,0)  |  (6,0)  |  (7,0)  |
++------------------+---------+---------+---------+---------+---------+---------+---------+---------+
+
+
+Podemos comprobar esto de una forma rápida ejecutando este sencillo programa en BASIC:
+
+.. code-block:: basic
+        
+    10 CLS
+    20 POKE 16384, 170
+    30 PAUSE 0
+
+Con este programa escribimos el valor 170 (10101010 en binario) en la posición de memoria 16384, que implica poner a ON (a 1) los píxeles (0,0), (2,0), (4,0) y (6,0), y poner a OFF (a 0) los píxeles (1,0), (3,0), (5,0) y (7,0).
+
+Si ejecutáis el programa en BASIC veréis aparecer en la esquina superior de la pantalla 4 píxeles activos, alternándose con otros 4 píxeles no activos. Os mostramos una ampliación de la esquina superior de la pantalla con el resultado de la ejecución:
+
+
+
+.. figure:: gfx1_poke.png
+   :scale: 50%
+   :align: center
+   :alt: POKE 16384,170
+
+   POKE 16384,170
+
+
+Si avanzamos a la siguiente celdilla de memoria, la $4001 (o 16385), tendremos el estado de los siguientes píxeles de la misma línea horizontal: 
+
++-----------------+---------+---------+----------+----------+----------+----------+----------+----------+
+| Bit de (16385)  |    7    |    6    |     5    |     4    |     3    |     2    |     1    |     0    |
++=================+=========+=========+==========+==========+==========+==========+==========+==========+
+|  Pixel          |  (8,0)  |  (9,0)  |  (10,0)  |  (11,0)  |  (12,0)  |  (13,0)  |  (14,0)  |  (15,0)  |
++-----------------+---------+---------+----------+----------+----------+----------+----------+----------+
+
+De nuevo, avanzando 1 byte más en memoria, avanzamos otros 8 píxeles horizontalmente: 
+
++-----------------+----------+----------+----------+----------+----------+----------+----------+----------+
+| Bit de (16386)  |     7    |     6    |     5    |     4    |     3    |     2    |     1    |     0    |
++=================+==========+==========+==========+==========+==========+==========+==========+==========+
+|  Pixel          |  (16,0)  |  (17,0)  |  (18,0)  |  (19,0)  |  (20,0)  |  (21,0)  |  (22,0)  |  (23,0)  |
++-----------------+----------+----------+----------+----------+----------+----------+----------+----------+
+
+Así, hasta que llegamos al byte número 32 desde 16384, es decir, a la celdilla 16415, donde: 
+
++-----------------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+| Bit de (16415)  |     7     |     6     |     5     |     4     |     3     |     2     |     1     |     0     |
++=================+===========+===========+===========+===========+===========+===========+===========+===========+
+|  Pixel          |  (248,0)  |  (249,0)  |  (250,0)  |  (251,0)  |  (252,0)  |  (253,0)  |  (254,0)  |  (255,0)  |
++-----------------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+
+
+
+
+Con este byte acabamos el primer "scanline" de 256 píxeles, que va desde (0,0) hasta (255,0). Comprobémoslo con el siguiente programa en BASIC que guarda el valor 170 (10101010b) en las 32 posiciones de memoria consecutivas a 16384:
+
+
+.. code-block:: basic
+
+    10 CLS
+    20 FOR I=0 TO 31 : POKE 16384+I, 170 : NEXT I
+    30 PAUSE 0
+
+En pantalla aparecerá lo siguiente: 
+
+
+
+
+.. figure:: gfx1_poke0.png
+   :scale: 50%
+   :align: center
+   :alt:  32 bytes 170 desde 16384
+
+   32 bytes 170 desde 16384
+
+Ahora la pregunta crucial es ... ¿a qué pixel corresponderá el siguiente byte en videomemoria? Si aplicamos la lógica, lo más intuitivo sería que la posición de memoria 16416 (16384+32) tuviera los datos de los píxeles desde (0,1) hasta (7,1), es decir, los 8 primeros píxeles de la segunda línea (segundo scanline) de la pantalla.
+
+Por desgracia, esto no es así, y los 32 bytes a partir de 16416 no hacen referencia a la segunda línea de pantalla sino a la primera línea del segundo "bloque" de caracteres, es decir, a los píxeles desde (0,8) a (255,8), por lo que realmente, los bits de 16416 representan: 
+
+
+
++-----------------+---------+---------+---------+---------+---------+---------+---------+---------+
+| Bit de (16416)  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
++=================+=========+=========+=========+=========+=========+=========+=========+=========+
+|  Pixel          |  (0,8)  |  (1,8)  |  (2,8)  |  (3,8)  |  (4,8)  |  (5,8)  |  (6,8)  |  (7,8)  |
++-----------------+---------+---------+---------+---------+---------+---------+---------+---------+
+
+
+Podemos comprobar esto mediante el siguiente programa en BASIC, que escribe el valor 170 en las primeras 64 posiciones de memoria de la VRAM:
+
+.. code-block:: basic
+        
+    10 CLS
+    20 FOR I=0 TO 63 : POKE 16384+I, 170 : NEXT I
+    30 PAUSE 0

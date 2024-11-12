@@ -1173,11 +1173,12 @@ El resultado de la ejecución es el siguiente:
 .. figure:: gfx_border_np.png
    :scale: 50%
    :align: center
-   :alt: Cambio del borde sin parada.
+   :alt: Cambio del borde sin parada
 
-   Cambio del borde sin parada.
+   Cambio del borde sin parada
 
- Como curiosidad al respecto de la diferencia de velocidad entre BASIC y ensamblador, pruebe a ejecutar el siguiente programa en su intérprete BASIC:
+
+Como curiosidad al respecto de la diferencia de velocidad entre BASIC y ensamblador, pruebe a ejecutar el siguiente programa en su intérprete BASIC:
 
 
 .. code-block:: basic
@@ -1189,16 +1190,16 @@ La ejecución del anterior programa sólo es capaz de establecer 2 (3 a lo sumo)
 
 
 
+
 .. figure:: gfx_border_basic.png
    :scale: 50%
    :align: center
-   :alt: Cambio de borde en BASIC
+   :alt: Cambio del borde en BASIC
 
-   Cambio de borde en BASIC
+   Cambio del borde en BASIC
 
 
-
- Ahora que conocemos el formato de una celdilla de atributo podemos hablar de la variable del sistema ATTR-T (dirección de memoria $5c8f o 23695), la cual almacena el atributo actual temporal que las rutinas de la ROM del Spectrum como nuestra conocida rst 16.
+Ahora que conocemos el formato de una celdilla de atributo podemos hablar de la variable del sistema ATTR-T (dirección de memoria $5c8f o 23695), la cual almacena el atributo actual temporal que las rutinas de la ROM del Spectrum como nuestra conocida rst 16.
 
 A continuación tenemos un ejemplo que imprime cadenas con diferentes atributos de color. Para ello se ha creado una rutina PrintString basada en imprimir caracteres mediante rst 16, que utiliza el valor de ATTR-T.
 
@@ -1255,7 +1256,7 @@ Con nuestra nueva rutina de PrintString trazaremos en pantalla 1 línea con los 
 
 
 
-.. figure:: gfx1_attrt.png
+.. figure:: gfx1_attr.png
    :scale: 50%
    :align: center
    :alt: El atributo ATTR
@@ -1263,7 +1264,7 @@ Con nuestra nueva rutina de PrintString trazaremos en pantalla 1 línea con los 
    El atributo ATTR
 
 
- Cuando tratemos las fuentes de texto como sprites de carácteres en baja resolución utilizaremos rutinas de impresión de cadenas más rápidas (y con juegos de caracteres personalizados) al no tener que interpretar éstas los diferentes códigos de control que se pueden insertar en las mismas.
+Cuando tratemos las fuentes de texto como sprites de carácteres en baja resolución utilizaremos rutinas de impresión de cadenas más rápidas (y con juegos de caracteres personalizados) al no tener que interpretar éstas los diferentes códigos de control que se pueden insertar en las mismas.
 
 
 Efectos sobre la imagen y los atributos
@@ -1545,11 +1546,10 @@ Se reseñó también, en el apartado Particularidades del +2A/+3 la existencia d
    Modos de paginación especial del +2A/+3
 
 
-
    
 
 
- Como puede verse en la figura anterior, los modos Bit2 = 0, Bit1 = 1 (Bancos 4-5-6-3) y Bit2 = 1, Bit 1=1 (Bancos 4-7-6-3) del puerto $1ffd permiten paginar cualquiera de las 2 videorams (RAM5 o RAM7) sobre $4000.
+Como puede verse en la figura anterior, los modos Bit2 = 0, Bit1 = 1 (Bancos 4-5-6-3) y Bit2 = 1, Bit 1=1 (Bancos 4-7-6-3) del puerto $1ffd permiten paginar cualquiera de las 2 videorams (RAM5 o RAM7) sobre $4000.
 
 Pese a las posibilidades de “animación sin parpadeo” que proporcionan estas técnicas, la utilización de cualquiera de las dos tiene una desventaja clara además de la “pérdida” (durante el dibujado de la pantalla shadow) de los 16KB $c000-$ffff, y es la incompatibilidad con modelos de 48K, requiriendo un modelo de 128Kb para paginar RAM7 o incluso de un +2A/+3 para el uso de la paginación extendida. Si a los 16KB de RAM5 le restamos los 7KB de pantalla nos quedan otros 9KB adicionales, pero con la particularidad de que ese bloque de memoria está “compartido” con la ULA por lo que la velocidad de lectura, escritura y ejecución efectiva de este bloque se puede ver reducida hasta en un 25%.
 

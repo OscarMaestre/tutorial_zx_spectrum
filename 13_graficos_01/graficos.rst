@@ -690,7 +690,7 @@ Esta organización de memoria tiene como objetivo el facilitar las rutinas de im
 
 Tal y como está organizada la videoram, basta con calcular la dirección de inicio del bloque en baja resolución donde queremos trazar un carácter, imprimir los 8 píxeles que forman su scanline (con la escritura de un único byte en videomemoria), y saltar a la siguiente posición de videomemoria donde escribir. Como se puede apreciar en la tabla anterior, este salto a la siguiente línea se realiza con un simple ``INC`` del byte alto de la direccion (``inc h`` en el caso de que estemos usando HL para escribir). De esta forma se simplifican las rutinas de trazado de caracteres y UDGs de la ROM.
 
-Pensemos que los antecesores del ZX Spectrum (ZX80 y ZX81) tenían una videomemoria orientada al texto en baja resolución, y con la visión del software de la época y la potencia de los microprocesadores existentes lo normal era pensar en el Spectrum como un microordenador orientado a programar en BASIC y realizar programas “de gestión”, más que pensar en él como una máquina de juegos. En este contexto, potenciar la velocidad de ejecución del trazado de texto era crucial.
+Pensemos que los antecesores del ZX Spectrum (ZX80 y ZX81) tenían una videomemoria orientada al texto en baja resolución, y con la visión del software de la época y la potencia de los microprocesadores existentes lo normal era pensar en el Spectrum como un microordenador orientado a programar en BASIC y realizar programas "de gestión", más que pensar en él como una máquina de juegos. En este contexto, potenciar la velocidad de ejecución del trazado de texto era crucial.
 
 Videomemoria: Área de atributos
 --------------------------------------------------------------------------------
@@ -791,8 +791,8 @@ Con desplazamientos::
 La información en cada byte de este área se codifica de la siguiente manera::
 
 
-   Bit 	     7 	     6 	  5 - 4 - 3 	2 - 1 - 0
-   Valor 	FLASH 	BRIGHT 	PAPER 	     INK 
+   Bit     7        6 	  5 - 4 - 3    2 - 1 - 0
+   Valor FLASH 	BRIGHT 	PAPER         INK 
 
  Es decir, utilizamos:
 
@@ -835,11 +835,11 @@ A estos colores se les puede activar el bit de brillo para obtener una tonalidad
    Colores con y sin brillo.
 
    
-La relación de los colores con su “identificador numérico” está basada en el estado de 4 bits: BRILLO, COMPONENTE_R, COMPONENTE_G y COMPONENTE_B: 
+La relación de los colores con su "identificador numérico" está basada en el estado de 4 bits: BRILLO, COMPONENTE_R, COMPONENTE_G y COMPONENTE_B: 
 
 
 +---------+----------------------+--------------------+-----------------+
-|  Valor  | Bits “BRILLO R G B”  | Color              | Componentes RGB |
+|  Valor  | Bits "BRILLO R G B"  | Color              | Componentes RGB |
 +=========+======================+====================+=================+
 | 0       | 0000b                | Negro              | (0, 0, 0 )      |
 +---------+----------------------+--------------------+-----------------+
@@ -1061,7 +1061,7 @@ El borde tiene un color único que la ULA utiliza para retrazar todos y cada uno
 
 El conocido comando de BASIC BORDER llama a la rutina de la ROM BORDER en $2294, la cual realiza el cambio del color del borde mediante el acceso a la ULA y además actualiza la variable del sistema BORDCR en 23624d.
 
-Concretamente, basta con escribir un valor en el rango 0-7 en el puerto $fe (254) para que la ULA utilice ese valor desde ese instante como color del borde. Las típicas líneas “de carga” en el borde que podemos ver durante las rutinas de LOAD y SAVE son cambios del color del borde realizados rápidamente como indicadores de la carga mientras la ULA está dibujando el cuadro actual. Si se cambia el borde con la suficiente rapidez, la ULA cambiará el color con que lo está dibujando cuando todavía no ha acabado la generación del cuadro de imagen actual. El valor 0-7 representa el identificador de color a utilizar de la paleta de 8 colores de la ULA, y este valor lo almacena internamente la ULA (no el Z80), ya que requiere de acceso instantáneo a él durante la generación del vídeo.
+Concretamente, basta con escribir un valor en el rango 0-7 en el puerto $fe (254) para que la ULA utilice ese valor desde ese instante como color del borde. Las típicas líneas "de carga" en el borde que podemos ver durante las rutinas de LOAD y SAVE son cambios del color del borde realizados rápidamente como indicadores de la carga mientras la ULA está dibujando el cuadro actual. Si se cambia el borde con la suficiente rapidez, la ULA cambiará el color con que lo está dibujando cuando todavía no ha acabado la generación del cuadro de imagen actual. El valor 0-7 representa el identificador de color a utilizar de la paleta de 8 colores de la ULA, y este valor lo almacena internamente la ULA (no el Z80), ya que requiere de acceso instantáneo a él durante la generación del vídeo.
 
 En el capítulo dedicado a los Puertos de Entrada / Salida pudimos ya observar un ejemplo de cambio de color del borde, que ahora vamos a modificar para separar el OUT en una función SetBorder propia:
 
@@ -1387,7 +1387,7 @@ El efecto sobre píxeles aleatorios en pantalla es el siguiente:
 
 Podemos cambiar la rutina para que realice diferentes efectos sobre los píxeles modificando el núcleo de la misma, identificado con el comentario Actuamos sobre el valor de los píxeles.
 
-A continuación podemos ver la rutina de degradación de atributos que vimos como un ejemplo en el capítulo dedicado a la pila. Este efecto aplicado sobre una pantalla gráfica puede utilizarse como “fundido a negro” de la misma. Podemos utilizar el esqueleto del programa anterior como base para llamar a esta rutina:
+A continuación podemos ver la rutina de degradación de atributos que vimos como un ejemplo en el capítulo dedicado a la pila. Este efecto aplicado sobre una pantalla gráfica puede utilizarse como "fundido a negro" de la misma. Podemos utilizar el esqueleto del programa anterior como base para llamar a esta rutina:
 
 
 .. code-block:: tasm
@@ -1470,7 +1470,7 @@ A continuación podemos ver la rutina de degradación de atributos que vimos com
 
 Rutinas más complejas pueden producir cortinillas y efectos mucho más vistosos. En la revista Microhobby se publicaron muchos de estos efectos de zoom, desaparición de pantalla o inversión, dentro de la sección Trucos.
 
-Del mismo modo, el libro 40 Best Machine code Routines for the ZX Spectrum (“Las 40 mejores rutinas en código máquina para el ZX Spectrum”) de John Hardman y Andrew Hewson nos proporciona una serie de rutinas en ensamblador para realizar diferentes acciones con los píxeles y los atributos de la videoram, como por ejemplo:
+Del mismo modo, el libro 40 Best Machine code Routines for the ZX Spectrum ("Las 40 mejores rutinas en código máquina para el ZX Spectrum") de John Hardman y Andrew Hewson nos proporciona una serie de rutinas en ensamblador para realizar diferentes acciones con los píxeles y los atributos de la videoram, como por ejemplo:
 
 
 * Scrollear atributos a izquierda, derecha, arriba o abajo.
@@ -1508,7 +1508,7 @@ En los modelos de 128K, existe un segundo bloque de 16KB que podemos utilizar co
 
 El poder visualizar una VRAM aunque no esté mapeada y el poder mapear tanto RAM5 como RAM7 sobre $c000 nos permite organizar el código de nuestro programa para que siempre escriba sobre $c000, teniendo mapeada en $c000 la pantalla que actualmente no esté visible.
 
-La utilidad principal de esta funcionalidad es la de poder generar un cuadro de imagen o animación en una “pantalla virtual” (la pantalla shadow) que no es visible, cambiando la visualización a esta pantalla una vez compuesta la imagen actual. De esta forma es posible trabajar con una pantalla completa sin que nos alcance el haz de electrones durante su dibujado, especialmente en juegos que realicen scrolles de todo el área de imagen.
+La utilidad principal de esta funcionalidad es la de poder generar un cuadro de imagen o animación en una "pantalla virtual" (la pantalla shadow) que no es visible, cambiando la visualización a esta pantalla una vez compuesta la imagen actual. De esta forma es posible trabajar con una pantalla completa sin que nos alcance el haz de electrones durante su dibujado, especialmente en juegos que realicen scrolles de todo el área de imagen.
 
 En el tiempo disponible tras un pulso VSYNC no hay tiempo material para actualizar los 6KB de una pantalla completa sin que el haz de electrones alcance a nuestro programa conforme manipula la memoria, por lo que esta técnica permitiría realizar ese tipo de acciones con el siguiente proceso:
 
@@ -1531,7 +1531,7 @@ En realidad, si diseñamos adecuadamente nuestro programa, podemos aprovechar m�
 
 Como véis, se necesita tener muy controlada la ubicación de las diferentes rutinas y variables y diseñar el juego para que mapee la página adecuada en cada momento y salte a una rutina concreta sólo cuando la rutina a la que hace referencia un call esté contenida en la página mapeada.
 
-Se reseñó también, en el apartado Particularidades del +2A/+3 la existencia de unos modos extendidos de paginación que permitirían ubicar la segunda VideoRAM (el bloque 7, o RAM7) sobre $4000, permitiendo el alternar entre la visualización de RAM5 o de RAM7 sin perder la memoria $c000-$ffff como “Pantalla Virtual”: 
+Se reseñó también, en el apartado Particularidades del +2A/+3 la existencia de unos modos extendidos de paginación que permitirían ubicar la segunda VideoRAM (el bloque 7, o RAM7) sobre $4000, permitiendo el alternar entre la visualización de RAM5 o de RAM7 sin perder la memoria $c000-$ffff como "Pantalla Virtual": 
 
 
 
@@ -1551,7 +1551,7 @@ Se reseñó también, en el apartado Particularidades del +2A/+3 la existencia d
 
 Como puede verse en la figura anterior, los modos Bit2 = 0, Bit1 = 1 (Bancos 4-5-6-3) y Bit2 = 1, Bit 1=1 (Bancos 4-7-6-3) del puerto $1ffd permiten paginar cualquiera de las 2 videorams (RAM5 o RAM7) sobre $4000.
 
-Pese a las posibilidades de “animación sin parpadeo” que proporcionan estas técnicas, la utilización de cualquiera de las dos tiene una desventaja clara además de la “pérdida” (durante el dibujado de la pantalla shadow) de los 16KB $c000-$ffff, y es la incompatibilidad con modelos de 48K, requiriendo un modelo de 128Kb para paginar RAM7 o incluso de un +2A/+3 para el uso de la paginación extendida. Si a los 16KB de RAM5 le restamos los 7KB de pantalla nos quedan otros 9KB adicionales, pero con la particularidad de que ese bloque de memoria está “compartido” con la ULA por lo que la velocidad de lectura, escritura y ejecución efectiva de este bloque se puede ver reducida hasta en un 25%.
+Pese a las posibilidades de "animación sin parpadeo" que proporcionan estas técnicas, la utilización de cualquiera de las dos tiene una desventaja clara además de la "pérdida" (durante el dibujado de la pantalla shadow) de los 16KB $c000-$ffff, y es la incompatibilidad con modelos de 48K, requiriendo un modelo de 128Kb para paginar RAM7 o incluso de un +2A/+3 para el uso de la paginación extendida. Si a los 16KB de RAM5 le restamos los 7KB de pantalla nos quedan otros 9KB adicionales, pero con la particularidad de que ese bloque de memoria está "compartido" con la ULA por lo que la velocidad de lectura, escritura y ejecución efectiva de este bloque se puede ver reducida hasta en un 25%.
 
 
 En el próximo capítulo

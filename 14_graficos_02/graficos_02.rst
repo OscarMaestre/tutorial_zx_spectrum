@@ -20,12 +20,12 @@ Para empezar, estableceremos una terminología unánime a la que haremos referen
 * Estado de un pixel: Cada byte del área de imagen contiene el estado de 8 píxeles, de tal forma que cada uno de los bits de dicho byte pueden estar a 1 (pixel encendido, se traza con el color de tinta) o a 0 (apagado, se traza con el color del papel).
 * Resolución del área de atributos: El Spectrum tiene una resolución de color de 32×24 puntos, que se mapean sobre la pantalla de forma que cada grupo de 8×8 píxeles del área gráfica tiene una correspondencia con un atributo del área de atributos.
 * Atributo: Un atributo define en los 8 bits de un byte el color de tinta y papel y el estado de brillo y parpadeo de un bloque concreto de la pantalla.
-* Bloque o carácter: Si dividimos la pantalla de 256×192 en 32×24 bloques de color, nos quedan bloques de 8×8 píxeles que mantienen el mismo atributo de pantalla. Estamos acostumbrados a trabajar con bloques ya que el intérprete BASIC del Spectrum utiliza la fuente de la ROM de 8×8 en una rejilla de bloques que coincide con la resolución de atributos. Podemos pensar en los bloques como “posiciones de carácter”.
+* Bloque o carácter: Si dividimos la pantalla de 256×192 en 32×24 bloques de color, nos quedan bloques de 8×8 píxeles que mantienen el mismo atributo de pantalla. Estamos acostumbrados a trabajar con bloques ya que el intérprete BASIC del Spectrum utiliza la fuente de la ROM de 8×8 en una rejilla de bloques que coincide con la resolución de atributos. Podemos pensar en los bloques como "posiciones de carácter".
 * Scanline: Un scanline es una línea normalmente horizontal de datos gráficos. Por ejemplo, el scanline 0 de pantalla es la línea gráfica que va desde (0,0) a (255,0), y que definen los 32 bytes de videomemoria que van desde 16384 hasta 16415. También se puede hablar del scanline de un sprite o de un carácter cuando nos referimos a una línea concreta de esa porción de gráfico.
-* Coordenadas (x,y): Se utiliza la nomenclatura (x,y) para definir la posición de un píxel en pantalla en función de su posición horizontal y vertical siendo (0,0) la esquina superior izquierda de la misma y (255,191) la esquina inferior derecha. Son, pues, “coordenadas en alta resolución”.
-* Coordenadas (c,f): Se utiliza la nomenclatura (c,f), de (columna,fila), para hacer referencia a la posición de un bloque 8×8 en pantalla en función de su posición horizontal y vertical siendo (0,0) la esquina superior izquierda y (31,23) la esquina inferior derecha. Se conocen como “coordenadas en baja resolución” o “coordenadas de bloque” o “de carácter”.
+* Coordenadas (x,y): Se utiliza la nomenclatura (x,y) para definir la posición de un píxel en pantalla en función de su posición horizontal y vertical siendo (0,0) la esquina superior izquierda de la misma y (255,191) la esquina inferior derecha. Son, pues, "coordenadas en alta resolución".
+* Coordenadas (c,f): Se utiliza la nomenclatura (c,f), de (columna,fila), para hacer referencia a la posición de un bloque 8×8 en pantalla en función de su posición horizontal y vertical siendo (0,0) la esquina superior izquierda y (31,23) la esquina inferior derecha. Se conocen como "coordenadas en baja resolución" o "coordenadas de bloque" o "de carácter".
 * Conversión (c,f) a (x,y): Como cada bloque es de 8×8 píxeles, podemos convertir una coordenada en baja resolución a coordenadas de pixel como (x,y) = (8*c,8*f). Asímismo, (c,f) = (x/8,y/8).
-* Tercio de pantalla: El área gráfica del Spectrum se divide en 3 áreas de 2KB de videoram que almacenan la información de 256×64 píxeles. Estas áreas son comunmente denominadas “tercios”.
+* Tercio de pantalla: El área gráfica del Spectrum se divide en 3 áreas de 2KB de videoram que almacenan la información de 256×64 píxeles. Estas áreas son comunmente denominadas "tercios".
 * Offset o Desplazamiento: Llamaremos offset o desplazamiento a la cantidad de bytes que tenemos que avanzar desde una base (normalmente el inicio de la propia memoria o un punto de la misma) para llegar a una posición de memoria. Así, un offset de 32 bytes desde 16384 referenciará a los 8 píxeles desde (0,1) a (7,1). En las rutinas que veremos, el offset estará calculado con $0000 como la base, es decir, serán offsets absolutos (posiciones de memoria).
 
 
@@ -213,14 +213,22 @@ Veamos cómo podemos mejorar esta rutina: Si nos fijamos en la representación e
 | Linea f  | Dirección en Hexadecimal  | En Decimal  | En Binario           |
 +==========+===========================+=============+======================+
 | 0        | $5800                     | 22528       | -010110-00000-00000b |
++----------+---------------------------+-------------+----------------------+
 | 1        | $5820                     | 22560       | -010110-00001-00000b |
++----------+---------------------------+-------------+----------------------+
 | 2        | $5840                     | 22592       | -010110-00010-00000b |
++----------+---------------------------+-------------+----------------------+
 | 3        | $5860                     | 22624       | -010110-00011-00000b |
++----------+---------------------------+-------------+----------------------+
 | 4        | $5880                     | 22656       | -010110-00100-00000b |
-| (…)      | (…)                       | (…)         | (…)                  |
++----------+---------------------------+-------------+----------------------+
+|omitido   | omitido                   | omitido     | omitido              |
++----------+---------------------------+-------------+----------------------+
 | 21       | $5aa0                     | 23200       | -010110-10101-00000b |
++----------+---------------------------+-------------+----------------------+
 | 22       | $5ac0                     | 23232       | -010110-10110-00000b |
 +----------+---------------------------+-------------+----------------------+
+
 
 Ocurre que:
 
@@ -485,7 +493,7 @@ Si tenemos la necesidad de preservar el valor del registro DE y el utilizarlo pa
         dec h
     attrab_nodec:                ; Ahora HL = (H+CF)*256 + (L+32) = HL + 32
 
-Nótese que, como nos apunta Jaime Tejedor en los foros de Speccy.org, el código con salto…
+Nótese que, como nos apunta Jaime Tejedor en los foros de Speccy.org, el código con salto...
 
 
 
@@ -496,7 +504,7 @@ Nótese que, como nos apunta Jaime Tejedor en los foros de Speccy.org, el códig
         inc h
     attrab_noinc:
 
-… es más rápido que la combinación de ADD y ADC para sumar 32 al byte bajo de HL y 0 + Acarreo al byte alto de HL:
+... es más rápido que la combinación de ADD y ADC para sumar 32 al byte bajo de HL y 0 + Acarreo al byte alto de HL:
 
 
 
@@ -538,9 +546,9 @@ Cálculo de posiciones de caracteres por composición
 
 
 
-Utilizando técnicas de composición desde los bits de las coordenadas vamos a calcular la dirección de inicio de cada “primera línea” de fila de caracteres de la pantalla, es decir, el scanline 0 de cada fila de bloques en baja resolución. Conociendo la posición inicial de dicha línea podemos sumar el número de columna y posicionarnos en el inicio del carácter (c,f) deseado, para trazar en él texto o un sprite de 8×8 (o múltiplos).
+Utilizando técnicas de composición desde los bits de las coordenadas vamos a calcular la dirección de inicio de cada "primera línea" de fila de caracteres de la pantalla, es decir, el scanline 0 de cada fila de bloques en baja resolución. Conociendo la posición inicial de dicha línea podemos sumar el número de columna y posicionarnos en el inicio del carácter (c,f) deseado, para trazar en él texto o un sprite de 8×8 (o múltiplos).
 
-Al igual que en el caso de las direcciones de atributo, es posible componer la dirección de memoria de este “pixel 0” del “scanline 0” de la fila f mediante descomposición de los bits de las coordenadas y su recomposición en una dirección en memoria.
+Al igual que en el caso de las direcciones de atributo, es posible componer la dirección de memoria de este "pixel 0" del "scanline 0" de la fila f mediante descomposición de los bits de las coordenadas y su recomposición en una dirección en memoria.
 
 Para encontrar la relación coordenadas/dirección comencemos viendo una tabla con las direcciones de pantalla buscadas ya precalculadas:
 
@@ -608,7 +616,7 @@ Examinemos (y marquemos) los bits de la representación binaria de la dirección
 +----------+------------------------+------------+------------------------+---------------+------------------------+
 | 3        | $4060                  | 16480      | -010-00000-011-00000b  | 0 (00b)       | 3                      |
 +----------+------------------------+------------+------------------------+---------------+------------------------+
-| (…)      | (…)                    | (…)        | (…)                    | (…)           | (…)                    |
+| sigue... | sigue...               | sigue...   |  sigue...              | sigue...      | sigue....              |
 +----------+------------------------+------------+------------------------+---------------+------------------------+
 | 8        | $4800                  | 18432      | -010-01000-000-00000b  | 1 (01b)       | 0                      |
 +----------+------------------------+------------+------------------------+---------------+------------------------+
@@ -616,11 +624,10 @@ Examinemos (y marquemos) los bits de la representación binaria de la dirección
 +----------+------------------------+------------+------------------------+---------------+------------------------+
 | 10       | $4840                  | 18496      | -010-01000-010-00000b  | 1 (01b)       | 2                      |
 +----------+------------------------+------------+------------------------+---------------+------------------------+
-| (…)      | (…)                    | (…)        | (…)                    | (…)           | (…)                    |
+| sigue... | sigue...               | sigue...   |  sigue...              | sigue...      | sigue....              |
 +----------+------------------------+------------+------------------------+---------------+------------------------+
 
-
- Lo primero que puede llamarnos la atención es lo siguiente:
+Lo primero que puede llamarnos la atención es lo siguiente:
 
 
 * Hay una relación directa entre el byte alto de la dirección y el tercio en que está posicionada la línea. 
@@ -767,3 +774,368 @@ Una rutina que deba trabajar con direcciones en alta resolución pero que devuel
 ``Get_Char_Coordinates``
 
 Nuestra siguiente subrutina tiene como objetivo el calcular la posición (c,f) en baja resolución de un carácter dado un offset en memoria que almacene alguno de los 64 pixeles del mismo. Llamar a esta función con la dirección de cualquiera de las 8 líneas de un carácter devolvería el mismo par de coordenadas (c,f): 
+
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Get_Char_Coordinates_LR(offset)
+    ; Obtener las coordenadas (c,f) que corresponden a una
+    ; direccion de memoria de imagen en baja resolucion.
+    ;
+    ; Entrada:   HL = Direccion de memoria del caracter (c,f)
+    ; Salida:    B = FILA, C = COLUMNA
+    ;-------------------------------------------------------------
+    Get_Char_Coordinates_LR:
+    
+        ; HL = 010TT000 NNNCCCCCb ->
+        ;      Fila = 000TTNNNb y Columna = 000CCCCCb
+    
+                                ; Calculo de la fila:
+        ld a, h                  ; A = H, para extraer los bits de tercio
+        and %00011000            ; A = 000TT000b
+        ld b, a                  ; B = A = 000TT000b
+    
+        ld a, l                  ; A = L, para extraer los bits de N (FT)
+        and %0b11100000          ; A = A and 11100000b = NNN00000b
+        rlc a                    ; Rotamos A 3 veces a la izquierda
+        rlc a
+        rlc a                    ; A = 00000NNNb
+        or b                     ; A = A or b = 000TTNNNb
+        ld b, a                  ; B = A = 000TTNNNb
+    
+                                ; Calculo de la columna:
+        ld a, l                  ; A = L, para extraer los bits de columna
+        and %00011111            ; Nos quedamos con los ultimos 5 bits de L
+        ld c, a                  ; C = Columna
+        ret             ; HL = 010TT000NNNCCCCCb
+
+Adaptar esta rutina a alta resolución (Get_Char_Coordinates_HR(x,y)) implicaría el multiplicar las coordenadas X e Y por 8, añadiendo el siguiente código inmediatamente antes del ret:
+
+
+
+.. code-block:: tasm
+
+        sla c
+        sla c
+        sla c                    ; C = C*8
+    
+        sla b
+        sla b
+        sla b                    ; B = B*8
+
+Si no queremos tener una rutina específica para esta operación, podemos llamar a la rutina en baja resolución y realizar los desplazamientos (\*8) a la salida de la misma. 
+
+Cálculo de posiciones diferenciales de carácter
+--------------------------------------------------------------------------------
+
+
+
+
+Recorrer los 8 scanlines de un bloque
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Dada en HL la dirección del primer scanline de un bloque, podemos avanzar a lo largo de los 7 scanlines del mismo bloque sumando "256" a dicha dirección. Como sumar 256 equivale a incrementar la parte alta de la dirección, podemos subir y bajar al scanline anterior y siguiente de los 8 que componen el carácter mediante simples dec h e inc h:
+
+
+
+.. code-block:: tasm
+
+    Scanline_Arriba_HL:
+    dec h                      ; H = H - 1  (HL = HL-255)
+    
+    Scanline_Abajo_HL:
+    inc h                      ; H = H + 1  (HL = HL-255)
+
+Este salto de 256 bytes será válido sólo dentro de los 8 scanlines de un mismo carácter.
+
+
+Offset del carácter de la izquierda/derecha/arriba/abajo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Dentro de las rutinas de impresión de sprites de más de un carácter es probable que necesitemos movernos a los carácteres de alrededor de uno dado (normalmente hacia la derecha y hacia abajo).
+
+Las siguientes rutinas no realizan control de la posición, por lo que moverse en una dirección cuando estamos en el límite del eje vertical u horizontal tendrá resultados diferentes de los esperados.
+
+Moverse un carácter a derecha o izquierda es sencillo dada la disposición lineal de las filas de caracteres. Estando en el scanline 0 de un carácter, bastará con incrementar o decrementar la posición de memoria actual:
+
+
+
+.. code-block:: tasm
+
+    Caracter_Derecha_HL:
+        inc hl                   ; HL = HL + 1
+    
+    Caracter_Izquierda_HL:
+        dec hl                   ; HL = HL - 1
+
+Moverse un carácter arriba o abajo es más laborioso ya que tenemos que tener en cuenta los cambios de tercios. Para ello, basta con que recordemos la disposición de los bits de la dirección::
+
+    Bits = 	Dirección VRAM 	Bits de Tercio 	Bits de scanline 	Bits de Carácter-Y 	Bits de Columna
+    HL = 	010 	        TT              SSS                 NNN 	            CCCCC
+
+Así, para saltar al siguiente carácter tenemos que incrementar los 3 bits más altos de L (sumando 32). Esto provocará el avance de bloque en bloque, pero debemos tener en cuenta el momento en que realizamos un salto del bloque 7 al 8, y del 15 al 16, ya que entonces tenemos que cambiar de tercio y poner NNN a 0.
+
+Podemos detectar fácilmente el paso de la fila 7 a la 8 y de la 15 a la 16 ya que en ambos casos la "Fila dentro del Tercio" (NNN, bits 7, 6 y 5 de la dirección) pasaría de 111b a 1000b, lo que provocaría que estos 3 bits se quedaran a 0 y se activara el bit de CARRY.
+
+Es decir, cuando tenemos TT = 00b y NNN = 111b y queremos avanzar al siguiente scanline, sumamos 32 (00100000b) con lo que provocamos NNN = 000b y Carry=1. Teniendo la variable "Fila dentro del Tercio" a 1, basta con que incrementemos TT sumando 00001000b (8) a la parte alta, lo que sumaría 01b a los 2 bits de tercio TT:
+
+El código sería el siguiente:
+
+
+
+
+.. code-block:: tasm
+
+    Caracter_Abajo_HL:
+        ld a, l                       ; Cargamos A en L y le sumamos 32 para
+        add a, %00100000              ; incrementar "Bloque dentro del tercio" (+32)
+        ld l, a                       ; L = A
+        jr nc, no_ajustar_H_abajob    ; Si esta suma produce acarreo, ajustar
+        ld a, h                       ; la parte alta sumando 8 a H (TT = TT + 1).
+        add a, %00001000              ; Ahora NNN=000b y TT se ha incrementado.
+        ld h, a                       ; H = A
+    no_ajustar_H_abajob
+                                    ; Ahora HL apunta al bloque de debajo.
+
+El procedimiento para subir un carácter es similar:
+
+
+
+.. code-block:: tasm
+
+
+    Caracter_Arriba_HL:
+        ld a, l                       ; Cargamos L en A
+        and %11100000                 ; A = A and 11100000b
+        jr nz, nofix_h_arribab        ; Si no es cero, no retrocedemos tercio
+        ld a, h                       ; Si es cero, ajustamos tercio (-1)
+        sub %00001000                 ; Decrementamos TT
+        ld h, a
+    nofix_h_arribab:
+        ld a, l                       ; Decrementar NNN
+        sub 32
+        ld l, a                       ; NNN = NNN-1
+        ret
+
+Con estas 2 subrutinas podemos subir y bajar carácter a carácter sin tener que recalcular la dirección destino y haciendo uso sólo de A, H y L. Hay que tener en cuenta, no obstante, que se no comprueban los límites de la pantalla, por lo que no nos avisarán si pretendemos "subir" más arriba de la línea 0 o "bajar" más abajo de la 23. 
+
+
+Cálculo de posiciones de píxeles
+--------------------------------------------------------------------------------
+
+
+
+Finalmente, en cuanto a coordenación, vamos a estudiar el cálculo de la dirección de memoria de un pixel (x,y) en alta resolución. La dirección en memoria obtenida tendrá la información gráfica de 8 píxeles (pues cada byte almacena el estado de 8 píxeles horizontales consecutivos). Debido a esto nuestra rutina no sólo deberá devolver el offset en memoria sino un valor de posición relativa 0-7 que nos permita alterar el pixel concreto solicitado.
+
+Nuestra rutina de cálculo de offset puede ser implementada mediante 2 aproximaciones:
+
+
+* Mediante cálculo de la posición de memoria a partir de las coordenadas (x,y), utilizando operaciones de descomposición y rotación de bits, como ya hemos visto en los apartados anteriores.
+* Mediante una tabla precalculada de posiciones de memoria que almacene la dirección de inicio de cada línea de pantalla, a la cual sumaremos el número de columna (x/8), obteniendo así el offset de nuestro pixel.
+
+
+Vamos a ver las 2 técnicas por separado con rutinas aplicadas a cada uno de los métodos. Cada sistema, como veremos, tiene sus ventajas e inconvenientes, resultando siempre ambos un balance entre el tiempo de ejecución de una rutina y la ocupación en bytes en memoria entre código y datos de la misma.
+
+Las rutinas que tenemos que implementar son:
+
+
+* Get_Pixel_Offset(x,y) : Dadas las coordenadas en alta resolución (x,y) de un pixel, debe devolver la dirección de memoria que aloja el pixel y un indicador de la posición del pixel dentro de dicho byte (recordemos que cada dirección de memoria contiene los datos de 8 píxeles lineales consecutivos), utilizando descomposición y composición de bits.
+* Get_Pixel_Coordinates(offset): Dada una dirección de memoria dentro del área de imagen, debe devolver las coordenadas (x,y) del pixel al que está asociada.
+* Get_Pixel_Offset_LUT(x,y) : Dadas las coordenadas en alta resolución (x,y) de un pixel, debe devolver la dirección de memoria que aloja dicho pixel mediante la utilización de tablas de precálculo (Look Up Table, o LUT).
+
+
+
+Cálculo de posiciones de pixeles mediante composición
+--------------------------------------------------------------------------------
+
+
+
+Hasta ahora hemos visto rutinas que nos proporcionan la posición en memoria de un bloque en baja resolución, pero en el caso que veremos ahora tenemos una coordenada Y que se mueve de 0 a 191, por lo que la posición en memoria puede corresponder a cualquiera de los 8 scanlines de un bloque dado. Además, la coordenada X tampoco es un carácter por lo que el pixel resultante es el estado de un bit concreto de la dirección obtenida.
+
+Así pues, ¿cómo podemos calcular la dirección destino del pixel cuando tratamos con coordenadas en alta resolución? Recuperemos para ello parte de nuestra tabla de direcciones de memoria en baja resolución:
+
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+| Línea LowRes  | Línea HiRes  | Direccion (0,f) (HEX)  | (Decimal)  | (Binario)          | Tercio (0-2)  | Fila en el tercio |
++===============+==============+========================+============+====================+===============+===================+
+| 0             | 0            | $4000                  | 16384      | 0100000000000000b  | 0 (00b)       | 0                 |
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+| 1             | 8            | $4020                  | 16416      | 0100000000100000b  | 0 (00b)       | 1                 |
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+| 2             | 16           | $4040                  | 16448      | 0100000001000000b  | 0 (00b)       | 2                 |
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+| 3             | 24           | $4060                  | 16480      | 0100000001100000b  | 0 (00b)       | 3                 |
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+| etc           | etc          |                        |            |                    |               |                   |
++---------------+--------------+------------------------+------------+--------------------+---------------+-------------------+
+
+
+Añadamos ahora las direcciones en alta resolución y veamos el estado de los diferentes bits de la coordenada Y y de la dirección de videomemoria que le corresponde:
+
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| Coord. F  | Coord. Y  | Coord. Y (Binario)  | Direccion (0,y) (HEX)  | (Binario)            | Tercio (0-2)  | Fila en el tercio |
++===========+===========+=====================+========================+======================+===============+===================+
+| 0         | 0         | 00000-000-b         | $4100                  | 01000-000-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 1         | 00000-001-b         | $4200                  | 01000-001-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 2         | 00000-010-b         | $4300                  | 01000-010-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 3         | 00000-011-b         | $4400                  | 01000-011-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 4         | 00000-100-b         | $4500                  | 01000-100-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 5         | 00000-101-b         | $4600                  | 01000-101-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 6         | 00000-110-b         | $4700                  | 01000-110-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 0         | 7         | 00000-111-b         | $4800                  | 01000-111-00000000b  | 0 (00b)       | 0                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 1         | 8         | 00001-000-b         | $4020                  | 01000-000-00100000b  | 0 (00b)       | 1                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 1         | 9         | 00001-001-b         | $4120                  | 01000-001-00100000b  | 0 (00b)       | 1                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 1         | 10        | 00001-010-b         | $4220                  | 01000-010-00100000b  | 0 (00b)       | 1                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+| 1         | 11        | 00001-011-b         | $4320                  | 01000-011-00100000b  | 0 (00b)       | 1                 |
++-----------+-----------+---------------------+------------------------+----------------------+---------------+-------------------+
+
+
+Como puede verse, la diferencia entre la composición de baja resolución y la de alta resolución es la modificación de los 3 bits menos significativos de la parte alta de la dirección, que son un reflejo de los 3 bits bajos de la coordenada Y.
+
+Si examinamos en binario la coordenada Y, vemos que ésta se puede descomponer en 2 bits de Tercio de Pantalla, 3 bits de Fila Dentro del Tercio (FT o N en los ejemplos) y 3 bits de Scanline Dentro Del Carácter (S): 
+
+
+
+.. figure:: gfx2_coordy.png
+   :scale: 50%
+   :align: center
+   :alt: Bits coordenada y
+
+   Bits coordenada y
+
+
+Por otra parte, ya sabemos que C es X / 8, por lo que ya tenemos todos los componentes para realizar nuestra rutina de cálculo de dirección de memoria. 
+
+
+
+.. figure:: gfx2_coordx.png
+   :scale: 50%
+   :align: center
+   :alt: Bits coordenada x
+
+   Bits coordenada x
+
+
+Así pues, la composición final de la dirección de memoria del pixel (x,y) se define de la siguiente forma:
+
+
+
+.. figure:: gfx2_calcoffset3_hr.png
+   :scale: 50%
+   :align: center
+   :alt: Calculo de la dirección del pixel (x,y)
+
+   Calculo de la dirección del pixel (x,y)
+
+
+No obstante, recordemos que esta dirección de memoria obtenida hace referencia a 8 píxeles, por lo que necesitamos obtener además la información del número de bit con el que se corresponde nuestro pixel, que podemos extraer del resto de la división entre 8 de la coordenada X (P = X and %00000111).
+
+La rutina resultante es similar a la vista en baja resolución con la descomposición de la coordenada Y en el "número de scanline" (0-7) y la "fila dentro del tercio (0-7)":
+
+
+
+
+.. code-block:: tasm
+
+    ;-------------------------------------------------------------
+    ; Get_Pixel_Offset_HR(x,y)
+    ; Obtener la direccion de memoria del pixel (x,y).
+    ;
+    ; Entrada:   B = Y,  C = X
+    ; Salida:   HL = Direccion de memoria del caracter con (x,y)
+    ;            A = Posicion del pixel (0-7) en el byte.
+    ;-------------------------------------------------------------
+    Get_Pixel_Offset_HR:
+    
+        ; Calculo de la parte alta de la direccion:
+        ld a, b
+        and %00000111            ; A = 00000SSSb
+        ld h, a                  ; Lo guardamos en H
+        ld a, b                  ; Recuperamos de nuevo Y
+        rra
+        rra
+        rra                      ; Rotamos para asi obtener el tercio
+        and %00011000            ; con un and 00011000b -> 000TT000b
+        or h                     ; H = H or a = 00000SSSb or 000TT000b
+        or %01000000             ; Mezclamos H con 01000000b (vram)
+        ld h, a                  ; Establecemos el "H" definitivo
+    
+        ; Calculo de la parte baja de la direccion:
+        ld a, c                  ; A = coordenada X
+        rra
+        rra
+        rra                      ; Rotamos para obtener CCCCCb
+        and %00011111            ; A = A and 31 = 000CCCCCb
+        ld l, a                  ; L = 000CCCCCb
+        ld a, b                  ; Recuperamos de nuevo Y
+        rla                      ; Rotamos para obtener NNN
+        rla
+        and %11100000            ; A = A and 11100000b
+        or l                     ; L = NNNCCCCC
+        ld l, a                  ; Establecemos el "L" definitivo
+    
+        ; Finalmente, calcular posicion relativa del pixel:
+        ld a, c                  ; Recuperamos la coordenada X
+        and %00000111            ; and 00000111 para obtener pixel
+                                ; A = 00000PPP
+        ret
+
+Esta rutina de 128 t-estados nos devuelve el valor de la dirección calculado en HL y la posición relativa del pixel dentro del byte: 
+
++-------------------------------------------+----+----+----+----+----+----+----+----+
+| Valor de A                                | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
++===========================================+====+====+====+====+====+====+====+====+
+| Posición del pixel desde la izquierda     | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
++-------------------------------------------+----+----+----+----+----+----+----+----+
+| Posición del pixel dentro del byte (Bit)  | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  |
++-------------------------------------------+----+----+----+----+----+----+----+----+
+
+
+Esta posición relativa del pixel nos sirve para 2 cosas:
+
+Por una parte, cuando realicemos rutinas de impresión de sprites con movimiento pixel a pixel, este valor nos puede servir para tratar los sprites (rotarlos) de cara a su impresión en posiciones de byte.
+
+Por otra parte, si necesitamos activar (PLOT, bit=1), desactivar (UNPLOT, b=0) o testear el estado del pixel (x,y), podremos utilizar este valor "posición del pixel" para generar una máscara de pixel.
+
+Si queremos convertir la posición del pixel en una máscara de pixel (por ejemplo, convertir A=6 en el bit 6 activo (A=%01000000), podemos hacerlo con un bucle:
+
+
+
+.. code-block:: tasm
+
+        and %00000111               ; and 00000111 para obtener pixel
+                                    ; A = 00000PPP, y además setear ZF si es 0
+        ;--- Nuevo código ---
+    
+        ld b, a                     ; Poner en B el numero de pixel
+        ld a, %10000000             ; Activar sólo el bit 7 de A
+        jr z, getpixoff_norotate    ; Si el ''and %00000111' dice que A == 0
+                                    ; entonces ya no necesitamos rotar
+    getpixoff_loop:
+        rra                         ; Rotar A a la derecha B veces
+        djnz getpixoff_lop
+    getpixoff_norotate:
+                                    ; Ahora A es una máscara de pixel
+        ;--- Fin nuevo código ---
+    
+        ret
+
+

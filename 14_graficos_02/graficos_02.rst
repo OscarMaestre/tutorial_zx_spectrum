@@ -1139,3 +1139,772 @@ Si queremos convertir la posición del pixel en una máscara de pixel (por ejemp
         ret
 
 
+Obtención y uso de la Máscara de Pixel
+--------------------------------------------------------------------------------
+
+
+
+Nuestra rutina de coordenación nos devuelve en HL la dirección de memoria que contiene el pixel (x,y) y en A la posición relativa del pixel dentro de dicha dirección.
+
+Para poder modificar el pixel exacto al que hacen referencia la pareja de datos HL y A resulta necesario convertir A en una “máscara de pixel” que nos permita manipular la memoria con sencillas operaciones lógicas sin afectar al estado de los demás píxeles.
+
+Esta “máscara de pixel” tiene activo el bit 8-pixel ya que el pixel 0 es el pixel de más a la izquierda de los 8, es decir, el bit 7 de la dirección: 
+
++-------------+----+----+----+----+----+----+----+----+
+| Bit activo  | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
++=============+====+====+====+====+====+====+====+====+
+| Pixel       | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  |
++-------------+----+----+----+----+----+----+----+----+
+
+La máscara que debemos generar, en función del valor de A, es: 
+
++-------------+------------------+
+| Valor de A  | Máscara de pixel |
++=============+==================+
+| 0           | 10000000b        |
++-------------+------------------+
+| 1           | 01000000b        |
++-------------+------------------+
+| 2           | 00100000b        |
++-------------+------------------+
+| 3           | 00010000b        |
++-------------+------------------+
+| 4           | 00001000b        |
++-------------+------------------+
+| 5           | 00000100b        |
++-------------+------------------+
+| 6           | 00000010b        |
++-------------+------------------+
+| 7           | 00000001b        |
++-------------+------------------+
+
+
+La porción de código que hace esta conversión es la siguiente:
+
+
+
+
+.. code-block:: tasm
+
+
+        ld b, a                  ; Cargamos A (posicion de pixel) en B
+        inc b                    ; Incrementamos B (para pasadas del bucle)
+        xor a                    ; A = 0
+        scf                      ; Set Carry Flag (A=0, CF=1)
+    pix_rotate_bit:
+        rra                      ; Rotamos A a la derecha B veces
+        djnz pix_rotate_bit
+
+
+
+La rutina pone A a cero y establece el Carry Flag a 1, por lo que la primera ejecución de RRA (que siempre se realizará) ubica el 1 del CF en el bit 7 de A. A continuación el DJNZ que se realiza “B” veces mueve ese bit a 1 a la derecha (también “B” veces) dejando A con el valor adecuado según la tabla que acabamos de ver. 
+
+
+
+
+.. figure:: rra.png
+   :scale: 50%
+   :align: center
+   :alt: RR sobre A
+
+   RR sobre A
+
+
+
+En formato de rutina:
+
+
+.. code-block:: tasm
+
+    ;--------------------------------------------------------
+    ; Relative_to_Mask: Convierte una posicion de pixel
+    ;                   relativa en una mascara de pixel.
+    ; IN:  A = Valor relativo del pixel (0,7)
+    ; OUT: A = Pixel Mask (128-1)
+    ; CHANGES: B, F
+    ;--------------------------------------------------------
+    Relative_to_Mask:
+        ld b, a                  ; Cargamos A (posicion de pixel) en B
+        inc b                    ; Incrementamos B (para pasadas del bucle)
+        xor a                    ; A = 0
+        scf                      ; Set Carry Flag (A=0, CF=1)
+    pix_rotate_bit:
+        rra                      ; Rotamos A a la derecha B veces
+        djnz pix_rotate_bit
+        ret
+
+Mediante esa máscara podemos activar (PLOT), desactivar (UNPLOT) y testear (TEST) el estado del pixel en cuestión:
+
+
+
+.. code-block:: tasm
+
+
+    ; Activar el pixel apuntado por HL usando la máscara A
+    Plot_Pixel_HL:
+        or (hl)
+        ld (hl), a
+        ret
+    
+    ; Desactivar el pixel apuntado por HL usando la máscara A
+    Unplot_Pixel_HL:
+        cpl A
+        and (hl)
+        ld (hl), a
+        ret
+    
+    ; Testear el pixel apuntado por HL usando la máscara A
+    Test_Pixel_HL:
+        and (hl)
+        ret
+
+
+
+La anterior rutina de PLOT funciona realizando un OR entre la máscara de pixel y el estado de actual de la memoria, y luego escribiendo el resultado de dicho OR en la videoram. De esta forma, sólo alteramos el pixel sobre el que queremos escribir.
+
+Explicándolo con un ejemplo, supongamos que queremos escribir en el pixel (3,0) de la pantalla y ya hay píxeles activos en (0,0) y (7,0)::
+
+    Pixeles activos en (16384) = 10000001
+    Máscara de pixel           = 00010000
+
+Si ejecutaramos un simple ld (hl), a, el resultado de la operación eliminaría los 2 píxeles activos que ya teníamos en memoria::
+
+    Pixeles activos en (16384) = 10000001
+    Máscara de pixel A         = 00010000
+    OPERACION (HL)=A           = ld (hl), a
+    Resultado en (16384)       = 00010000
+
+Mediante el OR entre la máscara de pixel y la videomemoria conseguimos alterar el estado de (3,0) sin modificar los píxeles ya existentes::
+
+    Pixeles activos en (16384) = 10000001
+    Máscara de pixel A         = 00010000
+    OPERACION A = A or (hl)    = or (hl)
+    Resultado en A             = 10010001
+    OPERACION (HL)=A           = ld (hl), a
+    Resultado en (16384)       = 10010001
+
+Si en lugar de un OR hubieramos complementado A (cpl A) y hubieramos hecho un AND, habríamos puesto a 0 el bit (y por tanto el pixel)::
+
+    Pixeles activos en (16384) = 10000001
+    Máscara de pixel A         = 00010000
+    OPERACION A = cpl(A)       = 11101111
+    OPERACION A = A or (hl)    = and (hl)
+    Resultado en A             = 10000001
+    OPERACION (HL)=A           = ld (hl), a
+    Resultado en (16384)       = 10000001
+
+El cálculo de memoria y la escritura de un pixel quedaría pues de la siguiente forma:
+
+
+
+.. code-block:: tasm
+
+
+  ld c, 127                  ; X = 127
+  ld b, 95                   ; Y = 95
+  call Get_Pixel_Offset_HR   ; Calculamos HL y A
+  or (hl)                    ; OR de A y (HL)
+  ld (hl), a                 ; Activamos pixel
+
+
+La primera pregunta que nos planteamos es, si es imprescindible disponer de una máscara de pixel para dibujar o borrar píxeles, ¿por qué no incluir este código de rotación de A directamente en la rutina de coordenación? La respuesta es, “depende de para qué vayamos a utilizar la rutina”.
+
+Si la rutina va a ser utilizada principalmente para trazar píxeles, resultará conveniente incorporar al final de Get_Pixel_Offset_HR() el cálculo de la máscara, y devolver en A dicha máscara en lugar de la posición relativa del pixel.
+
+Pero lo normal en el desarrollo de programas y juegos es que utilicemos la rutina de coordenación para obtener la posición inicial en la que comenzar a trazar sprites, bloques (del mapeado), fuentes de texto, marcadores. En ese caso es absurdo emplear “ciclos de reloj” adicionales para el cálculo de una máscara que sólo se utiliza en el trazado de puntos. En esas circunstancias resulta mucho más útil disponer de la posición relativa del pixel, para, como ya hemos comentado, conocer la cantidad de bits que necesitamos rotar estos datos gráficos antes de su trazado.
+
+Por ese motivo, no hemos agregado esta pequeña porción de código a la rutina de Get_Pixel_Offset, siendo el programador quien debe decidir en qué formato quiere obtener la salida de la rutina.
+
+
+La rutina de la ROM PIXEL-ADDRESS
+--------------------------------------------------------------------------------
+
+
+
+Curiosamente, los usuarios de Spectrum tenemos disponible en la memoria ROM una rutina parecida, llamada PIXEL-ADDRESS (o PIXEL-ADD), utilizada por las rutinas POINT y PLOT de la ROM (y de BASIC). La rutina está ubicada en $22aa y su código es el siguiente:
+
+
+
+
+.. code-block:: tasm
+
+
+    ; THE 'PIXEL ADDRESS' SUBROUTINE
+    ; This subroutine is called by the POINT subroutine and by the PLOT
+    ; command routine. Is is entered with the co-ordinates of a pixel in
+    ; the BC register pair and returns with HL holding the address of the
+    ; display file byte which contains that pixel and A pointing to the
+    ; position of the pixel within the byte.
+    ;
+    ; IN: (C,B) = (X,Y)
+    ; OUT: HL = address, A = pixel relative position in (HL)
+    
+    $22aa PIXEL-ADD
+        ld    a,$af               ; Test that the y co-ordinate (in
+        sub   b                   ; B) is not greater than 175.
+        jp    c,24F9,REPORT-B
+        ld    b,a                 ; B now contains 175 minus y.
+    
+    $22b1 PIXEL_ADDRESS_B:        ; Entramos aqui para saltarnos la limitacion
+                                ; hacia las 2 ultimas lineas de pantalla.
+    
+        and   a                   ; A holds b7b6b5b4b3b2b1b0,
+        rra                       ; the bite of B. And now
+                                ; 0b7b6b5b4b3b2b1.
+        scf
+        rra                       ; Now 10b7b6b5b4b3b2.
+        and   a
+        rra                       ; Now 010b7b6b5b4b3.
+        xor   b
+        and   $f8                 ; Finally 010b7b6b2b1b0, so that
+        xor   b                   ; H becomes 64 + 8*INT (B/64) +
+        ld    h,a                 ; B (mod 8), the high byte of the
+        ld    a,c                 ; pixel address. C contains X.
+        rlca                      ; A starts as c7c6c5c4c3c2c1c0.
+        rlca
+        rlca                      ; And is now c2c1c0c7c6c5c4c3.
+        xor   b
+        and   $c7
+        xor   b                   ; Now c2c1b5b4b3c5c4c3.
+        rlca
+        rlca                      ; Finally b5b4b3c7c6c5c4c3, so
+        ld    l,a                 ; that L becomes 32*INT (B(mod
+        ld    a,c                 ; 64)/8) + INT(x/8), the low byte.
+        and   $07                 ; A holds x(mod 8): so the pixel
+        ret                       ; is bit (A - 7) within the byte.
+
+Esta rutina tiene una serie de ventajas: Entrando por $22b1 tenemos 23 instrucciones (107 t-estados) que realizan el cálculo de la dirección de memoria además de la posición del pixel dentro del byte al que apunta dicha dirección. La rutina está ubicada en ROM, por lo que ahorramos esta pequeña porción de espacio en nuestro programa. Además, no usa la pila, no usa registros adicionales a B, C, HL y A, y no altera los valores de B y C durante el cálculo.
+
+Nótese que aunque la rutina está ubicada en $22aa y se entra con los valores (x,y) en C y B, el principio de la rutina está diseñado para evitar que PLOT y POINT puedan acceder a las 2 últimas filas (16 últimos píxeles) de la pantalla. Para saltarnos esta limitación entramos saltando con un call a $22b1 con la coordenada X en el registro C y la coordenada Y en los registros A y B:
+
+
+
+.. code-block:: tasm
+
+
+        ld a, (coord_x)
+        ld c, a
+        ld a, (coord_y)
+        ld b, a
+        call $22b1
+
+De esta forma no sólo nos saltamos la limitación de acceso a las 2 últimas líneas de la pantalla sino que podemos especificar las coordenadas empezando (0,0) en la esquina superior izquierda, con el sistema tradicional de coordenadas, en contraposición al PLOT de BASIC (y de la ROM), donde se comienza a contar la altura como Y = 0 en la parte inferior de la pantalla (empezando en 191-16=175).
+
+Veamos un ejemplo de uso de la rutina de coordenación de la ROM:
+
+
+
+.. code-block:: tasm
+
+
+    ; Ejemplo de uso de pixel-address (ROM)
+        ORG 50000
+    
+    PIXEL_ADDRESS EQU $22b1
+    
+    entrada:
+    
+        ; Imprimimos un solo pixel en (0,0)
+        ld c, 0                  ; X = 0
+        ld b, 0                  ; Y = 0
+        ld a, b                  ; A = Y = 0
+        call PIXEL_ADDRESS       ; HL = direccion (0,0)
+        ld a, 128                ; A = 10000000b (1 pixel).
+        ld (hl), a               ; Imprimimos el pixel
+    
+        ; Imprimimos 8 pixeles en (255,191)
+        ld c, 255                ; X = 255
+        ld b, 191                ; Y = 191
+        ld a, b                  ; A = Y = 191
+        call PIXEL_ADDRESS
+        ld a, 255                ; A = 11111111b (8 pixeles)
+        ld (hl), a
+    
+        ; Imprimimos 4 pixeles en el centro de la pantalla
+        ld c, 127                ; X = 127
+        ld b, 95                 ; Y = 95
+        ld a, b                  ; A = Y = 95
+        call PIXEL_ADDRESS
+        ld a, %10101010          ; A = 10101010b (4 pixeles)
+        ld (hl), a
+    
+    loop:                        ; Bucle para no volver a BASIC y que
+        jr loop                  ; no se borren la 2 ultimas lineas
+    
+        END 50000
+
+La ejecución del anterior programa nos dejará la siguiente información gráfica en pantalla: 
+
+
+
+
+.. figure:: gfx2_pixeladd.png
+   :scale: 50%
+   :align: center
+   :alt: Información gráfica en pantalla
+
+   Información gráfica en pantalla
+
+
+Nótese que la rutina de la ROM nos devuelve en A la posición relativa del pixel cuyas coordenadas hemos proporcionado, por lo que podemos convertir A en una máscara de pixel a la salida de la rutina encapsulando PIXEL-ADDRESS en una rutina “propia” que haga ambas operaciones, a cambio de 2 instrucciones extras (un call y un RET adicionales):
+
+
+
+.. code-block:: tasm
+
+
+    PIXEL_ADDRESS EQU $22b1
+    
+    ;----------------------------------------------------------
+    ; Rutina que encapsula a PIXEL_ADDRESS calculando pix-mask.
+    ; IN: (C,B) = (X,Y)
+    ; OUT: HL = address, A = pixel mask
+    ;----------------------------------------------------------
+    PIXEL_ADDRESS_MASK:
+        call PIXEL_ADDRESS       ; Llamamos a la rutina de la ROM
+        ld b, a                  ; Cargamos A (posicion de pixel) en B
+        inc b                    ; Incrementamos B (para pasadas del bucle)
+        xor a                    ; A = 0
+        scf                      ; Set Carry Flag (A=0, CF=1)
+    pix_rotate_bit:
+        rra                      ; Rotamos A a la derecha B veces
+        djnz pix_rotate_bit
+        ret
+
+
+
+Cálculo de posiciones de pixeles mediante tabla
+--------------------------------------------------------------------------------
+
+
+
+Hasta ahora hemos visto cómo calcular la dirección de memoria de un pixel (x,y) mediante descomposición de las coordenadas y composición de la dirección destino utilizando operaciones lógicas y de desplazamiento.
+
+La alternativa a este método es la utilización de una Look Up Table (LUT), una tabla de valores precalculados mediante la cual obtener la dirección destino dada una variable concreta.
+
+En nuestro caso, crearíamos una Lookup Table (LUT) que se indexaría mediante la coordenada Y, de tal modo que la dirección destino de un pixel X,Y sería::
+
+    DIRECCION_DESTINO  = Tabla_Offsets_Linea[Y] + (X/8)
+    PIXEL_EN_DIRECCION = Resto(X/8) = X AND %00000111
+
+La tabla de offsets de cada inicio de línea tendría 192 elementos de 2 bytes (tamaño de una dirección), por lo que ocuparía en memoria 384 bytes. A cambio de esta “elevada” ocupación en memoria, podemos obtener rutinas más rápidas que las de composición de las coordenadas.
+
+A continuación se muestra la tabla de offsets precalculados::
+
+    Scanline_Offsets:
+        DW 16384, 16640, 16896, 17152, 17408, 17664, 17920, 18176
+        DW 16416, 16672, 16928, 17184, 17440, 17696, 17952, 18208
+        DW 16448, 16704, 16960, 17216, 17472, 17728, 17984, 18240
+        DW 16480, 16736, 16992, 17248, 17504, 17760, 18016, 18272
+        DW 16512, 16768, 17024, 17280, 17536, 17792, 18048, 18304
+        DW 16544, 16800, 17056, 17312, 17568, 17824, 18080, 18336
+        DW 16576, 16832, 17088, 17344, 17600, 17856, 18112, 18368
+        DW 16608, 16864, 17120, 17376, 17632, 17888, 18144, 18400
+        DW 18432, 18688, 18944, 19200, 19456, 19712, 19968, 20224
+        DW 18464, 18720, 18976, 19232, 19488, 19744, 20000, 20256
+        DW 18496, 18752, 19008, 19264, 19520, 19776, 20032, 20288
+        DW 18528, 18784, 19040, 19296, 19552, 19808, 20064, 20320
+        DW 18560, 18816, 19072, 19328, 19584, 19840, 20096, 20352
+        DW 18592, 18848, 19104, 19360, 19616, 19872, 20128, 20384
+        DW 18624, 18880, 19136, 19392, 19648, 19904, 20160, 20416
+        DW 18656, 18912, 19168, 19424, 19680, 19936, 20192, 20448
+        DW 20480, 20736, 20992, 21248, 21504, 21760, 22016, 22272
+        DW 20512, 20768, 21024, 21280, 21536, 21792, 22048, 22304
+        DW 20544, 20800, 21056, 21312, 21568, 21824, 22080, 22336
+        DW 20576, 20832, 21088, 21344, 21600, 21856, 22112, 22368
+        DW 20608, 20864, 21120, 21376, 21632, 21888, 22144, 22400
+        DW 20640, 20896, 21152, 21408, 21664, 21920, 22176, 22432
+        DW 20672, 20928, 21184, 21440, 21696, 21952, 22208, 22464
+        DW 20704, 20960, 21216, 21472, 21728, 21984, 22240, 22496
+
+En hexadecimal (para ver la relación entre los aumentos de líneas y el de scanlines y bloques)::
+
+    Scanline_Offsets:
+        DW $4000, $4100, $4200, $4300, $4400, $4500, $4600, $4700
+        DW $4020, $4120, $4220, $4320, $4420, $4520, $4620, $4720
+        DW $4040, $4140, $4240, $4340, $4440, $4540, $4640, $4740
+        DW $4060, $4160, $4260, $4360, $4460, $4560, $4660, $4760
+        DW $4080, $4180, $4280, $4380, $4480, $4580, $4680, $4780
+        DW $40a0, $41a0, $42a0, $43a0, $44a0, $45a0, $46a0, $47a0
+        DW $40c0, $41c0, $42c0, $43c0, $44c0, $45c0, $46c0, $47c0
+        DW $40e0, $41e0, $42e0, $43e0, $44e0, $45e0, $46e0, $47e0
+        DW $4800, $4900, $4a00, $4b00, $4c00, $4d00, $4e00, $4f00
+        DW $4820, $4920, $4a20, $4b20, $4c20, $4d20, $4e20, $4f20
+        DW $4840, $4940, $4a40, $4b40, $4c40, $4d40, $4e40, $4f40
+        DW $4860, $4960, $4a60, $4b60, $4c60, $4d60, $4e60, $4f60
+        DW $4880, $4980, $4a80, $4b80, $4c80, $4d80, $4e80, $4f80
+        DW $48a0, $49a0, $4aa0, $4ba0, $4ca0, $4da0, $4ea0, $4fa0
+        DW $48c0, $49c0, $4ac0, $4bc0, $4cc0, $4dc0, $4ec0, $4fc0
+        DW $48e0, $49e0, $4ae0, $4be0, $4ce0, $4de0, $4ee0, $4fe0
+        DW $5000, $5100, $5200, $5300, $5400, $5500, $5600, $5700
+        DW $5020, $5120, $5220, $5320, $5420, $5520, $5620, $5720
+        DW $5040, $5140, $5240, $5340, $5440, $5540, $5640, $5740
+        DW $5060, $5160, $5260, $5360, $5460, $5560, $5660, $5760
+        DW $5080, $5180, $5280, $5380, $5480, $5580, $5680, $5780
+        DW $50a0, $51a0, $52a0, $53a0, $54a0, $55a0, $56a0, $57a0
+        DW $50c0, $51c0, $52c0, $53c0, $54c0, $55c0, $56c0, $57c0
+        DW $50e0, $51e0, $52e0, $53e0, $54e0, $55e0, $56e0, $57e0
+
+La tabla ha sido generada mediante el siguiente script en python:
+
+
+.. code-block::python
+
+    #!/usr/bin/python
+    
+    print "Scanline_Offsets:"
+    for tercio in range(0,3):
+    for caracter in range(0,8):
+        print "  DW",
+        for scanline in range(0,8):
+            # Componer direccion como 010TTSSSNNN00000
+            base = 16384
+            direccion = base + (tercio * 2048)
+            direccion = direccion + (scanline * 256)
+            direccion = direccion + (caracter * 32)
+            print str(direccion),
+            if scanline!=7: print ",",
+        print
+
+
+La tabla de valores DW estaría incorporada en nuestro programa y por tanto pasaría a formar parte del “binario final”, incluyendo en este aspecto la necesidad de carga desde cinta.
+
+Si por algún motivo no queremos incluir la tabla en el listado, podemos generarla en el arranque de nuestro programa en alguna posición de memoria libre o designada a tal efecto mediante la siguiente rutina:
+
+
+
+.. code-block:: tasm
+
+
+    ;--------------------------------------------------------
+    ; Generar LookUp Table de scanlines en memoria.
+    ; Rutina por Derek M. Smith (2005).
+    ;--------------------------------------------------------
+    
+    Scanline_Offsets EQU $f900
+    
+    Generate_Scanline_Table:
+        ld de, $4000
+        ld hl, Scanline_Offsets
+        ld b, 192
+    
+    genscan_loop:
+        ld (hl), e
+        inc l
+        ld (hl), d               ; Guardamos en (HL) (tabla)
+        inc hl                   ; el valor de DE (offset)
+    
+        ; Recorremos los scanlines y bloques en un bucle generando las
+        ; sucesivas direccione en DE para almacenarlas en la tabla.
+        ; Cuando se cambia de caracter, scanline o tercio, se ajusta:
+        inc d
+        ld a, d
+        and %00000111
+        jr nz, genscan_nextline
+        ld a, e
+        add a, 32
+        ld e, a
+        jr c, genscan_nextline
+        ld a, d
+        sub 8
+        ld d, a
+    
+    genscan_nextline:
+        djnz genscan_loop
+        ret
+
+La anterior rutina ubicará en memoria una tabla con el mismo contenido que las ya vistas en formato DW.
+
+
+Get_Pixel_Offset_LUT
+--------------------------------------------------------------------------------
+
+
+
+Una vez tenemos generada la tabla (ya sea en memoria o pregenerada en el código de nuestro programa), podemos indexar dicha tabla mediante la coordenada Y y sumar la coordenada X convertida en columna para obtener la dirección de memoria del pixel solicitado, y la posición relativa del mismo en el byte:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Get_Pixel_Offset_LUT_HR(x,y):
+    ;
+    ; Entrada:   B = Y,  C = X
+    ; Salida:   HL = Direccion de memoria del pixel (x,y)
+    ;            A = Posicion relativa del pixel en el byte
+    ;-------------------------------------------------------------
+    Get_Pixel_Offset_LUT_HR:
+        ld de, Scanline_Offsets  ; Direccion de nuestra LUT
+        ld l, b                  ; L = Y
+        ld h, 0
+        add hl, hl               ; HL = HL * 2 = Y * 2
+        add hl, de               ; HL = (Y*2) + ScanLine_Offset
+                                 ; Ahora Offset = [HL]
+        ld a, (hl)               ; Cogemos el valor bajo de la direccion en A
+        inc l
+        ld h, (hl)               ; Cogemos el valor alto de la direccion en H
+        ld l, a                  ; HL es ahora Direccion(0,Y)
+                                ; Ahora sumamos la X, para lo cual calculamos CCCCC
+        ld a, c                  ; Calculamos columna
+        rra
+        rra
+        rra                      ; A = A>>3 = ???CCCCCb
+        and %00011111            ; A = 000CCCCB
+        add a, l                 ; HL = HL + C
+        ld l, a
+        ld a, c                  ; Recuperamos la coordenada (X)
+        and %00000111            ; A = Posicion relativa del pixel
+        ret                      ; HL = direccion destino
+
+Veamos un ejemplo de utilización de las anteriores rutinas:
+
+
+
+.. code-block:: tasm
+
+
+    ; Ejemplo de uso de LUT
+        ORG 50000
+    
+    entrada:
+    
+        call Generate_Scanline_Table
+        ld b, 191
+    
+    loop_draw:
+        push bc                  ; Preservamos B (por el bucle)
+    
+        ld c, 127                ; X = 127, Y = B
+    
+        call Get_Pixel_Offset_LUT_HR
+    
+        ld a, %10000000          ; 1 pixel en la parte izquierda del byte
+        ld (hl), a               ; Imprimimos el pixel
+    
+        pop bc
+        djnz loop_draw
+    
+    loop:                        ; Bucle para no volver a BASIC y que
+        jr loop                  ; no se borren la 2 ultimas lineas
+    
+        END 50000
+
+Y su salida en pantalla: 
+
+
+
+
+.. figure:: gfx2_lut.png
+   :scale: 50%
+   :align: center
+   :alt: Salida de LUT
+
+   Salida de LUT
+
+
+Optimizando la lectura a través de tablas
+--------------------------------------------------------------------------------
+
+
+
+El coste de ejecución de la rutina Get_Pixel_Offset_LUT_HR es de 117 t-estados, demasiado elevada por culpa de las costosas (en términos temporales) instrucciones de 16 bits, sobre todo teniendo en cuenta que hemos empleado 384 bytes de memoria en nuestra tabla.
+
+Una ingeniosa solución a este problema consiste en dividir la tabla de 192 direcciones de 16 bits en 2 tablas de 192 bytes cada una que almacenen la parte alta de la dirección en la primera de las tablas y la parte baja de la dirección en la segunda, de tal forma que::
+
+    H = Tabla_Parte_Alta[Y]
+    L = Tabla_Parte_Baja[Y]
+
+Si realizamos esta división y colocamos en memoria las tablas de forma que estén alineadas en una dirección múltiplo de 256, el mecanismo de acceso a la tabla será mucho más rápido.
+
+La ubicación de las tablas en memoria en una dirección X múltiplo de 256 tendría el siguiente aspecto::
+
+    Sea una Direccion_XX divisible por 256:
+
+    Direccion_XX hasta Direccion_XX+191
+    -> Partes bajas de las direcciones de pantalla
+
+    Direccion_XX+256 hasta Direccion_XX+447
+    -> Partes altas de las direcciones de pantalla.
+
+El paso de una tabla a otra se realizará incrementando o decrementando la parte alta del registro de 16 bits (inc h o dec h), gracias al hecho de que son 2 tablas múltiplos de 256 y consecutivas en memoria.
+
+Veamos primero la rutina para generar la tabla separando las partes altas y bajas y alineando ambas a una dirección múltiplo de 256:
+
+
+
+.. code-block:: tasm
+
+
+    ;----------------------------------------------------------
+    ; Generar LookUp Table de scanlines en memoria en 2 tablas.
+    ;
+    ; En Scanline_Offsets (divisible por 256) 
+    ;    -> 192 bytes de las partes bajas de la direccion.
+    ;
+    ; En Scanline_Offsets + 256 (divisible por 256)
+    ;    -> 192 bytes de las partes altas de la direccion.
+    ;
+    ; Rutina por Derek M. Smith (2005).
+    ;----------------------------------------------------------
+    
+    Scanline_Offsets EQU 64000        ; Divisible por 256
+    
+    Generate_Scanline_Table_Aligned:
+        ld de, $4000
+        ld hl, Scanline_Offsets
+        ld b, 192
+    
+    genscan_loop:
+        ld (hl), e               ; Escribimos parte baja
+        inc h                    ; Saltamos a tabla de partes altas
+        ld (hl), d               ; Escribimos parte alta
+        dec h                    ; Volvemos a tabla de partes bajas
+        inc l                    ; Siguiente valor
+    
+        ; Recorremos los scanlines y bloques en un bucle generando las
+        ; sucesivas direccione en DE para almacenarlas en la tabla.
+        ; Cuando se cambia de caracter, scanline o tercio, se ajusta:
+        inc d
+        ld a, d
+        and %00000111
+        jr nz, genscan_nextline
+        ld a, e
+        add a, 32
+        ld e, a
+        jr c, genscan_nextline
+        ld a, d
+        sub 8
+        ld d, a
+    
+    genscan_nextline:
+        djnz genscan_loop
+        ret
+
+En el ejemplo anterior, tendremos entre 64000 y 64191 los 192 valores bajos de la dirección, y entre 64256 y 64447 los 192 valores altos de la dirección. Entre ambas tablas hay un hueco de 256-192=64 bytes sin usar que debemos saltar para poder alinear la segunda tabla en un múltiplo de 256.
+
+Estos 64 bytes no se utilizan en la rutina de generación ni (como veremos a continuación) en la de cálculo, por lo que podemos aprovecharlos para ubicar variables de nuestro programa, tablas temporales, etc, y así no desperdiciarlos.
+
+Si necesitaramos reservar espacio en nuestro programa para después generar la tabla sobre él, podemos hacerlo mediante las directivas de preprocesado del ensamblador ORG (Origen) y DS (Define Space). Las siguientes líneas (ubicadas al final del fichero de código) reservan en nuestro programa un array de 448 bytes de longitud y tamaño cero alineado en una posición múltiplo de 256:
+
+
+
+.. code-block:: tasm
+
+
+        ORG 64000
+    
+    Scanline_Offsets:
+        DS 448, 0
+
+También podemos incluir las 2 tablas “inline” en nuestro programa, y además sin necesidad de conocer la dirección de memoria en que están (por ejemplo, embedidas dentro del código del programa en la siguiente dirección múltiplo de 256 disponible) aprovechando el soporte de macros del ensamblador PASMO::
+
+
+    ; Macro de alineacion para PASMO
+    align   macro value
+        if $ mod value
+        ds value - ($ mod value)
+        endif
+        endm
+
+    align 256
+
+    Scanline_Offsets:
+    LUT_Scanlines_LO:
+        DB $00, $00, $00, $00, $00, $00, $00, $00, $20, $20, $20, $20
+        DB $20, $20, $20, $20, $40, $40, $40, $40, $40, $40, $40, $40
+        DB $60, $60, $60, $60, $60, $60, $60, $60, $80, $80, $80, $80
+        DB $80, $80, $80, $80, $a0, $a0, $a0, $a0, $a0, $a0, $a0, $a0
+        DB $c0, $c0, $c0, $c0, $c0, $c0, $c0, $c0, $e0, $e0, $e0, $e0
+        DB $e0, $e0, $e0, $e0, $00, $00, $00, $00, $00, $00, $00, $00
+        DB $20, $20, $20, $20, $20, $20, $20, $20, $40, $40, $40, $40
+        DB $40, $40, $40, $40, $60, $60, $60, $60, $60, $60, $60, $60
+        DB $80, $80, $80, $80, $80, $80, $80, $80, $a0, $a0, $a0, $a0
+        DB $a0, $a0, $a0, $a0, $c0, $c0, $c0, $c0, $c0, $c0, $c0, $c0
+        DB $e0, $e0, $e0, $e0, $e0, $e0, $e0, $e0, $00, $00, $00, $00
+        DB $00, $00, $00, $00, $20, $20, $20, $20, $20, $20, $20, $20
+        DB $40, $40, $40, $40, $40, $40, $40, $40, $60, $60, $60, $60
+        DB $60, $60, $60, $60, $80, $80, $80, $80, $80, $80, $80, $80
+        DB $a0, $a0, $a0, $a0, $a0, $a0, $a0, $a0, $c0, $c0, $c0, $c0
+        DB $c0, $c0, $c0, $c0, $e0, $e0, $e0, $e0, $e0, $e0, $e0, $e0
+
+    Free_64_Bytes:
+        DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        DB 0, 0, 0, 0
+
+    LUT_Scanlines_HI:
+        DB $40, $41, $42, $43, $44, $45, $46, $47, $40, $41, $42, $43
+        DB $44, $45, $46, $47, $40, $41, $42, $43, $44, $45, $46, $47
+        DB $40, $41, $42, $43, $44, $45, $46, $47, $40, $41, $42, $43
+        DB $44, $45, $46, $47, $40, $41, $42, $43, $44, $45, $46, $47
+        DB $40, $41, $42, $43, $44, $45, $46, $47, $40, $41, $42, $43
+        DB $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f
+        DB $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $48, $49, $4a, $4b
+        DB $4c, $4d, $4e, $4f, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f
+        DB $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $48, $49, $4a, $4b
+        DB $4c, $4d, $4e, $4f, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f
+        DB $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53
+        DB $54, $55, $56, $57, $50, $51, $52, $53, $54, $55, $56, $57
+        DB $50, $51, $52, $53, $54, $55, $56, $57, $50, $51, $52, $53
+        DB $54, $55, $56, $57, $50, $51, $52, $53, $54, $55, $56, $57
+        DB $50, $51, $52, $53, $54, $55, $56, $57, $50, $51, $52, $53
+        DB $54, $55, $56, $57, $50, $51, $52, $53, $54, $55, $56, $57
+
+Finalmente, veamos si ha merecido la pena el cambio a 2 tablas analizando la nueva rutina de cálculo de dirección:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Get_Pixel_Offset_LUT_2(x,y):
+    ;
+    ; Entrada:  B = Y,  C = X
+    ; Salida:   HL = Direccion de memoria del pixel (x,y)
+    ;            A = Posicion relativa del pixel en el byte
+    ;-------------------------------------------------------------
+    Get_Pixel_Offset_LUT_2:
+        ld a, c                       ; Ponemos en A la X
+        rra
+        rra
+        rra                           ; A = ???CCCCC
+        and %00011111                 ; A = 000CCCCCb
+        ld l, b                       ; B = coordenada Y
+        ld h, Scanline_Offsets/256    ; Parte alta de la dir de tabla
+        add a, (hl)                   ; A = columna + tabla_baja[linea]
+        inc h                         ; saltamos a la siguiente tabla
+        ld h, (hl)                    ; cargamos en H la parte alta
+        ld l, a                       ; cargamos en L la parte baja
+        ld a, c                       ; Recuperamos la coordenada (X)
+        and %00000111                 ; A = Posicion relativa del pixel
+        ret
+
+El coste de ejecución de esta rutina es de 77 t-estados, incluyendo el RET, la conversión de “X” en “Columna” y la obtención de la posición relativa del pixel. 
+
+
+Cálculos contra Tablas
+--------------------------------------------------------------------------------
+
+
+
+Como casi siempre en código máquina, nos vemos forzados a elegir entre velocidad y tamaño: las rutinas basadas en tablas son generalmente más rápidas al evitar muchos cálculos, pero a cambio necesitamos ubicar en memoria dichas tablas. Por contra, las rutinas basadas en cálculos ocupan mucho menos tamaño en memoria pero requieren más tiempo de ejecución.
+
+Debemos elegir uno u otro sistema en función de las necesidades y requerimientos de nuestro programa: si disponemos de poca memoria libre y el tiempo de cálculo individual es suficiente, optaremos por la rutina de composición. Si, por contra, la cantidad de memoria libre no es un problema y sí que lo es el tiempo de cálculo, usaremos las rutinas basadas en tablas.
+
+Los programadores debemos muchas veces determinar si una rutina es crítica o no según la cantidad de veces que se ejecute en el “bucle principal” y el porcentaje de tiempo que su ejecución supone en el programa.
+
+Por ejemplo, supongamos una rutina de impresión de sprites de 3×3 bloques: aunque el tiempo de dibujado de los sprites en sí de un juego sea crítico, el posicionado en pantalla para cada sprite sólo se realiza una vez (para su esquina superior izquierda) frente a toda la porción de código que debe imprimir los 9 caracteres (9*8 bytes en pantalla) más sus atributos, con sus correspondientes rotaciones si el movimiento es pixel a pixel. El movimiento entre los diferentes bloques del sprite se realiza normalmente de forma diferencial. Probablemente, invertir “tiempo” para optimizar o “memoria” para tener tablas de precalculo sea más aconsejable en el cuerpo de la rutina de sprites o en tablas de sprites pre-rotados que en la coordenación en sí misma.
+
+La diferencia entre rutinas de tablas y de cálculos se resume en la siguiente tabla: 
+
++----------+-----------------------+-----------------------------------+-----------------------------------------------+-----------------+
+|  Rutina  | Tiempo de ejecución   | Bytes rutina                      |                  Bytes adicionales            | Tamaño Total    |
++==========+=======================+===================================+===============================================+=================+
+| Cálculo  | 118 t-estados         |         32                        |                          Ninguno              |         32      |
++----------+-----------------------+-----------------------------------+-----------------------------------------------+-----------------+
+| Tablas   |         77 t-estados  |         17 GetOffset + 32 GenLUT  | 448 (384 si aprovechamoslos 64 entre tablas)  | 443 - 487 bytes |
++----------+-----------------------+-----------------------------------+-----------------------------------------------+-----------------+

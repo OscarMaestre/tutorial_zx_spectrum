@@ -27,7 +27,7 @@ Veamos un ejemplo de etiqueta en un programa ensamblador:
     bucle:
         LD A, 20
         NOP
-        (...)
+        ...
         JP bucle
         RET
 
@@ -58,17 +58,14 @@ Concretamente:
 +-----------+----------+------------------+
 
 
-Si mostramos las direcciones de memoria en que se ensambla cada instrucción, veremos:
+Si mostramos las direcciones de memoria en que se ensambla cada instrucción, veremos::
 
-.. code-block:: tasm
-
-    50000   NOP              ; (opcode = 1 byte)
-    50001   LD B, 10         ; (opcode = 2 bytes)
-    50003   LD A, 20         ; (opcode = 2 bytes)
-    50005   NOP              ; (opcode = 1 byte)
-    50005   (más código)
-    50006   (más código)
-    .....
+    50000   NOP              ; opcode = 1 byte
+    50001   LD B, 10         ; opcode = 2 bytes
+    50003   LD A, 20         ; opcode = 2 bytes
+    50005   NOP              ; opcode = 1 byte
+    50005   más código
+    50006   más código
     50020   JP bucle
     50023   RET
 
@@ -90,17 +87,15 @@ Pero, entonces, ¿para qué nos sirve la etiqueta? Sencillo: para poder hacer re
 
 El siguiente programa es equivalente al anterior, pero sin usar etiquetas:
 
-.. code-block:: tasm
     
     ORG 50000
-
-    NOP
-    LD B, 10
-    LD A, 20
-    NOP
-    (...)
-    JP 50003
-    RET
+        NOP
+        LD B, 10
+        LD A, 20
+        NOP
+        continúa...
+        JP 50003
+        RET
 
 En este caso, "JP 50003" no permite distinguir rápidamente a qué instrucción vamos a saltar, mientras que la etiqueta "bucle" que utilizamos en el anterior ejemplo marcaba de forma indiscutible el destino del salto.
 
@@ -974,11 +969,11 @@ Veamos un ejemplo práctico con CPIR. El código que veremos a continuación rea
         CPIR             ; Realizamos la búsqueda
         
         JP NZ, No_Hay    ; Si no encontramos el caracter buscado
-                            ; el flag de Z estará a cero.
+        ; el flag de Z estará a cero.
         
-                            ; Si seguimos por aquí es que se encontró
+        ; Si seguimos por aquí es que se encontró
         DEC HL           ; Decrementamos HL para apuntar al byte
-                            ; encontrado en memoria.
+        ; encontrado en memoria.
         
         LD BC, texto
         SCF              

@@ -1146,9 +1146,9 @@ Obtención y uso de la Máscara de Pixel
 
 Nuestra rutina de coordenación nos devuelve en HL la dirección de memoria que contiene el pixel (x,y) y en A la posición relativa del pixel dentro de dicha dirección.
 
-Para poder modificar el pixel exacto al que hacen referencia la pareja de datos HL y A resulta necesario convertir A en una “máscara de pixel” que nos permita manipular la memoria con sencillas operaciones lógicas sin afectar al estado de los demás píxeles.
+Para poder modificar el pixel exacto al que hacen referencia la pareja de datos HL y A resulta necesario convertir A en una "máscara de pixel" que nos permita manipular la memoria con sencillas operaciones lógicas sin afectar al estado de los demás píxeles.
 
-Esta “máscara de pixel” tiene activo el bit 8-pixel ya que el pixel 0 es el pixel de más a la izquierda de los 8, es decir, el bit 7 de la dirección: 
+Esta "máscara de pixel" tiene activo el bit 8-pixel ya que el pixel 0 es el pixel de más a la izquierda de los 8, es decir, el bit 7 de la dirección: 
 
 +-------------+----+----+----+----+----+----+----+----+
 | Bit activo  | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
@@ -1197,7 +1197,7 @@ La porción de código que hace esta conversión es la siguiente:
 
 
 
-La rutina pone A a cero y establece el Carry Flag a 1, por lo que la primera ejecución de RRA (que siempre se realizará) ubica el 1 del CF en el bit 7 de A. A continuación el DJNZ que se realiza “B” veces mueve ese bit a 1 a la derecha (también “B” veces) dejando A con el valor adecuado según la tabla que acabamos de ver. 
+La rutina pone A a cero y establece el Carry Flag a 1, por lo que la primera ejecución de RRA (que siempre se realizará) ubica el 1 del CF en el bit 7 de A. A continuación el DJNZ que se realiza "B" veces mueve ese bit a 1 a la derecha (también "B" veces) dejando A con el valor adecuado según la tabla que acabamos de ver. 
 
 
 
@@ -1307,11 +1307,11 @@ El cálculo de memoria y la escritura de un pixel quedaría pues de la siguiente
   ld (hl), a                 ; Activamos pixel
 
 
-La primera pregunta que nos planteamos es, si es imprescindible disponer de una máscara de pixel para dibujar o borrar píxeles, ¿por qué no incluir este código de rotación de A directamente en la rutina de coordenación? La respuesta es, “depende de para qué vayamos a utilizar la rutina”.
+La primera pregunta que nos planteamos es, si es imprescindible disponer de una máscara de pixel para dibujar o borrar píxeles, ¿por qué no incluir este código de rotación de A directamente en la rutina de coordenación? La respuesta es, "depende de para qué vayamos a utilizar la rutina".
 
 Si la rutina va a ser utilizada principalmente para trazar píxeles, resultará conveniente incorporar al final de Get_Pixel_Offset_HR() el cálculo de la máscara, y devolver en A dicha máscara en lugar de la posición relativa del pixel.
 
-Pero lo normal en el desarrollo de programas y juegos es que utilicemos la rutina de coordenación para obtener la posición inicial en la que comenzar a trazar sprites, bloques (del mapeado), fuentes de texto, marcadores. En ese caso es absurdo emplear “ciclos de reloj” adicionales para el cálculo de una máscara que sólo se utiliza en el trazado de puntos. En esas circunstancias resulta mucho más útil disponer de la posición relativa del pixel, para, como ya hemos comentado, conocer la cantidad de bits que necesitamos rotar estos datos gráficos antes de su trazado.
+Pero lo normal en el desarrollo de programas y juegos es que utilicemos la rutina de coordenación para obtener la posición inicial en la que comenzar a trazar sprites, bloques (del mapeado), fuentes de texto, marcadores. En ese caso es absurdo emplear "ciclos de reloj" adicionales para el cálculo de una máscara que sólo se utiliza en el trazado de puntos. En esas circunstancias resulta mucho más útil disponer de la posición relativa del pixel, para, como ya hemos comentado, conocer la cantidad de bits que necesitamos rotar estos datos gráficos antes de su trazado.
 
 Por ese motivo, no hemos agregado esta pequeña porción de código a la rutina de Get_Pixel_Offset, siendo el programador quien debe decidir en qué formato quiere obtener la salida de la rutina.
 
@@ -1446,7 +1446,7 @@ La ejecución del anterior programa nos dejará la siguiente información gráfi
    Información gráfica en pantalla
 
 
-Nótese que la rutina de la ROM nos devuelve en A la posición relativa del pixel cuyas coordenadas hemos proporcionado, por lo que podemos convertir A en una máscara de pixel a la salida de la rutina encapsulando PIXEL-ADDRESS en una rutina “propia” que haga ambas operaciones, a cambio de 2 instrucciones extras (un call y un RET adicionales):
+Nótese que la rutina de la ROM nos devuelve en A la posición relativa del pixel cuyas coordenadas hemos proporcionado, por lo que podemos convertir A en una máscara de pixel a la salida de la rutina encapsulando PIXEL-ADDRESS en una rutina "propia" que haga ambas operaciones, a cambio de 2 instrucciones extras (un call y un RET adicionales):
 
 
 
@@ -1487,7 +1487,7 @@ En nuestro caso, crearíamos una Lookup Table (LUT) que se indexaría mediante l
     DIRECCION_DESTINO  = Tabla_Offsets_Linea[Y] + (X/8)
     PIXEL_EN_DIRECCION = Resto(X/8) = X AND %00000111
 
-La tabla de offsets de cada inicio de línea tendría 192 elementos de 2 bytes (tamaño de una dirección), por lo que ocuparía en memoria 384 bytes. A cambio de esta “elevada” ocupación en memoria, podemos obtener rutinas más rápidas que las de composición de las coordenadas.
+La tabla de offsets de cada inicio de línea tendría 192 elementos de 2 bytes (tamaño de una dirección), por lo que ocuparía en memoria 384 bytes. A cambio de esta "elevada" ocupación en memoria, podemos obtener rutinas más rápidas que las de composición de las coordenadas.
 
 A continuación se muestra la tabla de offsets precalculados::
 
@@ -1567,7 +1567,7 @@ La tabla ha sido generada mediante el siguiente script en python:
         print
 
 
-La tabla de valores DW estaría incorporada en nuestro programa y por tanto pasaría a formar parte del “binario final”, incluyendo en este aspecto la necesidad de carga desde cinta.
+La tabla de valores DW estaría incorporada en nuestro programa y por tanto pasaría a formar parte del "binario final", incluyendo en este aspecto la necesidad de carga desde cinta.
 
 Si por algún motivo no queremos incluir la tabla en el listado, podemos generarla en el arranque de nuestro programa en alguna posición de memoria libre o designada a tal efecto mediante la siguiente rutina:
 
@@ -1798,7 +1798,7 @@ Si necesitaramos reservar espacio en nuestro programa para después generar la t
     Scanline_Offsets:
         DS 448, 0
 
-También podemos incluir las 2 tablas “inline” en nuestro programa, y además sin necesidad de conocer la dirección de memoria en que están (por ejemplo, embedidas dentro del código del programa en la siguiente dirección múltiplo de 256 disponible) aprovechando el soporte de macros del ensamblador PASMO::
+También podemos incluir las 2 tablas "inline" en nuestro programa, y además sin necesidad de conocer la dirección de memoria en que están (por ejemplo, embedidas dentro del código del programa en la siguiente dirección múltiplo de 256 disponible) aprovechando el soporte de macros del ensamblador PASMO::
 
 
     ; Macro de alineacion para PASMO
@@ -1883,7 +1883,7 @@ Finalmente, veamos si ha merecido la pena el cambio a 2 tablas analizando la nue
         and %00000111                 ; A = Posicion relativa del pixel
         ret
 
-El coste de ejecución de esta rutina es de 77 t-estados, incluyendo el RET, la conversión de “X” en “Columna” y la obtención de la posición relativa del pixel. 
+El coste de ejecución de esta rutina es de 77 t-estados, incluyendo el RET, la conversión de "X" en "Columna" y la obtención de la posición relativa del pixel. 
 
 
 Cálculos contra Tablas
@@ -1895,9 +1895,9 @@ Como casi siempre en código máquina, nos vemos forzados a elegir entre velocid
 
 Debemos elegir uno u otro sistema en función de las necesidades y requerimientos de nuestro programa: si disponemos de poca memoria libre y el tiempo de cálculo individual es suficiente, optaremos por la rutina de composición. Si, por contra, la cantidad de memoria libre no es un problema y sí que lo es el tiempo de cálculo, usaremos las rutinas basadas en tablas.
 
-Los programadores debemos muchas veces determinar si una rutina es crítica o no según la cantidad de veces que se ejecute en el “bucle principal” y el porcentaje de tiempo que su ejecución supone en el programa.
+Los programadores debemos muchas veces determinar si una rutina es crítica o no según la cantidad de veces que se ejecute en el "bucle principal" y el porcentaje de tiempo que su ejecución supone en el programa.
 
-Por ejemplo, supongamos una rutina de impresión de sprites de 3×3 bloques: aunque el tiempo de dibujado de los sprites en sí de un juego sea crítico, el posicionado en pantalla para cada sprite sólo se realiza una vez (para su esquina superior izquierda) frente a toda la porción de código que debe imprimir los 9 caracteres (9*8 bytes en pantalla) más sus atributos, con sus correspondientes rotaciones si el movimiento es pixel a pixel. El movimiento entre los diferentes bloques del sprite se realiza normalmente de forma diferencial. Probablemente, invertir “tiempo” para optimizar o “memoria” para tener tablas de precalculo sea más aconsejable en el cuerpo de la rutina de sprites o en tablas de sprites pre-rotados que en la coordenación en sí misma.
+Por ejemplo, supongamos una rutina de impresión de sprites de 3×3 bloques: aunque el tiempo de dibujado de los sprites en sí de un juego sea crítico, el posicionado en pantalla para cada sprite sólo se realiza una vez (para su esquina superior izquierda) frente a toda la porción de código que debe imprimir los 9 caracteres (9*8 bytes en pantalla) más sus atributos, con sus correspondientes rotaciones si el movimiento es pixel a pixel. El movimiento entre los diferentes bloques del sprite se realiza normalmente de forma diferencial. Probablemente, invertir "tiempo" para optimizar o "memoria" para tener tablas de precalculo sea más aconsejable en el cuerpo de la rutina de sprites o en tablas de sprites pre-rotados que en la coordenación en sí misma.
 
 La diferencia entre rutinas de tablas y de cálculos se resume en la siguiente tabla: 
 
@@ -1908,3 +1908,462 @@ La diferencia entre rutinas de tablas y de cálculos se resume en la siguiente t
 +----------+-----------------------+-----------------------------------+-----------------------------------------------+-----------------+
 | Tablas   |         77 t-estados  |         17 GetOffset + 32 GenLUT  | 448 (384 si aprovechamoslos 64 entre tablas)  | 443 - 487 bytes |
 +----------+-----------------------+-----------------------------------+-----------------------------------------------+-----------------+
+
+
+Cálculo de posiciones de posiciones diferenciales de pixel
+--------------------------------------------------------------------------------
+
+
+
+Los cálculos de las posiciones de píxeles en alta resolución son "costosos" por lo que a la hora de dibujar sprites, líneas, círculos o cualquier otra primitiva gráfica, lo normal es realizar el cálculo de una posición inicial y moverse diferencialmente respecto a la misma.
+
+Para eso se utilizan rutinas de posicionamiento diferencial como las que ya vimos en los atributos o en baja resolución que nos permitan movernos a cualquiera de los 8 píxeles de alrededor de la dirección HL y posición de pixel que estamos considerando.
+
+
+Offset del pixel de la izquierda/derecha
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+En el caso de la coordenación por caracteres (baja resolución), nos bastaba con decrementar o incrementar HL para ir al carácter siguiente o anterior. En este caso, debemos tener en cuenta que cada byte contiene 8 píxeles, por lo que se hace necesaria una máscara de pixel para referenciar a uno u otro bit dentro del byte apuntado por HL.
+
+Teniendo una máscara de pixel en A, las rutinas de cálculo del pixel a la izquierda y a la derecha del pixel actual se basarían en la ROTACIÓN de dicha máscara comprobando las situaciones especiales en las 2 situaciones especiales que se pueden presentar:
+
+* El pixel se encuentra en 10000000b y queremos acceder al pixel de la izquierda.
+* El pixel se encuentra en 00000001b y queremos acceder al pixel de la derecha.
+
+En esos casos se podría utilizar el incremento y decremento de la posición de HL:
+
+
+
+.. code-block:: tasm
+
+
+    ; HL = Direccion de pantalla base
+    ; A = Mascara de pixeles
+    
+    Pixel_Izquierda_HL_Mask:
+        rlc a                    ; Rotamos A a la izquierda
+        ret nc                   ; Si no se activa el carry flag, volvemos
+        dec l                    ; Si se activa, hemos pasado de 10000000b
+        ret                      ; a 00000001b y ya podemos alterar HL
+    
+    Pixel_Derecha_HL_Mask:
+        rrc a                    ; Rotamos A a la derecha
+        ret nc                   ; Si no se activa el carry flag, volvemos
+        inc l                    ; Si se activa, hemos pasado de 00000001b
+        ret                      ; a 10000000b y ya podemos alterar HL
+
+Son apenas 4 instrucciones, lo que resulta en un cálculo significativamente más rápido que volver a llamar a la rutina de coordenación original.
+
+Nótese cómo en lugar de utilizar dec hl o inc hl (6 t-estados), realizamos un dec l o inc l (4 t-estados), ya que dentro de un mismo scanline de pantalla no hay posibilidad de, moviendo a derecha o izquierda, variar el valor del byte alto de la dirección (siempre y cuando no excedamos los límites de la pantalla por la izquierda o por la derecha). De esta forma ahorramos 2 valiosos ciclos de reloj en una operación que suele realizarse en el bucle más interno de las rutinas de impresión de sprites.
+
+Si en lugar de una máscara de pixel tenemos en A la posición relativa (0-7), podemos utilizar el siguiente código:
+
+
+
+.. code-block:: tasm
+
+
+    ; HL = Direccion de pantalla base
+    ; A = Posicion relativa del pixel (0=Pixel de la izquierda)
+    
+    Pixel_Derecha_HL_Rel:
+        inc a                    ; Incrementamos A
+        and %00000111            ; Si A=8 -> A=0
+        ret nz                   ; Si no es cero, hemos acabado
+        inc l                    ; Si se activa, hemos pasado al byte
+        ret                      ; siguiente -> alterar HL
+    
+    Pixel_Izquierda_HL_Rel:
+        dec a                    ; Decrementamos A
+        ret p                    ; Si no hay overflow (A de 0 a 255), fin
+        and %00000111            ; 11111111b -> 00000111b
+        dec l                    ; Hemos pasado al byte siguiente ->
+        ret                      ; alteramos HL
+
+Recordemos que ninguna de estas rutinas contempla los líneas izquierdo y derecho de la pantalla.
+
+
+Offset del pixel del scanline de arriba/abajo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Moverse un scanline arriba o abajo requiere código adicional, como ya vimos en el apartado de coordenadas de caracteres, para detectar tanto los cambios de tercios como los cambios de caracteres. 
+
++---------+-----------------+-----------------+-------------------+---------------------+-----------------+
+| Bits =  | Dirección VRAM  | Bits de Tercio  | Bits de scanline  | Bits de Carácter-Y  | Bits de Columna |
++=========+=================+=================+===================+=====================+=================+
+| HL =    | 010             | TT              | SSS               | NNN                 | CCCCC           |
++---------+-----------------+-----------------+-------------------+---------------------+-----------------+
+
+
+Primero debemos detectar si estamos en el último scanline del carácter, ya que avanzar 1 scanline implicaría poner SSS a 000 e incrementar NNN (carácter dentro del tercio). Al incrementar NNN (carácter dentro del tercio) tenemos que verificar también si NNN pasa de 111 a 1000 lo que supone un cambio de tercio:
+
+El código para incrementar HL hacia el siguiente scanline horizontal detectando los saltos de tercio y de carácter sería el siguiente:
+
+
+
+.. code-block:: tasm
+
+
+    ; Avanzamos HL 1 scanline:
+        inc h                    ; Incrementamos HL en 256 (siguiente scanline)
+        ld a, h                  ; Cargamos H en A
+        and %00000111            ; Si despues del inc h los 3 bits son 0,
+                                ; es porque era 111b y ahora 1000b.
+        jr nz, nofix_abajop      ; Si no es cero, hemos acabado (solo inc h).
+        ld a, l                  ; Es cero, hemos pasado del scanline 7 de un
+                                ; caracter al 0 del siguiente: ajustar NNN
+        add a, %00100000         ; Ajustamos NNN (caracter dentro de tercio += 1)
+        ld l, a                  ; Ahora hacemos la comprobacion de salto de tercio
+        jr c, nofix_abajop       ; Si esta suma produce acarreo, habria que ajustar
+                                ; tercio, pero ya lo hizo el inc h (111b -> 1000b)
+        ld a, h                  ; Si no produce acarreo, no hay que ajustar
+        sub %00001000            ; tercio, por lo que restamos el bit TT que sumo
+        ld h, a                  ; el inc h inicial.
+    
+    nofix_abajop:
+        ; HL contiene ahora la direccion del siguiente scanline
+        ; ya sea del mismo caracter o el scanline 0 del siguiente.
+
+Y para retroceder HL en 1 scanline, usando la misma técnica:
+
+
+
+.. code-block:: tasm
+
+
+        ld a, h
+        and %00000111            ; Comprobamos scanline
+        jr z, Anterior_SL_DEC    ; Si es cero, hay salto de caracter
+        dec h                    ; No es cero, basta HL = HL - 256
+        ret                      ; Hemos acabado (solo inc h).
+    Anterior_SL_DEC:             ; Hay que ir de caracter 000b a 111b
+        dec h                    ; Decrementamos H
+        ld a, l                  ; Ajustamos NNN (caracter en tercio -=1)
+        sub %00100000            ; -32
+        ld l, a
+        ret c                    ; Si se produjo carry, no hay que ajustar
+        ld a, h                  ; Se produjo carry, ajustamos el tercio
+        add a, %00001000         ; por el dec h inicial. (+8)
+        ld h, a
+
+Veamos este mismo código en forma de subrutina, aprovechando con RET la posibilidad de evitar los saltos hacia el final de las rutinas:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Siguiente_Scanline_HL:
+    ; Obtener la direccion de memoria del siguiente scanline dada
+    ; en HL la direccion del scanline actual, teniendo en cuenta
+    ; saltos de caracter y de tercio.
+    ;
+    ; Entrada:   HL = Direccion del scanline actual
+    ; Salida:    HL = Direccion del siguiente scanline
+    ;-------------------------------------------------------------
+    Siguiente_Scanline_HL:
+        inc h
+        ld a, h
+        and %00000111
+        ret nz
+        ld a, l
+        add a, %00100000         ; +32
+        ld l, a
+        ret c
+        ld a, h
+        sub %00001000            ; -8
+        ld h, a
+        ret                      ; Devolvemos en HL el valor ajustado
+
+La rutina para retroceder al scanline superior es de similar factura, con una pequeña reorganización del código para evitar el salto con jr:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Anterior_Scanline_HL:
+    ; Obtener la direccion de memoria del anterior scanline dada
+    ; en HL la direccion del scanline actual, teniendo en cuenta
+    ; saltos de caracter y de tercio.
+    ;
+    ; Entrada:   HL = Direccion del scanline actual
+    ; Salida:    HL = Direccion del anterior scanline
+    ;-------------------------------------------------------------
+    Anterior_Scanline_HL:
+        ld a, h
+        dec h
+        and %00000111
+        ret nz
+        ld a, %00001000          ; A = 8
+        add a, h
+        ld h, a
+        ld a, l
+        sub %00100000            ; -32
+        ld l, a
+        ret nc
+        ld a, h
+        sub %00001000            ; -8
+        ld h, a
+        ret                      ; Devolvemos en HL el valor ajustado
+
+La rutina Siguiente_Scanline_HL será especialmente útil en el desarrollo de rutinas de impresión de Sprites, aunque lo normal es que incluyamos el código "inline" dentro de dichas rutinas, para ahorrar los ciclos de reloj usandos en un call+ret.
+
+
+Otras rutinas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+Rutinas cruzadas y de propósito general
+
+En el libro "Lenguaje Máquina Avanzado para ZX Spectrum" de David Webb encontramos 3 rutinas útiles de propósito general para obtener el offset en el área de imagen dada una dirección de atributo o viceversa.
+
+La primera subrutina obtiene la dirección del atributo que corresponde a una dirección de pantalla especificada:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Attr_Offset_From_Image (DF-ATT):
+    ;
+    ; Entrada:  HL = Direccion de memoria de imagen.
+    ; Salida:   DE = Direccion de atributo correspondiente a HL.
+    ;-------------------------------------------------------------
+    Attr_Offset_From_Image:
+        ld a, h
+        rrca
+        rrca
+        rrca
+        and %00000011
+        or %01011000
+        ld d, a
+        ld e, l
+        ret
+
+La segunda realiza el proceso inverso: obtiene la dirección del archivo de imagen dada una dirección de atributo. Esta dirección se corresponde con la dirección de los 8 píxeles del primer scanline del carácter.
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Image_Offset_From_Attr (ATT_DF):
+    ;
+    ; Entrada:  HL = Direccion de memoria de atributo.
+    ; Salida:   DE = Direccion de imagen correspondiente a HL.
+    ;-------------------------------------------------------------
+    Image_Offset_From_Attr:
+        ld a, h
+        and %00000011
+        rlca
+        rlca
+        rlca
+        or %01000000
+        ld d, a
+        ld e, l
+        ret
+
+La tercera es una combinación de localización de offset de imagen, de atributo, y el valor del atributo:
+
+
+
+.. code-block:: tasm
+
+
+    ;-------------------------------------------------------------
+    ; Get_Char_Data(c,f) (LOCATE):
+    ;
+    ; Entrada:  B = FILA, C = COLUMNA
+    ; Salida:   DE = Direccion de atributo.
+    ;           HL = Direccion de imagen.
+    ;           A = Atributo de (C,F)
+    ;-------------------------------------------------------------
+    Get_Char_Data:
+        ld a, b
+        and %00011000
+        ld h, a
+        set 6, h
+        rrca
+        rrca
+        rrca
+        or %01011000
+        ld d, a
+        ld a, b
+        and %00000111
+        rrca
+        rrca
+        rrca
+        add a, c
+        ld l, a
+        ld e, a
+        ld a, (de)
+        ret
+
+Llamando a la anterior rutina con unas coordenadas (c,f) en C y B obtenemos la dirección de memoria de imagen (HL) y de atributo (DE) de dicho carácter, así como el valor del atributo en sí mismo (A).
+
+
+Optimizaciones para Get_Pixel_Offset_HR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+En ocasiones se puede reescribir una rutina de otra forma para ser ligeramente más eficiente, y las rutinas relacionadas con los gráficos (tanto "dibujar" gráficos como calcular la posición de dibujado) es una firma candidata a optimizarla todo lo posible.
+
+
+Dean Belfield, en su página L Break Into Program nos proporciona la siguiente rutina optimizada para obtener la dirección de memoria de un pixel dadas su coordenadas (x,y) que requiere 117 t-estados, a costa de no devolvernos la posición relativa del pixel:
+
+
+
+
+.. code-block:: tasm
+
+
+    ; Get screen address - by Dean Belfield
+    ;
+    ;  B = Y pixel position
+    ;  C = X pixel position
+    ;  Returns address in HL
+    Get_Pixel_Address:
+        ld a, b                  ; Calculate Y2,Y1,Y0
+        and %00000111            ; Mask out unwanted bits
+        or %01000000             ; Set base address of screen
+        ld h, a                  ; Store in H
+        ld a, b                  ; Calculate Y7,Y6
+        rra                      ; Shift to position
+        rra
+        rra
+        and %00011000            ; Mask out unwanted bits
+        or h                     ; OR with Y2,Y1,Y0
+        ld h, a                  ; Store in H
+        ld a, b                  ; Calculate Y5,Y4,Y3
+        rla                      ; Shift to position
+        rla
+        and %11100000            ; Mask out unwanted bits
+        ld l, a                  ; Store in L
+        ld a, c                  ; Calculate X4,X3,X2,X1,X0
+        rra                      ; Shift into position
+        rra
+        rra
+        and %00011111            ; Mask out unwanted bits
+        or l                     ; OR with Y5,Y4,Y3
+        ld l, a                  ; Store in L
+        ret
+
+Finalmente, David Black en su web Overtaken by events nos ofrece la siguiente rutina de 105 t-estados y 26 bytes:
+
+
+
+
+.. code-block:: tasm
+
+
+    ; Get screen address - by David Black
+    ;  B = Y pixel position
+    ;  C = X pixel position
+    ; Returns address in HL
+    Get_Screen_Address:
+        ld a,b 	                 ; Work on the upper byte of the address
+        and %00000111                ; a = Y2 Y1 y0
+        or %01000000                 ; first three bits are always 010
+        ld h,a 	                 ; store in h
+        ld a,b 	                 ; get bits Y7, Y6
+        rra 	                 ; move them into place
+        rra
+        rra
+        and %00011000                ; mask off
+        or h 	                 ; a = 0 1 0 Y7 Y6 Y2 Y1 Y0
+        ld h,a 	                 ; calculation of h is now complete
+        ld a,b 	                 ; get y
+        rla
+        rla
+        and %11100000                ; a = y5 y4 y3 0 0 0 0 0
+        ld l,a 	                 ; store in l
+        ld a,c
+        and %00011111                ; a = X4 X3 X2 X1
+        or l 	                 ; a = Y5 Y4 Y3 X4 X3 X2 X1
+        ld l,a 	                 ; calculation of l is complete
+        ret
+
+Utilizando tablas, en esta misma web podemos ver las siguientes 2 aproximaciones de Patrick Prendergast en base a organizar los datos en memoria alineándolos de una forma que "desperdiciamos" memoria a cambio de que las rutinas sean más rápidas por cómo están alineados esos datos:
+
+
+
+.. code-block:: tasm
+
+
+    ; Store the LUT table in the format "y5 y4 y3 y7 y6 y2 y1 y0"
+    ; Lower 5 bits where you need them for y and upper 3 bits to mask
+    ; out to OR with X (which are replaced with 010 anyway).
+    ; This way you'd only need 192 bytes for the table, which could be
+    ; page-aligned for speed. You'd be looking at 69 cycles por request
+    ; and 16 + 192 for the code + table.
+    ;
+    ; By Patrick Prendergast.
+    
+    ; b = y, c = x
+    getScreenAddress:
+        ld h,tbl >> 8
+        ld l,b
+        ld h,(hl)
+        ld a,%11100000
+        and h
+        or c
+        ld l,a
+        ld a,%00011111
+        and h
+        or %01000000
+        ld h,a
+        ret
+    
+    tbl: ; y5 y4 y3 y7 y6 y2 y1 y0
+        .db 0,1,2,3,4,5,6,7,32,33...
+    
+    
+    ; Option 2: if you are willing to [potentially] sacrifice
+    ; some space for speed, you can divide the table so that
+    ; you have the low and high bytes of your address list in
+    ; 2 independent tables and have them both page aligned -
+    ; with the low byte first in memory.
+    ; This would completely remove to need to calc y*2 to get
+    ; to your table offset.
+    ; This would require 64 bytes of padding after the 1st table
+    ; (due to both tables being page aligned) meaning you would
+    ; need 448 bytes all up. That being said the 64 bytes of
+    ; padding space is not needed so you can include any other
+    ; data you might need there so it's not wasted.
+    ; Then you would only need 47 cycles to lookup your address!
+    ;
+    ; By Patrick Prendergast.
+    
+    ; b = y, c = x
+    getScreenAddress:
+        ld h,tblLow >> 8
+        ld l,b
+        ld a,(hl)
+        inc h
+        ld h,(hl)
+        or c
+        ld l,a
+        ret
+    
+        ALIGN 256
+    tblLow: ; (ADDR & 0xFF)
+        .db 0,0,0,0,0,0,0,0,32,32,32...
+    
+        ALIGN 256
+    tblHigh: ; (ADDR >> 8)
+        .db 64,65,66,67,68,69,70,71,64,65,66...
+
+Estas rutinas son realmente rápidas, teniendo la segunda un coste de sólo 47 t-estados por cálculo de dirección, a costa de ocupar más espacio por separar la parte alta y la parte baja de la tabla precalculada, y alinearlas en memoria en un múltiplo de 256 para evitar cálculos.
+

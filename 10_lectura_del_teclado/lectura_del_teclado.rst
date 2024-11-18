@@ -726,7 +726,7 @@ La forma en que se debe llamar a esta rutina sería la siguiente:
         CALL Check_Key
         JR C, izq_no_pulsada            ; Carry = 1, tecla no pulsada
         
-        (acciones a realizar si se pulso izq)
+        acciones a realizar si se pulso izq
         
     izq_no_pulsada:
     
@@ -735,7 +735,7 @@ La forma en que se debe llamar a esta rutina sería la siguiente:
         CALL Check_Key
         JR C, der_no_pulsada            ; Carry = 1, tecla no pulsada
         
-    (acciones a realizar si se pulso der)
+    acciones a realizar si se pulso der
     
     ; Repetir para arriba, abajo, disparo, etc.
 

@@ -327,16 +327,17 @@ En el caso del Spectrum con la ULA como (habitualmente) único dispositivo que i
 Como ya hemos comentado antes, EI no activa las interrupciones al acabar su ejecución, sino al acabar la ejecución de la siguiente instrucción. El motivo de esto es evitar que se pueda recibir una interrupción estando dentro de una ISR entre el EI y el RET:
 
 
+
+
 .. code-block:: tasm
 
     Nuestra_ISR:
         PUSH HL
-    
-        (código de la ISR)
-    
+        código de la ISR
         POP HL
         EI
         RETI
+        
 
 Si EI habilitar las interrupciones de forma instantánea y se recibiera una interrupción entre la instrucción EI y el RETI, se volvería a entrar en la ISR, y por lo tanto se volvería a realizar el PUSH de PC y el PUSH de HL, rompiendo el flujo correcto del programa. Por contra, tal y como funciona EI sólo se habilitarán de nuevo las interrupciones tras la ejecución de RETI y la recuperación de PC de la pila, permitiendo así la ejecución de una nueva interrupción sin corromper el contenido del stack.
 
@@ -352,38 +353,40 @@ La ISR de IM 1
 A modo de curiosidad, vamos a ver el código de la ISR que se ejecuta en modo 1 (RST $38), tomado del documento The Complete Spectrum ROM Disassembly con alguna modificación en los comentarios:
 
 
+
 .. code-block:: tasm
-        
-    ; THE 'MASKABLE INTERRUPT' ROUTINE
-    ; The real time clock (FRAMES) is incremented and the keyboard
+
+
+
+    ; THE MASKABLE INTERRUPT ROUTINE
+    ; The real time clock FRAMES is incremented and the keyboard
     ; scanned whenever a maskable interrupt occurs.
     ;
-    ; FRAMES = 3 bytes variable.
-    
-    ; BYTES 1 & 2 FRAMES -> $5C78 and $5C79
-    ; BYTE 3 FRAMES      -> IY+40h = $5C7A
+    ; FRAMES = 3 bytes variable. 
+    ; BYTES 1 & 2 FRAMES - $5C78 and $5C79
+    ; BYTE 3 FRAMES      - IY+40h = $5C7A
     ;
-    0038 MASK-INT:
-                    PUSH  AF                  ; Save the current values held in
-                    PUSH  HL                  ; these registers.
-                    LD    HL,($5C78)          ; The lower two bytes of the
-    
-                    INC   HL                  ; frame counter are incremented (FRAMES)
-                    LD    ($5C78),HL          ; every 20 ms. (UK) -> INC BYTE_1_2(FRAMES)
-                    LD    A,H                 ; The highest byte of the frame counter is
-                    OR    L                   ; only incremented when the value
-                    JR    NZ,KEY-INT          ; of the lower two bytes is zero
-                    INC   (IY+40h)            ; INC BYTE_3(FRAMES) ($5C7A)
-    0048 KEY-INT:
-                    PUSH  BC                  ; Save the current values held
-                    PUSH  DE                  ; in these registers.
-                    CALL  KEYBOARD            ; Now scan the keyboard. (CALL $02BF)
-                    POP   DE                  ; Restore the values.
-                    POP   BC
-                    POP   HL
-                    POP   AF
-                    EI                        ; The maskable interrupt is en-
-                    RET                       ; abled before returning.
+    MASK-INT:
+        PUSH  AF                 ; Save the current values held in
+        PUSH  HL                 ; these registers.
+        LD    HL,($5C78)         ; The lower two bytes of the
+        INC   HL                 ; frame counter are incremented (FRAMES)
+        LD    ($5C78),HL         ; every 20 ms. (UK) -> INC BYTE_1_2(FRAMES)
+        LD    A,H                ; The highest byte of the frame counter is
+        OR    L                  ; only incremented when the value
+        JR    NZ,KEY-INT         ; of the lower two bytes is zero
+        INC   (IY+40h)           ; INC BYTE_3(FRAMES) ($5C7A)
+    KEY-INT:
+        PUSH  BC                  ; Save the current values held
+        PUSH  DE                  ; in these registers.
+        CALL  KEYBOARD            ; Now scan the keyboard. (CALL $02BF)
+        POP   DE                  ; Restore the values.
+        POP   BC
+        POP   HL
+        POP   AF
+        EI                        ; The maskable interrupt is en-
+        RET                       ; abled before returning.
+
 
 Nótese cómo la ISR del modo 1 se ajusta a lo visto hasta ahora: se preserva cualquier registro que pueda utilizarse dentro de la misma, se reduce el tamaño y tiempo de ejecución de la ISR en la medida de lo posible, y se vuelve con un EI+RET.
 
@@ -411,6 +414,7 @@ Para atender a las interrupciones generadas por la ULA (device_id $FF), tendremo
 
 El código resultante sería el siguiente:
 
+
 .. code-block:: tasm
 
     ; Instalando una ISR de atención a la ULA.
@@ -426,19 +430,16 @@ El código resultante sería el siguiente:
         IM 2                          ; Saltamos al modo de interrupciones 2
         EI
         
-        (resto programa)
+        resto programa
     
     
-    ;--- Rutina de ISR. ---------------------------------------------
+    ;--- Rutina de ISR. 
     ISR_ASM_ROUTINE:
         PUSH AF
         PUSH HL
-        
-        (código de la ISR)
-        
+        codigo de la ISR
         POP HL
         POP AF
-        
         EI
         RETI
 
@@ -881,9 +882,9 @@ A continuación podemos ver cómo sería el esqueleto del programa de ejemplo de
         IM 2                          ; Saltamos a IM2
         EI
         
-    : ---------------------------------------------------------------
-    ; (aqui insertamos el codigo del programa, incluidas subrutinas)
-    : ---------------------------------------------------------------
+    ; ---------------------------------------------------------------
+    ; aqui insertamos el codigo del programa, incluidas subrutinas
+    ; ---------------------------------------------------------------
     
     
     ; A continuación la rutina ISR, ensamblada en $F1F1:
@@ -1054,16 +1055,17 @@ Así, por ejemplo, se puede escribir una rutina IM 2 para un programa de 16K, as
 
     LD I, 40
     IM 2
-    ... resto del programa...
+    
+    resto del programa
 
     ORG 32348
-    ...aqui va la ISR...
+       aqui va la ISR
 
-    Aunque se use este sistema, hay aún un "peligro" oculto, aunque considero que es de menor relevancia, al menos hoy día. Es el hecho de que los periféricos "copiones" tipo Transtape y similares, usados en un Spectrum real para crear un snapshot, no pueden saber si el micro está en modo IM1 o IM2. Pueden saber si las interrupciones estaban habilitadas o no consultando el valor del flip-flop IFF2 al que se accede mediante el bit de paridad del registro F tras ejecutar una instrucción LD A,I ó LD A,R , pero no se puede saber directamente si el micro está en modo IM 0, IM1 ó IM 2.
+Aunque se use este sistema, hay aún un "peligro" oculto, aunque considero que es de menor relevancia, al menos hoy día. Es el hecho de que los periféricos "copiones" tipo Transtape y similares, usados en un Spectrum real para crear un snapshot, no pueden saber si el micro está en modo IM1 o IM2. Pueden saber si las interrupciones estaban habilitadas o no consultando el valor del flip-flop IFF2 al que se accede mediante el bit de paridad del registro F tras ejecutar una instrucción LD A,I ó LD A,R , pero no se puede saber directamente si el micro está en modo IM 0, IM1 ó IM 2.
 
-    En un emulador que cree snapshosts esto no es un problema, pero en un Spectrum real sí. Los "copiones" usan un método puramente heurístico que consiste en ver el valor de I: si dicho valor es mayor que 63, entonces asumen que el programa lo ha modificado con la intención de usar su propia ISR, por lo que graban el snapshot indicando que el micro estaba en modo IM 2. En cualquier otro caso, asumen IM 1.
+En un emulador que cree snapshots esto no es un problema, pero en un Spectrum real sí. Los "copiones" usan un método puramente heurístico que consiste en ver el valor de I: si dicho valor es mayor que 63, entonces asumen que el programa lo ha modificado con la intención de usar su propia ISR, por lo que graban el snapshot indicando que el micro estaba en modo IM 2. En cualquier otro caso, asumen IM 1.
 
-    Habría que ver el código de la ROM de los copiones más populares para ver qué condición chequean, ya que la otra opción es que asuman IM 1 sólamente cuando I valga 63 (el valor que la ROM pone por defecto) y asuman IM 2 en cualquier otro caso. Si es así como lo hacen, un snapshot de 16K con interrupciones se generará con la información correcta.
+Habría que ver el código de la ROM de los copiones más populares para ver qué condición chequean, ya que la otra opción es que asuman IM 1 sólamente cuando I valga 63 (el valor que la ROM pone por defecto) y asuman IM 2 en cualquier otro caso. Si es así como lo hacen, un snapshot de 16K con interrupciones se generará con la información correcta.
 
 
 

@@ -111,7 +111,7 @@ Las etiquetas son muy útiles no sólo por motivos de legibilidad del código. I
     LD B, 10
     LD A, 20
     NOP
-    (...)
+    ;(...)
     JP 50004   ; La dirección de salto cambia
     RET
 
@@ -125,25 +125,25 @@ Como veremos posteriormente, la instrucción JP realiza un salto de ejecución d
     
     ; Al salir de esta rutina, A=tecla pulsada
     RutinaLeerTeclado:
-    (instrucciones)    ; Aquí código
+    ;(instrucciones)    ; Aquí código
     RET
     
     ; Saltar (JP) a esta rutina con:
     ;  HL = Sprite a dibujar
     ;  DE = Direccion en pantalla donde dibujar
     RutinaDibujarSprite:
-    (...)
+    ;(...)
     bucle1:
-        (instrucciones)
+        ;(instrucciones)
     bucle2:
-        (instrucciones)
+        ;(instrucciones)
     pintar:
-        (instrucciones)
+        ;(instrucciones)
         JP bucle1
-    (...)
+        ;resto omitido
     salir:
     RET
-    (etc...)
+        ;etc...
 
 Así, podremos especificar múltiples etiquetas para hacer referencia a todas las posiciones que necesitemos dentro de nuestro programa.
 
@@ -277,7 +277,7 @@ Ahora bien, es muy importante tener clara una consideración: los datos que intr
     datos DB 00, 201, 100, 12, 255, 11
     
     LD B, A
-    (más instrucciones)
+    ;(más instrucciones)
     RET
  
 Lo correcto sería:
@@ -289,7 +289,7 @@ Lo correcto sería:
     ; Ahora el salto a 50000 ejecutará el LD B, A, no los
     ; datos que habíamos introducido antes.
     LD B, A
-    (más instrucciones)
+    ;(más instrucciones)
     RET
 
     ; Aquí nunca serán ejecutados, el RET está antes.
@@ -685,14 +685,14 @@ Finalmente, destacar que nada nos impide el hacer comparaciones multiples o anid
         JR Z, A_Igual_a_C     ; THEN goto A_Igual_a_C
         JP Fin                ; si no, salimos
     A_Igual_a_B:
-        ;;; (...)
+        ; (Omitido)
         JR Fin
         
     A_Igual_a_C:
-        ;;; (...)
+        ; (Omitido)
         
     Fin:
-        (resto del programa)
+        ;(resto del programa)
 
 La instrucción CP afecta a todos los flags::
 
@@ -760,7 +760,7 @@ A la hora de utilizar instrucciones condicionales hay que tener en cuenta que no
         
         LD BC, 1000        ; BC = 1000
     bucle:
-        (...)
+        ; (Omitido...)
     
         DEC BC             ; BC = BC-1 (pero NO ALTERA el Carry Flag)
         JR NZ, bucle       ; Nunca se pondrá a uno el ZF, siempre salta
@@ -774,7 +774,7 @@ Podemos realizar algo similar al ejemplo anterior aprovechándonos (de nuevo) de
         LD BC, 1000        ; BC = 1000
  
     bucle:
-        (...)
+        ; (Omitido...)
         DEC BC             ; Decrementamos BC. No afecta a F.
         LD A, B            ; A = B
         OR C               ; A = A OR C 

@@ -491,11 +491,8 @@ A continuación podemos ver el código desensamblado de la rutina LD-BYTES ($055
 
 El primero es poder comprender de forma exácta cómo funciona la carga de datos desde cinta y los tiempos que se manejan en dicha carga. El segundo es el de reproducir la rutina en nuestro programa y añadir funciones adicionales como un contador de carga o incluso algún tipo de minijuego durante la misma.
 
-El código comentado está extraído del documento "The Complete Spectrum ROM Disassembly", de Ian Logan y Frank O'Hara.
-
-
-.. code-block:: tasm
-        
+El código comentado está extraído del documento "The Complete Spectrum ROM Disassembly", de Ian Logan y Frank O'Hara::
+       
     ; THE 'LD-BYTES' SUBROUTINE
     ; This subroutine is called to LOAD the header information (from 07BE)
     ; and later LOAD, or VERIFY, an actual block of data (from 0802).

@@ -24,6 +24,7 @@ Tutorial de ensamblador para ZX Spectrum
    12_paginacion/paginacion
    13_graficos_01/graficos
    14_graficos_02/graficos_02
+   15_graficos_03/graficos_03
    a0_tablas_instrucciones/a0_tablas_instrucciones
 
 Indices y tablas

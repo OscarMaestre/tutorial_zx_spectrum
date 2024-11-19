@@ -35,7 +35,7 @@ Por ejemplo, podemos guardar el valor que contiene un registro en la pila si ten
     PUSH BC         ; Guardamos el contenido de BC en la pila
 
     LD BC, 2000
-    (...)           ; Operamos con BC 
+    ; Omitido. Operamos con BC 
 
     LD HL, 0
     ADD HL, BC      ; y ya podemos guardar el resultado de la operación
@@ -187,7 +187,8 @@ La pila resulta muy útil para gran cantidad de tareas en programas en ensamblad
 
     PUSH BC       ; Guardamos el valor de BC
     
-    (código)      ; Hacemos operaciones
+    ;Código omitido
+    ;Hacemos operaciones
     
     POP BC        ; Recuperamos el valor que teníamos en BC
 
@@ -224,7 +225,7 @@ En ensamblador podríamos hacer:
         PUSH BC                 ; Nos guardamos el valor de BC
         LD B, 100               ; Iteraciones del bucle interno
     bucle_interno:
-        (... código ...)
+        ; (... código ...)
         DJNZ bucle_interno      ; FOR J=0 TO 100
         POP BC                  ; Recuperamos el valor de B
     
@@ -242,7 +243,7 @@ Hay que tener en cuenta que PUSH y POP implican escribir en memoria (en la direc
     
         LD B, 100               ; Iteraciones del bucle interno
     bucle_interno:
-        (... código ...)        ; En este codigo no podemos usar D
+        ; En este codigo no podemos usar D
         DJNZ bucle_interno      ; FOR J=0 TO 100
     
         LD B, D                 ; Recuperamos el valor de B
@@ -288,7 +289,7 @@ Veamos algunos ejemplos de "errores" con la pila. Empecemos con el típico PUSH 
     PUSH BC
     PUSH DE
 
-    (código)
+    ; (código omitido)
 
     POP DE
     RET          ; En lugar de volver a la dirección de memoria
@@ -302,7 +303,7 @@ También hay que tener cuidado con los bucles:
 
     bucle:
         PUSH BC         ; Nos queremos guardar BC
-        (código que usa B)
+        ; código que usa B
     
         JR flag, bucle
         POP BC
@@ -313,7 +314,7 @@ En ese código hacemos múltiples PUSHes pero un sólo POP. Probablemente, en re
 
     bucle:
         PUSH BC         ; Nos queremos guardar BC
-        (código)
+        ;código omitido
     
         POP BC
         JR flag, bucle
@@ -324,7 +325,7 @@ O bien:
 
         PUSH BC         ; Nos queremos guardar BC
     bucle:
-        (código)
+        ;código omitido
     
         JR flag, bucle
         POP BC
@@ -385,7 +386,7 @@ Pero, ¿cómo llamamos a las subrutinas y volvemos de ellas? Comencemos probando
         LD A, 35
         JP SUMA_A_10
     volver1:
-        (...)
+        omitido
         
         ; SUMA_A_10
         ; SUMA 10 a A y devuelve el resultado en B
@@ -408,7 +409,7 @@ Pero ... ¿qué pasaría si quisieramos volver a llamar a la subrutina desde otr
         LD A, 50
         JP SUMA_A_10
                         ; Nunca llegariamos a volver aqui
-        (...)
+        resto de la rutina
     SUMA_A_10:
         ADD A, 10         ; A = A + 10
         LD B, A           ; B = A
@@ -452,7 +453,7 @@ Veamos la aplicación de CALL y RET con nuestro ejemplo anterior:
     
         LD C, B
         
-        (...)
+        resto de la rutina
         
     SUMA_A_10:
         ADD A, 10         ; A = A + 10
@@ -501,9 +502,8 @@ Para eso, utilizamos las siguientes instrucciones:
 * RET flag : Vuelve sólo si FLAG está activo.
 
 
-Por ejemplo, supongamos que una de nuestras subrutinas tiene que comprobar que uno de los parámetros que le pasamos, BC, no sea 0.
+Por ejemplo, supongamos que una de nuestras subrutinas tiene que comprobar que uno de los parámetros que le pasamos, BC, no sea 0::
 
-.. code-block:: tasm
 
     ; Copia_Pantalla:
     ;
@@ -580,9 +580,7 @@ d)  Qué registros modifica además de los de entrada y salida.
 
 Con este tipo de paso de parámetros tenemos el mayor ahorro y la mayor velocidad: no se accede a la pila y no se accede a la memoria, pero por contra tenemos que tenerlo todo controlado. Tendremos que saber en cada momento qué parámetros de entrada y de salida utiliza (de ahí la importancia del comentario explicativo, al que acudiremos más de una vez cuando no recordemos en qué registros teníamos que pasarle los datos de entrada), y asegurarnos de que ninguno de los registros "extra" que modifica están en uso antes de llamar a la función, puesto que se verán alterados.
 
-Si no queremos que la función modifique muchos registros además de los de entrada y salida, siempre podemos poner una serie de PUSH y POP en su inicio y final, al estilo:
-
-.. code-block:: tasm
+Si no queremos que la función modifique muchos registros además de los de entrada y salida, siempre podemos poner una serie de PUSH y POP en su inicio y final, al estilo::
 
     MiFuncion:
         PUSH BC
@@ -604,9 +602,7 @@ Método 2: Uso de localidades de memoria
 
 Aunque no es una opción especialmente rápida, el uso de variables o posiciones de memoria para pasar y recoger parámetros de funciones es bastante efectivo y sencillo. Nos ahorra el uso de muchos registros, y hace que podamos usar dentro de las funciones prácticamente todos los registros. Se hace especialmente útil usando el juego de registros alternativos.
 
-Por ejemplo:
-
-.. code-block:: tasm
+Por ejemplo::
 
         LD A, 10
         LD (x), A
@@ -979,9 +975,8 @@ Tras esto, ya tenemos el "esqueleto del programa". Y ahora hay que rellenar ese 
 
 Por ejemplo, supongamos que nuestro juego tiene que poder dibujar sprites y pantallas hechas a bases de bloques que se repiten (tiles). Gracias a nuestro diseño, sabemos que necesitamos una rutina que imprima un sprite, una rutina que dibuje un tile y una rutina que dibuje una pantalla llena de tiles.
 
-Pues bien, creamos un programa en ASM nuevo, desde cero, y en él creamos una función DrawSprite que acepte como parámetros la dirección origen de los datos del Sprite, y las posiciones X e Y donde dibujarlo, y la realizamos. En este nuevo programa, pequeño, sencillo de leer, realizamos todo tipo de pruebas:
+Pues bien, creamos un programa en ASM nuevo, desde cero, y en él creamos una función DrawSprite que acepte como parámetros la dirección origen de los datos del Sprite, y las posiciones X e Y donde dibujarlo, y la realizamos. En este nuevo programa, pequeño, sencillo de leer, realizamos todo tipo de pruebas::
 
-.. code-block:: tasm
 
     ORG 50000
     

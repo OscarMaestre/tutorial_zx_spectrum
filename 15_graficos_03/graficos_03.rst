@@ -188,3 +188,226 @@ Aunque trataremos de optimizar las rutinas en la medida de lo posible, se va a i
 En este sentido, en alguna de las rutinas utilizaremos variables en memoria para alojar datos de entrada o datos temporales o intermedios. Aunque acceder a la memoria es “lenta” comparada con tener los datos guardados en registros, cuando comenzamos a manejar muchos parámetros de entrada (y de trabajo) en una rutina y además hay que realizar cálculos con ellos, es habitual que agotemos los registros disponibles, más todavía teniendo en cuenta la necesidad de realizar dichos cálculos. En muchas ocasiones se acaba realizando uso de la pila con continuos PUSHes y POPs destinados a guardar valores y recuperarlos posteriormente a realizar los cálculos o en ciertos puntos de la rutina.
 
 Las instrucciones PUSH y POP toman 11 y 10 t-estados respectivamente, mientras que escribir o leer un valor de 8 bits en memoria (ld (NN), a y ld a, (NN)) requiere 13 t-estados y escribir o leer un valor de 16 bits toma 20 t-estados ld (NN), rr y ld rr, (NN)) con la excepción de ld (NN), hl que cuesta 16 t-estados. 
+
+
++--------------------+---------------------+
+| Instrucción        | Tiempo en t-estados |
++====================+=====================+
+| push rr            | 11                  |
++--------------------+---------------------+
+| push ix o push iy  | 16                  |
++--------------------+---------------------+
+| pop rr             | 10                  |
++--------------------+---------------------+
+| pop ix o pop iy    | 14                  |
++--------------------+---------------------+
+| ld (NN), a         | 13                  |
++--------------------+---------------------+
+| ld a, (NN)         | 13                  |
++--------------------+---------------------+
+| ld rr, (NN)        | 20                  |
++--------------------+---------------------+
+| ld (NN), rr        | 20                  |
++--------------------+---------------------+
+| ld (NN), hl        | 16                  |
++--------------------+---------------------+
+
+Aunque es una diferencia apreciable, no siempre podemos obtener una “linealidad” de uso de la pila que requiera un POP por cada PUSH, por lo que en ocasiones se hace realmente cómodo y útil el aprovechar variables de memoria para diseñar las rutinas.
+
+En nuestro caso utilizaremos algunas variables de memoria para facilitar la lectura de las rutinas: serán más sencillas de seguir y más intuitivas a costa de algunos ciclos de reloj. No deja de ser cierto también que los programadores en ocasiones nos obsesionamos por utilizar sólo registros y acabamos realizando combinaciones de intercambios de valores en registros y PUSHes/POPs que acaban teniendo más coste que la utilización de variables de memoria.
+
+El programador profesional tendrá que adaptar cada rutina a cada caso específico de su programa y en este proceso de optimización podrá (o no) sustituir dichas variables de memoria por combinaciones de código que eviten su uso, aunque no siempre es posible dado el reducido juego de registros del Z80A.
+
+Finalmente, recordar que las rutinas que veremos en este capítulo pueden ser ubicadas en memoria y llamadas desde BASIC. Una vez ensambladas y POKEadas en memoria, podemos hacer uso de ellas utilizando POKE para establecer los parámetros de llamada y RANDOMIZE USR DIR_RUTINA para ejecutarlas. A lo largo de la vida de revistas como Microhobby se publicaron varios paquetes de rutinas de gestión de Sprites en ensamblador que utilizan este método y que estaban pensadas para ser utilizadas tanto desde código máquina como desde BASIC.
+
+
+Organización de los sprites en memoria
+--------------------------------------------------------------------------------
+
+
+
+Como ya hemos visto, una vez diseñados los diferentes sprites de nuestro juego hay que agruparlos en un formato que después, convertidos a datos binarios, pueda interpretar nuestra rutina de impresión.
+
+Hay 4 decisiones principales que tomar al respecto:
+
+
+* Formato de organización del tileset (lineal o en forma de matriz/imagen).
+* Formato de almacenamiento de cada tile (por bloques, por scanlines).
+* Formato de almacenamiento de los atributos (después de los sprites, intercalados con ellos).
+* Formato de almacenamiento de las máscaras de los sprites si las hubiera.
+
+
+El formato de organización del tileset no debería requerir mucho tiempo de decisión: la organización del tileset en formato lineal es mucho más eficiente para las rutinas de impresión de sprites que el almacenamiento en una “imagen” rectangular. Teniendo todos los sprites (o tiles) en un único vector, podemos hacer referencia a cualquier bloque, tile, sprite o cuadro de animación mediante un identificador numérico.
+
+De esta forma, el “bloque 0” puede ser un bloque vacío, el bloque “1” el primer fotograma de animación de nuestro personaje, etc.
+
+Donde sí debemos tomar decisiones importantes directamente relacionadas con el diseño de la rutina de impresión de Sprites es en la organización en memoria de los datos gráficos del sprite y sus atributos (y la máscara si la hubiera). El formato de almacenamiento de los tiles, los atributos y los datos de máscara definen la exportación de los datos desde el editor de Sprites y cómo debe de trabajar la rutina de impresión.
+
+Veamos con un ejemplo práctico las distintas opciones de que disponemos. Para ello vamos a definir un ejemplo basado en 2 sprites de 16×8 pixeles (2 bloques de ancho y 1 de alto, para simplificar). Marcaremos cada scanline de cada bloque con una letra que representa el valor de 8 bits con el estado de los 8 píxeles, de forma que podamos estudiar las posibilidades existentes.
+
+Así, los 16 píxeles de la línea superior del sprite (2 bytes), los vamos a identificar como “A1” y “B1”. Los siguientes 16 píxeles (scanline 2 del sprite y de cada uno de los 2 bloques), serán los bytes “C1” y “D1”, y así sucesivamente::
+
+    Datos gráficos Sprite 1:
+    | A1 | B1 |
+    | C1 | D1 |
+    | E1 | F1 |
+    | G1 | H1 |
+    | I1 | J1 |
+    | K1 | L1 |
+    | M1 | N1 |
+    | O1 | P1 |
+
+    Atributos Sprite 1:
+    | S1_Attr1 | S1_Attr2 |
+
+Y::
+
+    Datos gráficos Sprite 2:
+    | A2 | B2 |
+    | C2 | D2 |
+    | E2 | F2 |
+    | G2 | H2 |
+    | I2 | J2 |
+    | K2 | L2 |
+    | M2 | N2 |
+    | O2 | P2 |
+
+    Atributos Sprite 1:
+    | S2_Attr1 | S2_Attr2 |
+
+Al organizar los datos gráficos y de atributos en disco, podemos hacerlo de 2 formas:
+
+
+Utilizando 2 arrays: uno con los datos gráficos y otro con los atributos, organizando la información horizontal por scanlines del sprite. Todos los datos gráficos o de atributo de un mismo sprite son consecutivos en memoria y el “salto” se hace al acabar cada scanline completo del sprite (no de cada bloque). La rutina de impresión recibe como parámetro la dirección de inicio de ambas tablas y traza primero los gráficos y después los atributos::
+
+    Tabla_Sprites:
+        DB A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1
+        DB L1, M1, N1, O1, P1, A2, B2, C2, D2, E2, F2
+        DB G2, H2, I2, J2, K2, L2, M2, N2, O2, P2
+
+    Tabla_Atributos:
+        DB S1_Attr1, S1_Attr2, S2_Attr1, S2_Attr2
+
+
+Utilizando un único array: Se intercalan los atributos dentro del array de gráficos, detrás de cada Sprite. La rutina de impresión calculará en el array el inicio del sprite a dibujar y encontrará todos los datos gráficos de dicho sprite seguidos a partir de este punto. Al acabar de trazar los datos gráficos, nos encontramos directamente en el vector con los datos de atributo del sprite que estamos tratando::
+
+    Tabla_Sprites:
+        DB A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1
+        DB L1, M1, N1, O1, P1, S1_Attr1, S1_Attr2, A2
+        DB B2, C2, D2, E2, F2, G2, H2, I2, J2, K2, L2
+        DB M2, N2, O2, P2, S2_Attr1, S2_Attr2
+
+Finalmente, no debemos olvidarnos de que si utilizamos máscaras de sprite también deberemos incluirlas en nuestro “array de datos” (o sprite set). El dónde ubicar cada scanline de la máscara depende, de nuevo, de nuestra rutina de impresión. Una primera aproximación sería ubicar cada byte de máscara antes o después de cada dato del sprite, para que podamos realizar las pertinentes operaciones lógicas entre la máscara, el fondo y el sprite.
+
+Si denominamos “XX” a los datos de la máscara del sprite 1 y “YY” a los datos de máscara del sprite 2, nuestra tabla de datos en memoria quedaría de la siguiente forma::
+
+    ; Formato: Una única tabla:
+    Tabla_Sprites:
+        DB XX, A1, XX, B1, XX, C1, XX, D1, XX, E1, XX, F1, XX, G1
+        DB XX, H1, XX, I1, XX, J1, XX, K1, XX, L1, XX, M1, XX, N1
+        DB XX, O1, XX, P1, S1_Attr1, S1_Attr2
+        DB YY, A2, YY, B2, YY, C2, YY, D2, YY, E2, YY, F2, YY, G2
+        DB YY, H2, YY, I2, YY, J2, YY, K2, YY, L2, YY, M2, YY, N2
+        DB YY, O2, YY, P2, S2_Attr1, S2_Attr2
+
+    ; Formato: Dos tablas:
+    Tabla_Sprites:
+        DB XX, A1, XX, B1, XX, C1, XX, D1, XX, E1, XX, F1, XX, G1
+        DB XX, H1, XX, I1, XX, J1, XX, K1, XX, L1, XX, M1, XX, N1
+        DB XX, O1, XX, P1, YY, A2, YY, B2, YY, C2, YY, D2, YY, E2
+        DB YY, F2, YY, G2, YY, H2, YY, I2, YY, J2, YY, K2, YY, L2
+        DB YY, M2, YY, N2, YY, O2, YY, P2
+
+    Tabla_Atributos:
+        DB S1_Attr1, S1_Attr2, S2_Attr1, S2_Attr2
+
+
+Para las rutinas que crearemos como ejemplo utilizaremos el formato lineal horizontal mediante 2 tablas, una con los gráficos y otra con los atributos de dichos gráficos. En las rutinas con máscara, intercalaremos los datos de máscara antes de cada dato del sprite, como acabamos de ver. Es el formato más sencillo para la generación de los gráficos y para los cálculos en las rutinas, y por tanto el elegido para mostrar rutinas comprensibles por el lector.
+
+Sería posible también almacenar la información del sprite por columnas (formato lineal vertical), lo cual requeriría rutinas diferentes de las que vamos a ver en este capítulo.
+
+A continuación hablaremos sobre el editor de Sprites SevenuP y veremos de una forma gráfica el formato de organización lineal-horizontal de datos en memoria, y cómo un gráfico de ejemplo se traduce de forma efectiva en un array de datos con el formato deseado. 
+
+
+Conversion de datos graficos a códigos dibujables
+--------------------------------------------------------------------------------
+
+
+
+Para diseñar los sprites de nuestro juego necesitaremos utilizar un editor de Sprites. Existen editores de sprites nativos en el Spectrum, pero esa opción nos podría resultar realmente incómoda por usabilidad y gestión de los datos (se tendría que trabajar en un emulador o la máquina real y los datos sólo se podrían exportar a cinta o a TAP/TZX).
+
+Lo ideal es utilizar un Editor de Sprites nativo de nuestra plataforma cruzada de desarrollo que permita el dibujado en un entorno cómodo y la exportación de los datos a código “.asm” (ristras de DBs) que incluir directamente en nuestro ensamblador.
+
+Nuestra elección principal para esta tarea es SevenuP, de metalbrain. Nos decantamos por SevenuP por su clara orientación al dibujo “al pixel” y sus opciones para el programador, especialmente el sistema de exportación de datos a C y ASM y la gestión de máscaras y frames de animación. Además, SevenuP funciona bajo múltiples Sistemas Operativos, siendo la versión para Microsoft Windows emulable también en implementaciones como WINE de GNU/Linux.
+
+Para el propósito de este capítulo (y, en general durante el proceso de creación de un juego), dibujaremos en SevenuP nuestro spriteset con los sprites distribuídos verticalmente (cada sprite debajo del anterior). Crearemos un nuevo “sprite” con File → New e indicaremos el ancho de nuestro sprite en pixels y un valor para la altura que nos permita alojar suficientes sprites en nuestro tileset. 
+
+
+
+.. figure:: gfx3_sevenup_vertical.png
+   :scale: 50%
+   :align: center
+   :alt: Gráficos en vertical
+
+   Gráficos en vertical
+
+
+Por ejemplo, para guardar la información de 10 sprites de 16×16 crearíamos un nuevo sprite de 16×160 píxeles. Si nos vemos en la necesidad de ampliar el sprite para alojar más sprites podremos “cortar” los datos gráficos, crear una imagen nueva con un tamaño superior y posteriormente pegar los datos gráficos cortados. La documentación de SevenUp explica cómo copiar y pegar::
+
+    Modo de Selección 1:
+    ====================
+
+    Set Pixel/Reset Pixel
+    El botón izquierdo pone los pixels a 1.
+    El botón derecho pone los pixels a 0.
+    Atajo de teclado: 1
+
+
+    Modo de Selección 2:
+    ====================
+
+    Toggle Pixel/Select Zone
+    El botón izquierdo cambia el valor de los pixels entre 0 y 1.
+    El botón derecho controla la selección. Para seleccionar una zona,
+    se hace click-derecho en una esquina, click-derecho en la opuesta y ya
+    tenemos una porción seleccionada. La zona seleccionada será algo mas
+    brillante que la no seleccionada y las rejillas (si están presentes)
+    se verán azules. Ahora los efectos solo afectarán a la zona seleccionada,
+    y se puede copiar esta zona para pegarla donde sea o para usarla como
+    patrón en el relleno con textura. Un tercer click-derecho quita la
+    selección:
+
+    Atajo de teclado: 2
+
+    Copy
+    Copia la zona seleccionada (o el gráfico completo si no hay zona seleccionada)
+    a la memoria intermedia para ser pegada (en el mismo gráfico o en otro) o para
+    ser usada como textura de relleno. Atajo de teclado: CTRL+C.
+
+    Paste
+    Activa/desactiva el modo de pegado, que pega el gráico de la memoria intermedia
+    a la posición actual del ratón al pulsar el botón izquierdo. Los atributos solo
+    se pegan si el pixel de destino tiene la misma posición dentro del carácter que
+    la fuente de la copia. Con el botón derecho se cancela el modo de pegado. Atajo
+    de teclado: CTRL+V.
+
+Otra opción es trabajar con un fichero .sev por cada sprite del juego, aprovechando así el soporte para “fotogramas” de SevenuP. No obstante, suele resultar más cómodo mantener todos los sprites en un único fichero con el que trabajar ya que podemos exportar todo con una única operación y nos evita tener que “mezclar” las múltiples exportaciones de cada fichero individual.
+
+Mediante el ratón (estando en modo 1) podemos activar y desactivar píxeles y cambiar el valor de tinta y papel de cada recuadro del Sprite. El menú de máscara nos permite definir la máscara de nuestros sprites, alternando entre la visualización del sprite y la de la máscara.
+
+El menú de efectos nos permite ciertas operaciones básicas con el sprite como la inversión, rotación, efecto espejo horizontal o vertical, rellenado, etc.
+
+Es importante que guardemos el fichero en formato .SEV pues es el que nos permitirá realizar modificaciones en los gráficos del programa y una re-exportación a ASM si fuera necesario.
+
+Antes de exportar los datos a ASM, debemos definir las opciones de exportación en File → Output Options:
+
+
+
+.. figure:: gfx3_opciones_export_su.png
+   :scale: 50%
+   :align: center
+   :alt: Opciones de exportación.
+
+   Opciones de exportación.
+
+
